@@ -1,0 +1,59 @@
+{
+  "name": "custodian-popup",
+  "version": "1.0.0",
+  "description": "High level custodian tools for webapp usage",
+  "main": "popup.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitex-la/custodian-popup.git"
+  },
+  "author": "Bitex <http://bitex.la>",
+  "license": "MIT",
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015"
+          ],
+          "plugins": [
+            "transform-flow-strip-types",
+            "transform-class-properties",
+            "transform-object-rest-spread",
+            "add-module-exports"
+          ]
+        }
+      ]
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/bitex-la/custodian-popup/issues"
+  },
+  "homepage": "https://github.com/bitex-la/custodian-popup",
+  "dependencies": {
+    "bip32-utils": "^0.6.2",
+    "bip44-constants": "^2.3.0",
+    "bitcoinjs-lib-zcash": "^2.3.1",
+    "bowser": "^1.0.0",
+    "cb-insight": "^0.1.0",
+    "es6-promise": "^2.3.0",
+    "hd-wallet": "1.0.13-backfix-bitcore3",
+    "trezor.js": "6.1.0",
+    "whatwg-fetch": "^0.11.0",
+    "@intercellular/cell": "^1.0.0",
+    "jquery": "^3.2.1"
+  },
+  "devDependencies": {
+    "babel-plugin-add-module-exports": "^0.1.2",
+    "babel-plugin-transform-class-properties": "^6.4.0",
+    "babel-plugin-transform-flow-strip-types": "^6.4.0",
+    "babel-plugin-transform-object-rest-spread": "^6.3.13",
+    "babel-preset-es2015": "^6.3.13",
+    "babelify": "^7.2.0",
+    "browserify": "^13.1.1",
+    "exorcist": "^0.4.0",
+    "uglifyify": "^3.0.1",
+    "watchify": "^3.6.0"
+  }
+}

@@ -1,0 +1,9 @@
+**.orig
+rerun.txt
+pickle-email-*.html
+*.swo
+*.swp
+.DS_Store
+.byebug_history
+node_modules/*
+trezor-crypto/*
