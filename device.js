@@ -208,9 +208,9 @@ function waitForFirstDevice(list) {
         if (device.isBootloader()) {
           throw DEVICE_IS_BOOTLOADER;
         }
-        if (!device.isInitialized()) {
+        /*if (!device.isInitialized()) {
           throw DEVICE_IS_EMPTY;
-        }
+        }*/
         if (!device.atLeast(requiredFirmware)) {
           // 1.3.0 introduced HDNodeType.xpub field
           // 1.3.4 has version2 of SignIdentity algorithm

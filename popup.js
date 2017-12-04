@@ -20,8 +20,18 @@ window.app = {
     {
       $type: 'button',
       $text: 'Push me',
-      //onclick: function(){ getXpubKey([0,0]) }
-      onclick: function(){ showError("Wow") }
+      onclick: function(){ getXpubKey([0,0]) }
+    },
+    {
+      $type: 'button',
+      $text: 'Debugger',
+      onclick: function(){
+        device.run( function(d){
+          d.session.wipeDevice().then(function(){
+            d.session.loadDevice({mnemonic: "bitex-stg-22-may", skip_checksum: true}).then(function(){ debugger })
+          })
+        })
+      }
     }
   ]
 }
@@ -36,16 +46,20 @@ function getXpubKey(path){
   path = path.map((i) => i >>> 0)
   
   device.run((d) => {
-    return d.session.getPublicKey(path).then((result) => {
-      let {message: {xpub, node}} = result
-      console.log("Xpub was", {
-        success: true,
-        xpubkey: xpub,
-        chainCode: node.chain_code,
-        publicKey: node.public_key,
-        path
+    debugger
+    return d.session
+      .getPublicKey(path)
+      .then((result) => {
+        let {message: {xpub, node}} = result
+        console.log("Xpub was", {
+          success: true,
+          xpubkey: xpub,
+          chainCode: node.chain_code,
+          publicKey: node.public_key,
+          pretty: xpubKeyLabel(path),
+          path: path
+        })
       })
-    })
   })
 }
 
