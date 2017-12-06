@@ -14,6 +14,14 @@ export function showError(text){
   message("danger", text, null, true)
 }
 
+export function showInfo(text){
+  message("info", text, null, true)
+}
+
+export function showSuccess(text){
+  message("success", text, null, true)
+}
+
 export function loading(){
   if($("#messages > .loading").length == 0){
     message("info", "Loading", 'loading')

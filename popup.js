@@ -1,39 +1,34 @@
-'use strict';
+'use strict'
 
 var $ = require('jquery')
-window.jQuery = window.$ = $;
+window.jQuery = window.$ = $
 var Popper = require('./lib/popper.min.js')
-window.Popper = Popper;
+window.Popper = Popper
 var bootstrap = require('./lib/bootstrap.min.js')
 
-import 'whatwg-fetch';
-import {Promise} from 'es6-promise';
+import 'whatwg-fetch'
+import {Promise} from 'es6-promise'
 
-import * as cell from '@intercellular/cell';
-import * as device from './device.js';
-import {showError, loading, notLoading} from './messages.js'
+import * as cell from '@intercellular/cell'
+import * as device from './device.js'
+import {showInfo, showError, loading, notLoading} from './messages.js'
+import {loadDeviceHandler} from './load_device_handler.js'
+import {debuggerHandler} from './debugger_handler.js'
+import * as helpers from './helpers.js'
 
 window.app = {
   $cell: true,
   $type: 'body',
+	class: 'container',
   $components: [
-    {
-      $type: 'button',
-      $text: 'Push me',
-      onclick: function(){ getXpubKey([0,0]) }
-    },
-    {
-      $type: 'button',
-      $text: 'Debugger',
-      onclick: function(){
-        device.run( function(d){
-          d.session.wipeDevice().then(function(){
-            d.session.loadDevice({mnemonic: "bitex-stg-22-may", skip_checksum: true}).then(function(){ debugger })
-          })
-        })
-      }
-    }
-  ]
+		helpers.tabs({
+			"Load Device": loadDeviceHandler('load_device'),
+			"Debugger": debuggerHandler('debugger')
+		})
+  ],
+	$init(){
+		helpers.show_tab('load_device')
+	}
 }
 
 cell.God.plan(window);
@@ -46,7 +41,6 @@ function getXpubKey(path){
   path = path.map((i) => i >>> 0)
   
   device.run((d) => {
-    debugger
     return d.session
       .getPublicKey(path)
       .then((result) => {
