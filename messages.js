@@ -1,6 +1,6 @@
 function message(type, text, extra, hide){
   if($("body > #messages").length == 0){
-    $("body").prepend("<div id='messages'/>")
+    $("body").prepend("<div id='messages' class='mt-2'/>")
   }
   
   let el = $(`<div class="alert alert-${type} ${extra}">${text}</div>`)

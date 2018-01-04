@@ -47,3 +47,37 @@ function tab_contents(tabs) {
     ))
   }
 }
+
+export function text_input_group(label, name, prefix, extra){
+  let id = `${prefix}_${name}`
+  return _.merge(extra, {
+    class: 'form-group',
+    $components: [
+      { $type: 'label', for: id, $text: label },
+      { name, id, $type: 'input', type: 'text', class: 'form-control' }
+    ]
+  })
+}
+
+export function select_group(label, name, prefix, options, selected, extra){
+  let id = `${prefix}_${name}`
+  return _.merge(extra, {
+    class: 'form-group',
+    $components: [
+      { $type: 'label', for: id, $text: label },
+      { name, id, $type: 'select', class: 'form-control',
+        $components: _.map(options, (name) => {
+          return {$type: 'option', $text: name, value: name}
+        })
+      }
+    ]
+  })
+}
+
+export function button(label, extra){
+  return _.merge(extra, {
+    $type: 'button',
+    class: 'btn btn-primary',
+    $text: label
+  })
+}

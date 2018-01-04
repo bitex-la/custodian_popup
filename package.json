@@ -32,17 +32,14 @@
   },
   "homepage": "https://github.com/bitex-la/custodian-popup",
   "dependencies": {
-    "bip32-utils": "^0.6.2",
     "bip44-constants": "^2.3.0",
-    "bitcoinjs-lib-zcash": "^2.3.1",
-    "bowser": "^1.0.0",
-    "cb-insight": "^0.1.0",
+    "bitcoinjs-lib": "^3.3.1",
+    "bip32-path": "0.4.2",
     "es6-promise": "^2.3.0",
-    "hd-wallet": "1.0.13-backfix-bitcore3",
     "trezor.js": "6.1.0",
-    "whatwg-fetch": "^0.11.0",
     "@intercellular/cell": "^1.0.0",
-    "jquery": "^3.2.1"
+    "jquery": "^3.2.1",
+    "lodash": "^4.17.4"
   },
   "devDependencies": {
     "babel-plugin-add-module-exports": "^0.1.2",

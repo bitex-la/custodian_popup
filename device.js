@@ -1,5 +1,5 @@
 import bowser from 'bowser';
-import * as bitcoin from 'bitcoinjs-lib-zcash';
+import * as bitcoin from 'bitcoinjs-lib';
 import * as hd from 'hd-wallet';
 import {pinHandler} from './pin_handler.js';
 import {passphraseHandler, blankPassphraseHandler} from './passphrase_handler.js';
@@ -11,7 +11,7 @@ var bip44 = require('bip44-constants')
 const CONFIG_URL = './config_signed.bin';
 
 export function run(callback, {omit_pass} = {}){
-  initDevice({omit_pass})
+  return initDevice({omit_pass})
     .then(callback)
     .catch((error) => {
       showError(error)

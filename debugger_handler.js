@@ -1,5 +1,8 @@
 import * as device from './device.js'
 import {showSuccess} from './messages.js'
+import * as bitcoin from 'bitcoinjs-lib'
+import {showError, loading, notLoading} from './messages.js'
+let bip32 = require('bip32-path')
 
 export function debuggerHandler(id){
   return {
