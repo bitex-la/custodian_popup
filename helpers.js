@@ -1,7 +1,4 @@
 export function tabs(items){
-  Object.entries(items).map(function([label, content]){
-    if(!content.id){ throw 'Tab panels need id' }
-  })
   return { $components: [nav(items), tab_contents(items)] }
 }
 
