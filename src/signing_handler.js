@@ -5,7 +5,7 @@ import {showError, showSuccess, loading, notLoading} from './messages.js'
 import {update_epidemic} from './lib/update_epidemic.js'
 var bip32 = require('bip32-path')
 var _ = require('lodash')
- 
+
 window.bitcoin = bitcoin
 
 export function signingHandler(){
@@ -17,7 +17,7 @@ export function signingHandler(){
     _rawtx: null,
     $update(){
       if(this._rawtx){
-        this.$build({ 
+        this.$build({
           class: 'alert alert-secondary',
           $type: 'textarea',
           cols: 100,
@@ -129,7 +129,7 @@ function exampleSpendAddressJson(){
 					{ amount: 130000000,
 						script_pubkey: "76a9140b3517e6562623042f7ae1fa9da19d3106841a8a88ac" // HEX, not ASM.
 					},
-					{ amount: 6922866917, 
+					{ amount: 6922866917,
 						script_pubkey: "a91490a8548f36918a89d39d7eb0a8c8b3f095478e8987" // HEX, not ASM.
 					}
 				]
@@ -177,8 +177,8 @@ function exampleSpendMultisigJson(){
 						{ address_n: [0,1,2,3],
 							node: {
 								chain_code: 'd364df6dcc9820f950eac24ec69d93baafb5460125ff4c8e317fa6e4d986abef',
-								depth: 0, 
-								child_num: 0, 
+								depth: 0,
+								child_num: 0,
 								fingerprint: 0,
 								public_key: '03fadcfdfe7f51a270b32f7b6b50b4f3a0110d25c9618671325032306718eb339e',
 							}
@@ -186,8 +186,8 @@ function exampleSpendMultisigJson(){
 						{ address_n: [0,1,2,3],
 							node: {
 								chain_code: 'b92f6b8caa1b3200a4ea3f1e1f3ac04d79c4e403c3e720e41f709df2f9ea54b5',
-								depth: 0, 
-								child_num: 0, 
+								depth: 0,
+								child_num: 0,
 								fingerprint: 0,
 								public_key: '02fc1a4e7dee10774671401869c55556559d675dfcb87b4ca0082ee29729329966',
 							}
@@ -195,8 +195,8 @@ function exampleSpendMultisigJson(){
 						{ address_n: [0,1,2,3],
 							node: {
 								chain_code: '357308f6dc5518a1129d3cc21e9543e2e1e5cd14dc2b1304ce80b83af182beed',
-								depth: 0, 
-								child_num: 0, 
+								depth: 0,
+								child_num: 0,
 								fingerprint: 0,
 								public_key: '02afe5d9f00ac1b2a1524327e4b4c53eeb59e0e76671820b5b1a1e53edf40e234f',
 							}
@@ -220,7 +220,7 @@ function exampleSpendMultisigJson(){
 					{ amount: 130000000,
 						script_pubkey: "76a9140b3517e6562623042f7ae1fa9da19d3106841a8a88ac" // HEX, not ASM.
 					},
-					{ amount: 6922866917, 
+					{ amount: 6922866917,
 						script_pubkey: "a91490a8548f36918a89d39d7eb0a8c8b3f095478e8987" // HEX, not ASM.
 					}
 				]
@@ -239,7 +239,7 @@ function exampleSpendMultisigJson(){
 					{ amount: 65000000,
 						script_pubkey: "a914f4a331fa20dba4c41606f99482431e75664c5cf387" // HEX, not ASM.
 					},
-					{ amount: 7393167766, 
+					{ amount: 7393167766,
 						script_pubkey: "a914c2585ba5b2f3c27063b8f0a36e376eefcfcd4bff87" // HEX, not ASM.
 					}
 				]

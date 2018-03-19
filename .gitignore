@@ -7,3 +7,5 @@ pickle-email-*.html
 .byebug_history
 node_modules/*
 trezor-crypto/*
+build/*
+!build/.gitkeep

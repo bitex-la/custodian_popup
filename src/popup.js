@@ -1,10 +1,10 @@
 'use strict'
 
-var $ = require('jquery')
+import $ from 'jquery'
 window.jQuery = window.$ = $
-var _ = require('lodash')
+import _  from 'lodash'
 window._ = _
-var Popper = require('./lib/popper.min.js')
+import Popper from './lib/popper.min.js'
 window.Popper = Popper
 import * as bitcoin from 'bitcoinjs-lib'
 window.bitcoin = bitcoin
@@ -12,7 +12,6 @@ require('./lib/bootstrap.min.js')
 
 import {Promise} from 'es6-promise'
 
-import * as cell from '@intercellular/cell'
 import * as device from './device.js'
 import {showInfo, showError, loading, notLoading} from './messages.js'
 import {loadDeviceHandler} from './load_device_handler.js'
@@ -26,19 +25,16 @@ window.app = {
   $cell: true,
   $type: 'body',
   $virus: hamlism,
-	class: 'container',
+  class: 'container',
   $components: [
-		helpers.tabs({
-			"Multisig Setup": multisigSetupHandler('multisig_setup'),
-			"Signing": signingHandler(),
-			"Load Device": loadDeviceHandler('load_device'),
-			"Debugger": debuggerHandler('debugger')
-		})
+    helpers.tabs({
+      "Multisig Setup": multisigSetupHandler('multisig_setup'),
+      "Signing": signingHandler(),
+      "Load Device": loadDeviceHandler('load_device'),
+      "Debugger": debuggerHandler('debugger')
+    })
   ],
-	$init(){
-		helpers.show_tab('signing')
-	}
+  $init(){
+    helpers.show_tab('signing')
+  }
 }
-
-cell.God.plan(window);
-window.addEventListener('load', function(){ cell.God.create(this) });
