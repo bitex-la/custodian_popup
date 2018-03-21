@@ -2,67 +2,74 @@ import * as device from './device.js'
 import * as helpers from './helpers.js'
 import * as bitcoin from 'bitcoinjs-lib'
 import {showError, loading, notLoading} from './messages.js'
+import {buttonism, select_groupism, form_groupism} from './lib/bootstrapism.js'
+import {update_epidemic} from './lib/update_epidemic.js'
 var bip32 = require('bip32-path')
 var _ = require('lodash')
  
 window.bitcoin = bitcoin
 
-export function multisigSetupHandler(id){
+export function multisigSetupHandler(){
+  let id = 'multisig_setup'
   return {
-    id: id,
+    id: 'multisig_setup',
+    $virus: update_epidemic,
+    _network_name: 'bitcoin',
     _hdNodes: [],
     _path: [],
-    _network: 'bitcoin',
-    
-    $network(){
-      return bitcoin.networks[this._network]
+    _setPath: function(string){
+      this._path = string ? bip32.fromString(string).toPathArray() : []
     },
-
-    $hdNodeFromTrezor(){
+    _network(){
+      return bitcoin.networks[this._network_name]
+    },
+    _hdNodeFromTrezor(){
       loading()
       device.run((d) => {
-        return d.session.getPublicKey(this._path, this._network).then((result) => {
-          this.$hdNodeFromXpub(result.message.xpub)
-          notLoading()
-        })
+        return d.session.getPublicKey(this._path, this._network_name)
+          .then((result) => {
+            this.$hdNodeFromXpub(result.message.xpub)
+            notLoading()
+          })
       })
     },
 
-    $hdNodeFromXpub(xpub){
-      let hdNode = bitcoin.HDNode.fromBase58(xpub, this.$network())
+    _hdNodeFromXpub(){
+      let xpub = this.getElementById("multisig_setup_xpub").val()
+      let hdNode = bitcoin.HDNode.fromBase58(xpub, this._network())
       this._hdNodes.push(hdNode)
       $('.hd-nodes', this)[0].$build(hdNodeContainer(this, hdNode))
     },
 
-    $setPath(string){
-      this._path = string ? bip32.fromString(string).toPathArray() : []
-    },
-
-    $generate(required, multisig_path){
-      let result = generateMultisig(this._hdNodes, required, multisig_path, this.$network())
-      if(result.ok){
-        $('.multisigs', this)[0].$build(multisigContainer(result.multisig))
-      }else{
-        showError(result.error)
-      }
-    },
-
     $components: [
-      helpers.select_group('Network', 'network', id,
-        _.keys(bitcoin.networks), 'bitcoin', {
-        onchange(e){ $(`#${id}`)[0]._network = e.target.value }
-      }),
-      helpers.text_input_group('Derivation Path', 'path', id, {
-        onchange(e){ $(`#${id}`)[0].$setPath(e.target.value) }
-      }),
-      helpers.button('From Trezor', {
-        onclick(e){ $(`#${id}`)[0].$hdNodeFromTrezor() }
-      }),
+      { $virus: form_groupism('Derivation Path'),
+        $tag: 'input#multisig_setup_path',
+        name: 'path',
+        type: 'text',
+        onchange(e){ this._setPath(e.target.value) }
+      },
+      { $virus: select_groupism('Network', _.keys(bitcoin.networks), 'bitcoin'),
+        id: 'multisig_setup_network',
+        name: 'network',
+        onchange(e){
+          e.preventDefault()
+          this._network_name = e.target.value
+        }
+      },
+      { $virus: buttonism('From trezor'),
+        onclick(){ this._hdNodeFromTrezor() }
+      },
       helpers.text_input_group('Xpub', 'xpub', id),
-      helpers.button('From Xpub', {
-        onclick(e){ $(`#${id}`)[0].$hdNodeFromXpub($(`#${id} [name="xpub"]`).val() ) }
-      }),
-      { $type: 'ul', class: 'list-group hd-nodes mt-3' },
+      { $virus: buttonism('From Xpub'),
+        onclick(){ this._hdNodeFromXpub() }
+      },
+      { $type: 'ul',
+        class: 'list-group hd-nodes mt-3',
+        $update(){
+          // This should listen to changes in _hdNodes and react.
+          debugger
+        }
+      },
       {
         $type: 'form',
         class: 'mt-3',
@@ -77,7 +84,16 @@ export function multisigSetupHandler(id){
         }
       },
       { class: 'multisigs mt-3' }
-    ]
+    ],
+
+    $generate(required, multisig_path){
+      let result = generateMultisig(this._hdNodes, required, multisig_path, this.$network())
+      if(result.ok){
+        $('.multisigs', this)[0].$build(multisigContainer(result.multisig))
+      }else{
+        showError(result.error)
+      }
+    }
   }
 }
 

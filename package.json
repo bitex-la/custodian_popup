@@ -37,7 +37,7 @@
     "bip32-path": "0.4.2",
     "es6-promise": "^2.3.0",
     "trezor.js": "6.1.0",
-    "@intercellular/cell": "bitex-la/cell#virus",
+    "@intercellular/cell": "file:/home/nubis/cell",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4"
   },

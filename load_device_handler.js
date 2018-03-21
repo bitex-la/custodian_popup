@@ -1,81 +1,36 @@
 import * as device from './device.js'
 import {showSuccess, loading, notLoading} from './messages.js'
+import {form_checkism, form_groupism} from './lib/bootstrapism.js'
 
-export function loadDeviceHandler(id){
+export function loadDeviceHandler(){
   return {
-    $type: 'form',
-    id: id,
-    $components: [
-      { class: 'form-group',
-        $components: [
-          { $type: 'label', for: 'load_device_pin', $text: 'Label' },
-          { $type: 'input',
-            type: 'text',
-            class: 'form-control',
-            name: 'label',
-            id: 'load_device_label',
-          }
-        ]
+    $tag: 'form#load_device',
+    $$: [
+      { $tag: 'input#load_device_label',
+        $virus: form_groupism('Label'),
+        type: 'text',
+        name: 'label',
       },
-      { class: 'form-group',
-        $components: [
-          { $type: 'label', for: 'load_device_pin', $text: 'PIN' },
-          { $type: 'input',
-            type: 'text',
-            class: 'form-control',
-            name: 'pin',
-            id: 'load_device_pin',
-          }
-        ]
+      { $tag: 'input#load_device_pin',
+        $virus: form_groupism('PIN'),
+        type: 'text',
+        name: 'pin',
       },
-      { class: 'form-group',
-        $components: [
-          { $type: 'label', for: 'load_device_mnemonic', $text: 'Mnemonic' },
-          { $type: 'textarea',
-            class: 'form-control',
-            name: 'mnemonic',
-            id: 'load_device_mnemonic',
-            rows: 5
-          }
-        ]
+      { $tag: 'textarea#load_device_mnemonic',
+        $virus: form_groupism('Mnemonic'),
+        name: 'mnemonic',
+        rows: 5
       },
-      { class: 'form-check',
-        $components: [
-          { $type: 'label',
-            for: 'load_device_passphrase_protection',
-            class: 'form-check-label',
-            $components: [
-              { $type: 'input',
-                type: 'checkbox',
-                name: 'passphrase_protection',
-                id: 'load_device_passphrase_protection',
-                class: 'form-check-input'
-              },
-              { $type: 'span', $text: 'Use Passphrase'}
-            ]
-          }
-        ]
+      { $virus: form_checkism('Use Passphrase'),
+        name: 'passphrase_protection',
+        id: 'load_device_passphrase_protection',
       },
-      { class: 'form-check',
-        $components: [
-          { $type: 'label',
-            for: 'load_device_skip_checksum',
-            class: 'form-check-label',
-            $components: [
-              { $type: 'input',
-                type: 'checkbox',
-                name: 'skip_checksum',
-                id: 'load_device_skip_checksum',
-                class: 'form-check-input'
-              },
-              { $type: 'span', $text: 'Skip Checksum'}
-            ]
-          }
-        ]
+      { $virus: form_checkism('Skip Checksum'),
+        name: 'skip_checksum',
+        id: 'load_device_skip_checksum',
       },
-      { $type: 'button',
+      { $tag: 'button.btn.btn-primary.btn-block',
         type: 'submit',
-        class: 'btn btn-primary btn-block',
         $text: 'Load Device'
       }
     ],

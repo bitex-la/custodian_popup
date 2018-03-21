@@ -29,10 +29,10 @@ window.app = {
 	class: 'container',
   $components: [
 		helpers.tabs({
-			"Multisig Setup": multisigSetupHandler('multisig_setup'),
 			"Signing": signingHandler(),
-			"Load Device": loadDeviceHandler('load_device'),
-			"Debugger": debuggerHandler('debugger')
+			"Multisig Setup": multisigSetupHandler(),
+			"Load Device": loadDeviceHandler(),
+			"Debugger": debuggerHandler()
 		})
   ],
 	$init(){

@@ -2,6 +2,7 @@ import * as device from './device.js'
 import * as helpers from './helpers.js'
 import * as bitcoin from 'bitcoinjs-lib'
 import {showError, showSuccess, loading, notLoading} from './messages.js'
+import {form_groupism} from './lib/bootstrapism.js'
 import {update_epidemic} from './lib/update_epidemic.js'
 var bip32 = require('bip32-path')
 var _ = require('lodash')
@@ -11,7 +12,7 @@ window.bitcoin = bitcoin
 export function signingHandler(){
   return {
     id: 'signing',
-		$virus: update_epidemic,
+    $virus: update_epidemic,
     class: 'form',
     _transaction_json: '',
     _rawtx: null,
@@ -25,16 +26,14 @@ export function signingHandler(){
       }
     },
     $$: [
-      { $tag: '.form-group', $$: [
-        { $tag: 'label', $text: 'Transaction JSON' },
-        { $tag: 'textarea#tansaction_json.form-control',
-          name: 'transaction_json',
-          rows: 15,
-          $update(){
-            this.$text = JSON.stringify(this._transaction_json, true, '  ')
-          }
-        },
-      ]},
+      { $tag: 'textarea#tansaction_json.form-control',
+        $virus: form_groupism('Transaction JSON'),
+        name: 'transaction_json',
+        rows: 15,
+        $update(){
+          this.$text = JSON.stringify(this._transaction_json, true, '  ')
+        }
+      },
       { $tag: 'button.btn.btn-default.btn-block',
         $text: 'Load transaction',
         onclick(){ this._transaction_json = exampleSpendAddressJson() }
@@ -61,7 +60,8 @@ export function signingHandler(){
   }
 }
 
-function signTransaction(json, coin){
+function signTransaction(original_json, coin){
+  let json = _.cloneDeep(original_json)
   loading()
   return device.run((d) => {
     return d.session.signTx(json.inputs, json.outputs, json.transactions, coin)
@@ -78,7 +78,7 @@ function signTransaction(json, coin){
             })
 
             let done = _.every(json.inputs, (i) => {
-              _.filter(i.multisig.signatures, (s) => s.length > 0).length >= i.multisig.m
+              return _.compact(i.multisig.signatures).length >= i.multisig.m
             })
 
             notLoading()
