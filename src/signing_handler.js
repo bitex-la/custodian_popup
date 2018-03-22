@@ -1,12 +1,11 @@
 import * as device from './device.js'
-import * as helpers from './helpers.js'
 import * as bitcoin from 'bitcoinjs-lib'
 import {showError, showSuccess, loading, notLoading} from './messages.js'
-import {form_groupism} from './lib/bootstrapism.js'
+import {select_groupism, buttonism, form_groupism, cardism} from './lib/bootstrapism.js'
 import {update_epidemic} from './lib/update_epidemic.js'
 var bip32 = require('bip32-path')
 var _ = require('lodash')
- 
+
 window.bitcoin = bitcoin
 
 export function signingHandler(){
@@ -14,11 +13,12 @@ export function signingHandler(){
     id: 'signing',
     $virus: update_epidemic,
     class: 'form',
+    _network_name: 'bitcoin',
     _transaction_json: '',
     _rawtx: null,
     $update(){
       if(this._rawtx){
-        this.$build({ 
+        this.$build({
           class: 'alert alert-secondary',
           $type: 'textarea',
           cols: 100,
@@ -26,23 +26,19 @@ export function signingHandler(){
       }
     },
     $$: [
-      { $tag: 'textarea#tansaction_json.form-control',
-        $virus: form_groupism('Transaction JSON'),
+      { $virus: select_groupism('Network', _.keys(bitcoin.networks), 'bitcoin'),
+        name: 'network',
+        $update(){ this.value = this._network_name },
+        onchange(e){ this._network_name = e.target.value }
+      },
+      { $tag: '.form-group textarea#tansaction_json.form-control',
         name: 'transaction_json',
         rows: 15,
         $update(){
           this.$text = JSON.stringify(this._transaction_json, true, '  ')
         }
       },
-      { $tag: 'button.btn.btn-default.btn-block',
-        $text: 'Load transaction',
-        onclick(){ this._transaction_json = exampleSpendAddressJson() }
-      },
-      { $tag: 'button.btn.btn-default.btn-block',
-        $text: 'Load multisig transaction',
-        onclick(){ this._transaction_json = exampleSpendMultisigJson() }
-      },
-      { $tag: 'button.btn.btn-primary.btn-block',
+      { $tag: 'button.btn.btn-primary.btn-block.mt-1',
         $text: 'Sign transaction',
         _handle_signing_result(result){
           this._transaction_json = result.json
@@ -52,9 +48,78 @@ export function signingHandler(){
           }
         },
         onclick(){
-          signTransaction(this._transaction_json, 'testnet')
+          signTransaction(this._transaction_json, this._network_name)
             .then(this._handle_signing_result)
         }
+      },
+      { $virus: cardism("Example testnet multisig transaction"),
+        $$: [
+          { $tag: 'ol.card-text', $$: [
+              { $tag: 'li',
+                $text: `Seed your device with "custodian popup test",
+                enable passphrases.`
+              },
+              { $tag: 'li',
+                $text: `Go to multisig setup and create 3 Testnet nodes from
+                  trezor, using passphrases "one", "two", and "three"`
+              },
+              { $tag: 'li',
+                $text: `Create a new multisig address requiring 2 signers out
+                  of the 3 nodes, derived at path "0/1/2/3".
+                  This should generate the address
+                  '2NFYkN6NcY7YV9gpEiahadmsT5h38t8hK99'`
+              },
+              { $tag: 'li',
+                $text: `Come back here and "Load multisig transaction",
+                  which is a premade testnet transaction that sends money
+                  from this multisig address to itself.
+                  You should be able to sign it.`
+              },
+            ]
+          },
+          { $virus: buttonism('Load multisig transaction', 'info'),
+            onclick(){
+              this._transaction_json = exampleSpendMultisigJson()
+              this._network_name = 'testnet'
+            }
+          },
+        ]
+      },
+      { $virus: cardism("Example testnet transaction"),
+        $$: [
+          { $tag: 'p.card-text', $text: `If you seed your device with
+            "custodian popup test" and don't use a passphrase,
+            for Testnet in path "0/1/2/3".
+            This transaction sends money from that address to itself.`
+          },
+          { $tag: 'ol.card-text', $$: [
+              { $tag: 'li',
+                $text: `Seed your device with "custodian popup test",
+                but do not enable passphrases.`
+              },
+              { $tag: 'li',
+                $text: `Go to multisig setup and add one Testnet HD node from
+                  your trezor, derived at path "0/1/2/3"`
+              },
+              { $tag: 'li',
+                $text: `If all went well, the node you just added should
+                  have testnet address 'mgYDL9xvE9bDAXQdWseNttP5V6iaRmBVZK'`
+              },
+              { $tag: 'li',
+                $text: `Come back here and "Load transaction",
+                  which is a premade testnet transaction that sends money
+                  from this regular address to itself.
+                  You should be able to sign it.`
+              },
+            ]
+          },
+          { $virus: buttonism('Load transaction', 'info'),
+            onclick(){ 
+              this._network_name = 'testnet'
+              this._transaction_json = exampleSpendAddressJson()
+            }
+          },
+        ]
       }
     ]
   }
@@ -129,7 +194,7 @@ function exampleSpendAddressJson(){
 					{ amount: 130000000,
 						script_pubkey: "76a9140b3517e6562623042f7ae1fa9da19d3106841a8a88ac" // HEX, not ASM.
 					},
-					{ amount: 6922866917, 
+					{ amount: 6922866917,
 						script_pubkey: "a91490a8548f36918a89d39d7eb0a8c8b3f095478e8987" // HEX, not ASM.
 					}
 				]
@@ -177,8 +242,8 @@ function exampleSpendMultisigJson(){
 						{ address_n: [0,1,2,3],
 							node: {
 								chain_code: 'd364df6dcc9820f950eac24ec69d93baafb5460125ff4c8e317fa6e4d986abef',
-								depth: 0, 
-								child_num: 0, 
+								depth: 0,
+								child_num: 0,
 								fingerprint: 0,
 								public_key: '03fadcfdfe7f51a270b32f7b6b50b4f3a0110d25c9618671325032306718eb339e',
 							}
@@ -186,8 +251,8 @@ function exampleSpendMultisigJson(){
 						{ address_n: [0,1,2,3],
 							node: {
 								chain_code: 'b92f6b8caa1b3200a4ea3f1e1f3ac04d79c4e403c3e720e41f709df2f9ea54b5',
-								depth: 0, 
-								child_num: 0, 
+								depth: 0,
+								child_num: 0,
 								fingerprint: 0,
 								public_key: '02fc1a4e7dee10774671401869c55556559d675dfcb87b4ca0082ee29729329966',
 							}
@@ -195,8 +260,8 @@ function exampleSpendMultisigJson(){
 						{ address_n: [0,1,2,3],
 							node: {
 								chain_code: '357308f6dc5518a1129d3cc21e9543e2e1e5cd14dc2b1304ce80b83af182beed',
-								depth: 0, 
-								child_num: 0, 
+								depth: 0,
+								child_num: 0,
 								fingerprint: 0,
 								public_key: '02afe5d9f00ac1b2a1524327e4b4c53eeb59e0e76671820b5b1a1e53edf40e234f',
 							}
@@ -220,7 +285,7 @@ function exampleSpendMultisigJson(){
 					{ amount: 130000000,
 						script_pubkey: "76a9140b3517e6562623042f7ae1fa9da19d3106841a8a88ac" // HEX, not ASM.
 					},
-					{ amount: 6922866917, 
+					{ amount: 6922866917,
 						script_pubkey: "a91490a8548f36918a89d39d7eb0a8c8b3f095478e8987" // HEX, not ASM.
 					}
 				]
@@ -239,7 +304,7 @@ function exampleSpendMultisigJson(){
 					{ amount: 65000000,
 						script_pubkey: "a914f4a331fa20dba4c41606f99482431e75664c5cf387" // HEX, not ASM.
 					},
-					{ amount: 7393167766, 
+					{ amount: 7393167766,
 						script_pubkey: "a914c2585ba5b2f3c27063b8f0a36e376eefcfcd4bff87" // HEX, not ASM.
 					}
 				]
