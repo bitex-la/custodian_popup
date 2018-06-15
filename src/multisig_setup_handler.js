@@ -2,7 +2,7 @@ import * as device from './device.js'
 import * as bitcoin from 'bitcoinjs-lib'
 import {showError, loading, notLoading} from './messages.js'
 import {hamlism} from './lib/hamlism.js'
-import {buttonism, select_groupism, form_groupism} from './lib/bootstrapism.js'
+import {buttonism, buttonism_with_size, select_groupism, form_groupism} from './lib/bootstrapism.js'
 import {update_epidemic} from './lib/update_epidemic.js'
 import {walletService} from './services/wallet_service.js'
 
@@ -72,6 +72,15 @@ function hdNodesManager(){
           { $tag: 'input.form-control.form-control-sm',
             value: hdNode.neutered().toBase58(),
             readonly: true
+          },
+          {
+            $virus: hamlism,
+            $tag: '.float-sm-right',
+            $$: [
+              { $virus: buttonism_with_size('Create Hd Wallet', 'success', 'small'),
+                onclick(){ custodianManager()._sendHdToCustodian(hdNode) }
+              }
+            ]
           }
         ]
       }
@@ -117,7 +126,7 @@ function hdNodesManager(){
 function custodianManager() {
   return {
     _sendMultisigToCustodian(wallet) {
-      let xpubs     = _.map(wallet._hdNodes, (node) => node.neutered().toBase58())
+      let xpubs = _.map(wallet._hdNodes, (node) => node.neutered().toBase58())
 
       let multisigWallet = {
         data: {
@@ -130,7 +139,6 @@ function custodianManager() {
         }
       }
 
-      let multisigWalletResponse = {}
       walletService().create('/multisig_wallets',
         multisigWallet,
         (multisigWalletResponse) => {
@@ -149,6 +157,37 @@ function custodianManager() {
               (address) => console.log('Address saved'),
               (error) => console.log(error))
           })
+          console.log('Wallet saved')
+        },
+        (error) => console.log(error))
+    },
+    _sendHdToCustodian(node) {
+      let hdWallet = {
+        data: {
+          attributes: {
+            version: '1',
+            xpub: node.neutered().toBase58()
+          },
+          type: 'hd_wallet'
+        }
+      }
+
+      walletService().create('/hd_wallets',
+        hdWallet,
+        (hdWalletResponse) => {
+          let address = {
+            data: {
+              attributes: {
+                address: node.getAddress(),
+                path: []
+              },
+              type: 'hd_address'
+            }
+          }
+          walletService().create('/hd_wallets/' + hdWalletResponse.data.id + '/relationships/addresses', 
+            address,
+            (address) => console.log('Address saved'),
+            (error) => console.log(error))
           console.log('Wallet saved')
         },
         (error) => console.log(error))

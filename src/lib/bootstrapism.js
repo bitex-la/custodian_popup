@@ -93,6 +93,15 @@ export function buttonism(label, kind = 'primary'){
   }
 }
 
+export function buttonism_with_size(label, kind = 'primary', size = 'block'){
+  return function(component){
+    return hamlism(_.merge(component, {
+      $tag: `button.btn.btn-${size}.btn-${kind}`,
+      $text: label
+    }))
+  }
+}
+
 export function cardism(header){
   return function(component){
     return hamlism({
