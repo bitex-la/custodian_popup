@@ -79,6 +79,10 @@ function hdNodesManager(){
             $$: [
               { $virus: buttonism_with_size('Create Hd Wallet', 'success', 'small'),
                 onclick(){ custodianManager()._sendHdToCustodian(hdNode) }
+              },
+              { $tag: 'span', $text: ' ' },
+              { $virus: buttonism_with_size('Create Plain Wallet', 'success', 'small'),
+                onclick(){ custodianManager()._sendPlainToCustodian(hdNode) }
               }
             ]
           }
@@ -185,6 +189,34 @@ function custodianManager() {
             }
           }
           walletService().create('/hd_wallets/' + hdWalletResponse.data.id + '/relationships/addresses', 
+            address,
+            (address) => console.log('Address saved'),
+            (error) => console.log(error))
+          console.log('Wallet saved')
+        },
+        (error) => console.log(error))
+    },
+    _sendPlainToCustodian(node) {
+      let plainWallet = {
+        data: {
+          attributes: {
+            version: '1'
+          },
+          type: 'plain_wallet'
+        }
+      }
+
+      walletService().create('/plain_wallets',
+        plainWallet,
+        (plainWalletResponse) => {
+          let address = {
+            data: {
+              attributes: { },
+              id: node.getAddress(),
+              type: 'address'
+            }
+          }
+          walletService().create('/plain_wallets/' + plainWalletResponse.data.id + '/relationships/addresses', 
             address,
             (address) => console.log('Address saved'),
             (error) => console.log(error))
