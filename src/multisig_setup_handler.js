@@ -4,6 +4,8 @@ import {showError, loading, notLoading} from './messages.js'
 import {hamlism} from './lib/hamlism.js'
 import {buttonism, select_groupism, form_groupism} from './lib/bootstrapism.js'
 import {update_epidemic} from './lib/update_epidemic.js'
+import {walletService} from './services/wallet_service.js'
+
 var bip32 = require('bip32-path')
 var _ = require('lodash')
  
@@ -112,12 +114,55 @@ function hdNodesManager(){
   }
 }
 
+function custodianManager() {
+  return {
+    _sendMultisigToCustodian(wallet) {
+      let addresses = _.map(wallet._hdNodes, (node) => node.getAddress())
+      let xpubs     = _.map(wallet._hdNodes, (node) => node.neutered().toBase58())
+
+      let data = {
+        data: {
+          attributes: {
+            version: addresses.length.toString(),
+            xpubs: xpubs,
+            signers: parseInt(wallet._required),
+          },
+          type: 'multisig_wallet',
+          relationships: {
+            addresses: {
+              data: _.map(addresses, (address, index) => {
+                return {
+                  type: 'hd_address',
+                  id: index.toString()
+                }
+              })
+            }
+          },
+          included: _.map(addresses, (address, index) => {
+            return {
+              type: 'hd_address',
+              id: index.toString(),
+              attributes: {
+                address,
+                path: []
+              }
+            }
+          })
+        }
+      }
+
+      walletService().create('/multisig_wallets', data, () => { console.log('Wallet saved') }, (error) => { console.log(error) })
+    }
+  }
+}
+
 function multisigManager(){
   return {
     class: "well well-sm",
     $virus: update_epidemic,
     _path: null,
     _required: null,
+    custodianManager,
     $$: [
       { $type: 'h4', $text: '2. Create a multisig address' },
       { $virus: form_groupism('Required signers'),
@@ -131,6 +176,9 @@ function multisigManager(){
         name: 'path',
         type: 'text',
         onkeyup(e){ this._path = _.trim(e.target.value, '/') }
+      },
+      { $virus: buttonism('Submit', 'success'),
+        onclick(){ custodianManager()._sendMultisigToCustodian(this) }
       },
       { $update(){
           let json = generateMultisig(this._hdNodes, this._required,
