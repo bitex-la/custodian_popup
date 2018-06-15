@@ -5,10 +5,8 @@ export function baseService() {
         method: 'POST',
         url: nodeUrl + url,
         contentType: 'application/json; charset=utf-8',
-        data: data,
+        data: JSON.stringify(data),
         crossDomain: true,
-        data: data,
-        dataType: "json",
         success: success_callback,
         error: error_callback
       })

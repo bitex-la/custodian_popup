@@ -67,6 +67,23 @@ export function select_groupism(label, options, selected){
   }
 }
 
+export function select_object_groupism(label, options, selected){
+  return function(component){
+    let select = Object.assign(component, {
+      $type: 'select',
+      class: 'form-control',
+      $components: _.map(options, (obj) => {
+        return {$type: 'option', $text: obj.text, value: obj.id}
+      })
+    })
+
+    return hamlism({ class: 'form-group input-group', $$: [
+      { $tag: 'span.input-group-addon', $text: label },
+      select
+    ]})
+  }
+}
+
 export function buttonism(label, kind = 'primary'){
   return function(component){
     return hamlism(_.merge(component, {

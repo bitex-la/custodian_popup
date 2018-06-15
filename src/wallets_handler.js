@@ -1,6 +1,6 @@
 import {hamlism} from './lib/hamlism.js'
 import {update_epidemic} from './lib/update_epidemic.js'
-import {select_groupism, form_groupism, buttonism} from './lib/bootstrapism.js'
+import {select_object_groupism, select_groupism, form_groupism, buttonism} from './lib/bootstrapism.js'
 
 import {walletService} from './services/wallet_service.js'
 
@@ -13,10 +13,24 @@ export function walletHandler() {
     _address: '',
     _addresses: [],
     _wallet: {},
+    _build_wallet () {
+      return {
+        data: {
+          attributes: { version: this._addresses.length },
+          type: this._wallet_type,
+          relationships: {
+            addresses: {
+              data: this._addresses
+            }
+          }
+        }
+      }
+    },
     $$: [
-      { $virus: select_groupism('Wallet Type', ['plain', 'hd', 'multisig'], 'plain'),
+      { $virus: select_object_groupism('Wallet Type', [{id: 'plain_wallet', text: 'Plain'},
+                                                       {id: 'hd_wallet', text: 'Hd'},
+                                                       {id: 'multisig_wallet', text: 'Multisig'}], 'plain_wallet'),
         name: 'wallet_type',
-        $update() { this.value = this._wallet_type },
         onchange(e) { this._wallet_type = e.target.value }
       },
       { class: 'form-group input-group',
@@ -32,7 +46,10 @@ export function walletHandler() {
               { $virus: buttonism('Add Address', 'info'),
                 onclick() {
                   if (this._address) {
-                    this._addresses.push(this._address)
+                    this._addresses.push({
+                      type: 'address',
+                      id: this._address
+                    })
                   }
                 }
               }
@@ -42,7 +59,7 @@ export function walletHandler() {
       },
       { $virus: buttonism('Create Wallet', 'success'),
         onclick() {
-          walletService().addWallet('/plain_wallets', this._wallet, (success_data) => { console.log(success_data) }, (error_data) => { console.log(error_data) })
+          walletService().create('/plain_wallets', this._build_wallet(), (success_data) => { console.log(success_data) }, (error_data) => { console.log(error_data) })
         }
       },
       { $tag: 'ul.list-group.hd-nodes.mt-3',
@@ -57,7 +74,7 @@ export function walletHandler() {
                 onclick(e){ self._addresses = _.without(self._addresses, address) }
               },
               { $tag: 'input.form-control.form-control-sm',
-                value: address,
+                value: address.id,
                 readonly: true
               }
             ]
