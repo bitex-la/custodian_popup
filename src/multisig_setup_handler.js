@@ -117,41 +117,41 @@ function hdNodesManager(){
 function custodianManager() {
   return {
     _sendMultisigToCustodian(wallet) {
-      let addresses = _.map(wallet._hdNodes, (node) => node.getAddress())
       let xpubs     = _.map(wallet._hdNodes, (node) => node.neutered().toBase58())
 
-      let data = {
+      let multisigWallet = {
         data: {
           attributes: {
-            version: addresses.length.toString(),
+            version: wallet._hdNodes.length.toString(),
             xpubs: xpubs,
             signers: parseInt(wallet._required),
           },
-          type: 'multisig_wallet',
-          relationships: {
-            addresses: {
-              data: _.map(addresses, (address, index) => {
-                return {
-                  type: 'hd_address',
-                  id: index.toString()
-                }
-              })
-            }
-          },
-          included: _.map(addresses, (address, index) => {
-            return {
-              type: 'hd_address',
-              id: index.toString(),
-              attributes: {
-                address,
-                path: []
-              }
-            }
-          })
+          type: 'multisig_wallet'
         }
       }
 
-      walletService().create('/multisig_wallets', data, () => { console.log('Wallet saved') }, (error) => { console.log(error) })
+      let multisigWalletResponse = {}
+      walletService().create('/multisig_wallets',
+        multisigWallet,
+        (multisigWalletResponse) => {
+          _.forEach(wallet._hdNodes, (node) => {
+            let address = {
+              data: {
+                attributes: {
+                  address: node.getAddress(),
+                  path: []
+                },
+                type: 'hd_address'
+              }
+            }
+            walletService().create('/multisig_wallets/' + multisigWalletResponse.data.id + '/relationships/addresses', 
+              address,
+              (address) => console.log('Address saved'),
+              (error) => console.log(error))
+          })
+          console.log('Wallet saved')
+        },
+        (error) => console.log(error))
     }
   }
 }
