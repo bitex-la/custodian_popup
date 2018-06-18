@@ -129,6 +129,21 @@ function hdNodesManager(){
 
 function custodianManager() {
   return {
+    _createWallet(type, wallet, buildAddress) {
+      walletService().create(type,
+        wallet,
+        (walletResponse) => {
+          _.forEach(wallet._hdNodes, (node) => {
+            let address = buildAddress(node.getAddress())
+            walletService().create(`/${type}/${walletResponse.data.id}/relationships/addresses`,
+              address,
+              (address) => console.log('Address saved'),
+              (error) => console.log(error))
+          })
+          console.log('Wallet saved')
+        },
+        (error) => console.log(error))
+    },
     _sendMultisigToCustodian(wallet) {
       let xpubs = _.map(wallet._hdNodes, (node) => node.neutered().toBase58())
 
@@ -143,27 +158,19 @@ function custodianManager() {
         }
       }
 
-      walletService().create('/multisig_wallets',
+      this._createWallet('multisig_wallets',
         multisigWallet,
-        (multisigWalletResponse) => {
-          _.forEach(wallet._hdNodes, (node) => {
-            let address = {
-              data: {
-                attributes: {
-                  address: node.getAddress(),
-                  path: []
-                },
-                type: 'hd_address'
-              }
+        (address) => {
+          return {
+            data: {
+              attributes: {
+                address: address,
+                path: []
+              },
+              type: 'hd_address'
             }
-            walletService().create('/multisig_wallets/' + multisigWalletResponse.data.id + '/relationships/addresses', 
-              address,
-              (address) => console.log('Address saved'),
-              (error) => console.log(error))
-          })
-          console.log('Wallet saved')
-        },
-        (error) => console.log(error))
+          }
+        })
     },
     _sendHdToCustodian(node) {
       let hdWallet = {
@@ -176,25 +183,19 @@ function custodianManager() {
         }
       }
 
-      walletService().create('/hd_wallets',
+      this._createWallet('hd_wallets',
         hdWallet,
-        (hdWalletResponse) => {
-          let address = {
+        (address) => {
+          return {
             data: {
               attributes: {
-                address: node.getAddress(),
+                address: address,
                 path: []
               },
               type: 'hd_address'
             }
           }
-          walletService().create('/hd_wallets/' + hdWalletResponse.data.id + '/relationships/addresses', 
-            address,
-            (address) => console.log('Address saved'),
-            (error) => console.log(error))
-          console.log('Wallet saved')
-        },
-        (error) => console.log(error))
+        })
     },
     _sendPlainToCustodian(node) {
       let plainWallet = {
@@ -206,23 +207,17 @@ function custodianManager() {
         }
       }
 
-      walletService().create('/plain_wallets',
+      this._createWallet('plain_wallets',
         plainWallet,
-        (plainWalletResponse) => {
-          let address = {
+        (address) => {
+          return {
             data: {
               attributes: { },
               id: node.getAddress(),
               type: 'address'
             }
           }
-          walletService().create('/plain_wallets/' + plainWalletResponse.data.id + '/relationships/addresses', 
-            address,
-            (address) => console.log('Address saved'),
-            (error) => console.log(error))
-          console.log('Wallet saved')
-        },
-        (error) => console.log(error))
+        })
     }
   }
 }
