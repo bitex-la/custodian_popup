@@ -260,16 +260,7 @@ function multisigManager(){
             component = { $tag: '.alert.alert-info', $text: json.error }
           }else{
             component = { $tag: '.card', $$: [
-              { $tag: '.card-header', $text: json.address },
-              { $tag: '.card-body', $$: [
-                { $tag: 'p.card-text',
-                  $text: 'This is how you would use this address as an input'
-                },
-                { $tag: 'textarea.form-control',
-                  rows: 20,
-                  $text: JSON.stringify(json.as_input, null, 2)
-                }
-              ]}
+              { $tag: '.card-header', $text: json.address }
             ]}
           }
 

@@ -54,29 +54,6 @@ export function signingHandler(){
       },
       { $virus: cardism("Example testnet multisig transaction"),
         $$: [
-          { $tag: 'ol.card-text', $$: [
-              { $tag: 'li',
-                $text: `Seed your device with "custodian popup test",
-                enable passphrases.`
-              },
-              { $tag: 'li',
-                $text: `Go to multisig setup and create 3 Testnet nodes from
-                  trezor, using passphrases "one", "two", and "three"`
-              },
-              { $tag: 'li',
-                $text: `Create a new multisig address requiring 2 signers out
-                  of the 3 nodes, derived at path "0/1/2/3".
-                  This should generate the address
-                  '2NFYkN6NcY7YV9gpEiahadmsT5h38t8hK99'`
-              },
-              { $tag: 'li',
-                $text: `Come back here and "Load multisig transaction",
-                  which is a premade testnet transaction that sends money
-                  from this multisig address to itself.
-                  You should be able to sign it.`
-              },
-            ]
-          },
           { $virus: buttonism('Load multisig transaction', 'info'),
             onclick(){
               this._transaction_json = exampleSpendMultisigJson()
@@ -87,32 +64,6 @@ export function signingHandler(){
       },
       { $virus: cardism("Example testnet transaction"),
         $$: [
-          { $tag: 'p.card-text', $text: `If you seed your device with
-            "custodian popup test" and don't use a passphrase,
-            for Testnet in path "0/1/2/3".
-            This transaction sends money from that address to itself.`
-          },
-          { $tag: 'ol.card-text', $$: [
-              { $tag: 'li',
-                $text: `Seed your device with "custodian popup test",
-                but do not enable passphrases.`
-              },
-              { $tag: 'li',
-                $text: `Go to multisig setup and add one Testnet HD node from
-                  your trezor, derived at path "0/1/2/3"`
-              },
-              { $tag: 'li',
-                $text: `If all went well, the node you just added should
-                  have testnet address 'mgYDL9xvE9bDAXQdWseNttP5V6iaRmBVZK'`
-              },
-              { $tag: 'li',
-                $text: `Come back here and "Load transaction",
-                  which is a premade testnet transaction that sends money
-                  from this regular address to itself.
-                  You should be able to sign it.`
-              },
-            ]
-          },
           { $virus: buttonism('Load transaction', 'info'),
             onclick(){ 
               this._network_name = 'testnet'
