@@ -6,32 +6,75 @@ import {walletService} from './services/wallet_service.js'
 
 export function walletHandler() {
   return {
-    id: 'wallet',
+    id: 'wallets',
     $virus: update_epidemic,
     class: 'form',
     _wallet_type: '',
     _address: '',
     _addresses: [],
     _wallet: {},
-    _build_wallet () {
-      return {
-        data: {
-          attributes: { version: this._addresses.length },
-          type: this._wallet_type,
-          relationships: {
-            addresses: {
-              data: this._addresses
-            }
-          }
-        }
-      }
+    _wallets: [],
+    _addWallets(wallets) {
+      this._wallets = wallets
     },
     $$: [
-      { $virus: select_object_groupism('Wallet Type', [{id: 'plain_wallet', text: 'Plain'},
-                                                       {id: 'hd_wallet', text: 'Hd'},
-                                                       {id: 'multisig_wallet', text: 'Multisig'}], 'plain_wallet'),
+      { $virus: select_object_groupism('Wallet Type', [{id: '/plain_wallets', text: 'Plain'},
+                                                       {id: '/hd_wallets', text: 'Hd'},
+                                                       {id: '/multisig_wallets', text: 'Multisig'}], 'plain_wallet'),
         name: 'wallet_type',
-        onchange(e) { this._wallet_type = e.target.value }
+        onchange(e) {
+          let self = this
+          this._wallet_type = e.target.value
+          walletService().list(self._wallet_type,
+            (success_data) => self._addWallets(_.map(success_data.data, (wallet) => { return {id: wallet.id, version: wallet.attributes.version}})),
+            (error_data) => console.log(error_data))
+        }
+      },
+      {
+        class: 'well',
+        $$: [
+          {
+            $tag: 'table.table',
+            $$: [
+              {
+                $tag: 'thead',
+                $$: [
+                  {
+                    $tag: 'tr',
+                    $$: [
+                      {
+                        $tag: 'th',
+                        $text: 'Id'
+                      },
+                      {
+                        $tag: 'th',
+                        $text: 'Version'
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                $tag: 'tbody',
+                _fillWallet(wallet) {
+                  let self = this
+                  return {
+                    $tag: 'tr',
+                    $virus: hamlism,
+                    $$: [
+                      { $tag: 'td', $text: wallet.id },
+                      { $tag: 'td', $text: wallet.version }
+                    ]
+                  }
+                },
+                $update() {
+                  this.innerHTML = ''
+                  _.each(this._wallets, (w) => this.$build(this._fillWallet(w)))
+                }
+              }
+            ]
+          }
+        ]
       },
       { class: 'form-group input-group',
         $$: [
@@ -56,11 +99,6 @@ export function walletHandler() {
             ]
           }
         ]
-      },
-      { $virus: buttonism('Create Wallet', 'success'),
-        onclick() {
-          walletService().create('/plain_wallets', this._build_wallet(), (success_data) => { console.log(success_data) }, (error_data) => { console.log(error_data) })
-        }
       },
       { $tag: 'ul.list-group.hd-nodes.mt-3',
         _addAddress (address) {

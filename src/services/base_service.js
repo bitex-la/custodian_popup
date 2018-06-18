@@ -10,6 +10,16 @@ export function baseService() {
         success: success_callback,
         error: error_callback
       })
+    },
+    listFromNode (url, success_callback, error_callback) {
+      return jQuery.ajax({
+        method: 'GET',
+        url: nodeUrl + url,
+        contentType: 'application/json; charset=utf-8',
+        crossDomain: true,
+        success: success_callback,
+        error: error_callback
+      })
     }
   }
 }
