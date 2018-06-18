@@ -30,6 +30,18 @@ export function walletHandler() {
           return address.attributes.address
       }
     },
+    _buildWalletsTable() {
+      switch(this._wallet_type) {
+        case '/plain_wallets':
+          return ['Id', 'Version', '']
+        case '/hd_wallets':
+          return ['Id', 'Version', 'XPub', '']
+        case '/multisig_wallets':
+          return ['Id', 'Version', 'XPubs', 'Signers', '']
+        default:
+          return []
+      }
+    },
     $$: [
       { $virus: select_object_groupism('Wallet Type', [
           {id: '', text: 'Select a type wallet'},
@@ -40,8 +52,10 @@ export function walletHandler() {
         onchange(e) {
           let self = this
           this._wallet_type = e.target.value
+          this._wallets = []
+          document.getElementsByClassName('wallets-table')[0].classList.remove('d-none')
           walletService().list(self._wallet_type,
-            (successData) => self._addWallets(_.map(successData.data, (wallet) => { return {id: wallet.id, version: wallet.attributes.version}})),
+            (successData) => self._addWallets(successData.data),
             (errorData) => console.log(errorData))
         }
       },
@@ -49,18 +63,20 @@ export function walletHandler() {
         class: 'well',
         $$: [
           {
-            $tag: 'table.table',
+            $tag: 'table.table.d-none.wallets-table',
             $$: [
               {
                 $tag: 'thead',
                 $$: [
                   {
                     $tag: 'tr',
-                    $$: [
-                      { $tag: 'th', $text: 'Id' },
-                      { $tag: 'th', $text: 'Version' },
-                      { $tag: 'th', $text: '' }
-                    ]
+                    _buildWalletHeaders(header) {
+                      return { $tag: 'th', $virus: hamlism, $text: header }
+                    },
+                    $update() {
+                      this.innerHTML = ''
+                      _.each(this._buildWalletsTable(), (h) => this.$build(this._buildWalletHeaders(h)))
+                    }
                   }
                 ]
               },
@@ -68,20 +84,37 @@ export function walletHandler() {
                 $tag: 'tbody',
                 _fillWallet(wallet) {
                   let self = this
-                  return {
-                    $tag: 'tr',
-                    $virus: hamlism,
-                    $$: [
-                      { $tag: 'td', $text: wallet.id },
-                      { $tag: 'td', $text: wallet.version },
-                      { $virus: buttonism_with_size('Show Addresses', 'info', 'small'),
-                        onclick() { 
-                          document.getElementsByClassName('addresses-table')[0].classList.remove('d-none')
-                          walletService().list(`${self._wallet_type}/${wallet.id}/relationships/addresses`,
-                            (successData) => self._addAddresses(_.map(successData.data, (address) => { return self._getStrAddress(address) })),
-                            (errorData) => console.log(errorData)) } 
-                      }
-                    ]
+                  let button = { 
+                    $virus: buttonism_with_size('Show Addresses', 'info', 'small'),
+                    onclick() { 
+                      document.getElementsByClassName('addresses-table')[0].classList.remove('d-none')
+                      walletService().list(`${self._wallet_type}/${wallet.id}/relationships/addresses`,
+                        (successData) => self._addAddresses(_.map(successData.data, (address) => { return self._getStrAddress(address) })),
+                        (errorData) => console.log(errorData)) }
+                  }
+                  switch(self._wallet_type) {
+                    case '/plain_wallets':
+                      return { $tag: 'tr',
+                               $virus: hamlism,
+                               $$: [{ $tag: 'td', $text: wallet.id },
+                                    { $tag: 'td', $text: wallet.attributes.version },
+                                    button] }
+                    case '/hd_wallets':
+                      return { $tag: 'tr',
+                               $virus: hamlism,
+                               $$: [{ $tag: 'td', $text: wallet.id },
+                                    { $tag: 'td', $text: wallet.attributes.version },
+                                    { $tag: 'td', $text: wallet.attributes.xpub.substring(0, 10) },
+                                    button] }
+                    case '/multisig_wallets':
+                      return { $tag: 'tr', 
+                               $virus: hamlism,
+                               $$: [{ $tag: 'td', $text: wallet.id },
+                                    { $tag: 'td', $text: wallet.attributes.version },
+                                    { $tag: 'td', $text: _.map(wallet.attributes.xpubs, (xpub) => xpub.substring(0, 10)) },
+                                    { $tag: 'td', $text: wallet.attributes.signers }, button] }
+                    default:
+                      return []
                   }
                 },
                 $update() {
