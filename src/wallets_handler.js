@@ -89,7 +89,7 @@ export function walletHandler() {
                   let addressesButton = {
                     $virus: buttonism_with_size('Show Addresses', 'info', 'small'),
                     onclick() { 
-                      document.getElementsByClassName('addresses-table')[0].classList.remove('d-none')
+                      $('.addresses-table').removeClass('d-none')
                       walletService().list(`${self._wallet_type}/${wallet.id}/relationships/addresses`,
                         (successData) => self._addAddresses(_.map(successData.data, (address) => { return self._getStrAddress(address) })),
                         (errorData) => console.log(errorData)) 
@@ -98,13 +98,14 @@ export function walletHandler() {
                   let utxosButton = {
                     $virus: buttonism_with_size('Show Utxos', 'info', 'small'),
                     onclick() { 
-                      document.getElementsByClassName('addresses-table')[0].classList.add('d-none')
+                      $('.addresses-table').addClass('d-none')
                       $('#modalDialog').modal('show')
                       $('#okModalHandler').click(() => {
                         walletService().list(`${self._wallet_type}/${wallet.id}/get_utxos?since=${$('#since-tx').val()}&limit=${$('#limit-tx').val()}`,
                           (successData) => {
                             $('#since-tx').val('')
                             $('#limit-tx').val('')
+                            $('.utxos-table').removeClass('d-none')
                             console.log(successData.data)
                           },
                           (errorData) => console.log(errorData))
@@ -171,6 +172,15 @@ export function walletHandler() {
                   _.each(this._addresses, (a) => this.$build(this._fillAddress(a)))
                 }
               }
+            ]
+          },
+          {
+            $tag: 'table.table.d-none.utxos-table',
+            $$: [
+              {
+                $tag: 'thead',
+                $$: [ { $tag: 'tr', $$: [ { $tag: 'th', $text: 'Amount' }, { $tag: 'th', $text: 'Previous Hash' }, { $tag: 'th', $text: 'Previous Index' } ] } ]
+              },
             ]
           }
         ]
