@@ -129,11 +129,11 @@ function hdNodesManager(){
 
 function custodianManager() {
   return {
-    _createWallet(type, wallet, buildAddress) {
-      walletService().create(type,
+    _createWallet(type, wallet, hdNodes, buildAddress) {
+      walletService().create(`/${type}`,
         wallet,
         (walletResponse) => {
-          _.forEach(wallet._hdNodes, (node) => {
+          _.forEach(hdNodes, (node) => {
             let address = buildAddress(node.getAddress())
             walletService().create(`/${type}/${walletResponse.data.id}/relationships/addresses`,
               address,
@@ -160,6 +160,7 @@ function custodianManager() {
 
       this._createWallet('multisig_wallets',
         multisigWallet,
+        wallet._hdNodes,
         (address) => {
           return {
             data: {
@@ -185,6 +186,7 @@ function custodianManager() {
 
       this._createWallet('hd_wallets',
         hdWallet,
+        [node],
         (address) => {
           return {
             data: {
@@ -209,6 +211,7 @@ function custodianManager() {
 
       this._createWallet('plain_wallets',
         plainWallet,
+        [node],
         (address) => {
           return {
             data: {
