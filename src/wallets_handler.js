@@ -104,14 +104,16 @@ export function walletHandler() {
                                $virus: hamlism,
                                $$: [{ $tag: 'td', $text: wallet.id },
                                     { $tag: 'td', $text: wallet.attributes.version },
-                                    { $tag: 'td', $text: wallet.attributes.xpub.substring(0, 10) },
+                                    { $tag: 'td', $text: wallet.attributes.xpub.substring(0, 10), title: wallet.attributes.xpub },
                                     button] }
                     case '/multisig_wallets':
                       return { $tag: 'tr', 
                                $virus: hamlism,
                                $$: [{ $tag: 'td', $text: wallet.id },
                                     { $tag: 'td', $text: wallet.attributes.version },
-                                    { $tag: 'td', $text: _.map(wallet.attributes.xpubs, (xpub) => xpub.substring(0, 10)) },
+                                    { $tag: 'td',
+                                      $text: _.map(wallet.attributes.xpubs, (xpub) => xpub.substring(0, 10)).join(', '),
+                                      title: wallet.attributes.xpubs.join(', ') },
                                     { $tag: 'td', $text: wallet.attributes.signers }, button] }
                     default:
                       return []
