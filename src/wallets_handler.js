@@ -15,12 +15,16 @@ export function walletHandler() {
     _addresses: [],
     _wallet: {},
     _wallets: [],
+    _utxos: [],
     _addWallets(wallets) {
       this._wallets = wallets
       this._addresses = []
     },
     _addAddresses(addresses) {
       this._addresses = addresses
+    },
+    _addUtxos(utxos) {
+      this._utxos = utxos
     },
     _getStrAddress(address) {
       switch(this._wallet_type) {
@@ -90,6 +94,7 @@ export function walletHandler() {
                     $virus: buttonism_with_size('Show Addresses', 'info', 'small'),
                     onclick() { 
                       $('.addresses-table').removeClass('d-none')
+                      $('.utxos-table').addClass('d-none')
                       walletService().list(`${self._wallet_type}/${wallet.id}/relationships/addresses`,
                         (successData) => self._addAddresses(_.map(successData.data, (address) => { return self._getStrAddress(address) })),
                         (errorData) => console.log(errorData)) 
@@ -106,7 +111,13 @@ export function walletHandler() {
                             $('#since-tx').val('')
                             $('#limit-tx').val('')
                             $('.utxos-table').removeClass('d-none')
-                            console.log(successData.data)
+                            self._addUtxos(_.map(successData.data, (utxo) => {
+                              return {
+                                amount: utxo.attributes.amount,
+                                prev_hash: utxo.attributes.prev_hash,
+                                prev_index: utxo.attributes.prev_index
+                              }
+                            }))
                           },
                           (errorData) => console.log(errorData))
                       })
@@ -181,6 +192,21 @@ export function walletHandler() {
                 $tag: 'thead',
                 $$: [ { $tag: 'tr', $$: [ { $tag: 'th', $text: 'Amount' }, { $tag: 'th', $text: 'Previous Hash' }, { $tag: 'th', $text: 'Previous Index' } ] } ]
               },
+              {
+                $tag: 'tbody',
+                _fillUtxos(utxo) {
+                  let self = this
+                  return {
+                    $tag: 'tr',
+                    $virus: hamlism,
+                    $$: [ { $tag: 'td', $text: utxo.amount }, { $tag: 'td', $text: utxo.prev_hash }, { $tag: 'td', $text: utxo.prev_index }]
+                  }
+                },
+                update() {
+                  this.innerHTML = ''
+                  _.each(this._utxos, (utxo) => this.$build(this._fillUtxos(utxo)))
+                }
+              }
             ]
           }
         ]
