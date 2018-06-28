@@ -1,7 +1,7 @@
 import {hamlism} from './lib/hamlism.js'
 import {update_epidemic} from './lib/update_epidemic.js'
 import {select_object_groupism, select_groupism, form_groupism, buttonism, buttonism_with_size} from './lib/bootstrapism.js'
-import {modal} from './components/modal.js'
+import {modal} from './components/utxos_modal.js'
 import {addressesList} from './components/addresses_list.js'
 import {utxosList} from './components/utxos_list.js'
 
@@ -21,6 +21,7 @@ export function walletHandler() {
     _utxos: [],
     _displayUtxos: 'none',
     _displayAddresses: 'none',
+    _transaction: {},
     _addWallets(wallets) {
       this._wallets = wallets
       this._addresses = []
