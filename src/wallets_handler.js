@@ -1,7 +1,9 @@
 import {hamlism} from './lib/hamlism.js'
 import {update_epidemic} from './lib/update_epidemic.js'
 import {select_object_groupism, select_groupism, form_groupism, buttonism, buttonism_with_size} from './lib/bootstrapism.js'
-import {modal} from './modal.js'
+import {modal} from './components/modal.js'
+import {addressesList} from './components/addresses_list.js'
+import {utxosList} from './components/utxos_list.js'
 
 import {walletService} from './services/wallet_service.js'
 
@@ -17,6 +19,7 @@ export function walletHandler() {
     _wallet: {},
     _wallets: [],
     _utxos: [],
+    _displayUtxos: 'none',
     _addWallets(wallets) {
       this._wallets = wallets
       this._addresses = []
@@ -53,9 +56,9 @@ export function walletHandler() {
         let self = this
         let url = `${self._walletType}/${self._walletId}/get_utxos?since=${since}&limit=${limit}`
         walletService().list(url, function(successData) {
-          $('#since-tx').val('')
-          $('#limit-tx').val('')
-          $('.utxos-table').removeClass('d-none')
+          self._since = ''
+          self._limit = ''
+          self._displayUtxos = 'block'
           self._addUtxos(_.map(successData.data, (utxo) => {
             return {
               amount: utxo.attributes.amount,
@@ -111,7 +114,7 @@ export function walletHandler() {
                     $virus: buttonism_with_size('Show Addresses', 'info', 'small'),
                     onclick() { 
                       $('.addresses-table').removeClass('d-none')
-                      $('.utxos-table').addClass('d-none')
+                      self._displayUtxos = 'none'
                       walletService().list(`${self._walletType}/${wallet.id}/relationships/addresses`,
                         (successData) => self._addAddresses(_.map(successData.data, (address) => { return self._getStrAddress(address) })),
                         (errorData) => console.log(errorData)) 
@@ -163,54 +166,7 @@ export function walletHandler() {
               }
             ]
           },
-          {
-            $tag: 'table.table.d-none.addresses-table',
-            $$: [
-              {
-                $tag: 'thead',
-                $$: [ { $tag: 'tr', $$: [ { $tag: 'th', $text: 'Address' } ] } ]
-              },
-              {
-                $tag: 'tbody',
-                _fillAddress(address) {
-                  let self = this
-                  return {
-                    $tag: 'tr',
-                    $virus: hamlism,
-                    $$: [ { $tag: 'td', $text: address } ]
-                  }
-                },
-                $update() {
-                  this.innerHTML = ''
-                  _.each(this._addresses, (a) => this.$build(this._fillAddress(a)))
-                }
-              }
-            ]
-          },
-          {
-            $tag: 'table.table.d-none.utxos-table',
-            $$: [
-              {
-                $tag: 'thead',
-                $$: [ { $tag: 'tr', $$: [ { $tag: 'th', $text: 'Amount' }, { $tag: 'th', $text: 'Previous Hash' }, { $tag: 'th', $text: 'Previous Index' } ] } ]
-              },
-              {
-                $tag: 'tbody',
-                _fillUtxos(utxo) {
-                  let self = this
-                  return {
-                    $tag: 'tr',
-                    $virus: hamlism,
-                    $$: [ { $tag: 'td', $text: utxo.amount }, { $tag: 'td', $text: utxo.prev_hash }, { $tag: 'td', $text: utxo.prev_index }]
-                  }
-                },
-                $update() {
-                  this.innerHTML = ''
-                  _.each(this._utxos, (utxo) => this.$build(this._fillUtxos(utxo)))
-                }
-              }
-            ]
-          }
+          addressesList(), utxosList()
         ]
       }
     ]

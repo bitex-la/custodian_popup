@@ -1,5 +1,5 @@
-import {buttonism, buttonism_with_size} from './lib/bootstrapism.js'
-import {update_epidemic} from './lib/update_epidemic.js'
+import {buttonism, buttonism_with_size} from '../lib/bootstrapism.js'
+import {update_epidemic} from '../lib/update_epidemic.js'
 
 export function modal(addUtxos) {
   return {
