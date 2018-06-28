@@ -14,7 +14,6 @@ export function signingHandler(){
     $virus: update_epidemic,
     class: 'form',
     _network_name: 'bitcoin',
-    _transaction_json: '',
     _rawtx: null,
     $update(){
       if(this._rawtx){

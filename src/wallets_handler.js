@@ -2,6 +2,7 @@ import {hamlism} from './lib/hamlism.js'
 import {update_epidemic} from './lib/update_epidemic.js'
 import {select_object_groupism, select_groupism, form_groupism, buttonism, buttonism_with_size} from './lib/bootstrapism.js'
 import {modal} from './components/utxos_modal.js'
+import {modalTx} from './components/output_tx_modal.js'
 import {addressesList} from './components/addresses_list.js'
 import {utxosList} from './components/utxos_list.js'
 
@@ -21,7 +22,12 @@ export function walletHandler() {
     _utxos: [],
     _displayUtxos: 'none',
     _displayAddresses: 'none',
-    _transaction: {},
+    _rawTransactions: [],
+    _transaction: {
+      outputs: [],
+      inputs: [],
+      transactions: []
+    },
     _addWallets(wallets) {
       this._wallets = wallets
       this._addresses = []
@@ -61,11 +67,12 @@ export function walletHandler() {
           self._since = ''
           self._limit = ''
           self._displayUtxos = 'block'
+          self._rawTransactions = successData.data
           self._addUtxos(_.map(successData.data, (utxo) => {
             return {
-              amount: utxo.attributes.amount,
-              prev_hash: utxo.attributes.prev_hash,
-              prev_index: utxo.attributes.prev_index
+              amount: utxo.attributes.transaction.satoshis,
+              prev_hash: utxo.attributes.transaction.transaction_hash,
+              prev_index: utxo.attributes.transaction.position
             }
           }))
         },
@@ -168,7 +175,39 @@ export function walletHandler() {
               }
             ]
           },
-          addressesList(), utxosList()
+          addressesList(),
+          utxosList(),
+          modalTx(function(scriptType, address, amount) {
+            let self = this
+            self._transaction.outputs.push({ script_type: scriptType, address, amount })
+            _.forEach(self._rawTransactions, function (rawTx) {
+              self._transaction.inputs.push({
+                address_n: rawTx.attributes.address.path,
+                prev_hash: rawTx.attributes.transaction.transaction_hash,
+                prev_index: rawTx.attributes.transaction.position
+              })
+              self._transaction.transactions.push({
+                hash: rawTx.attributes.transaction.transaction_hash,
+                version: rawTx.attributes.transaction.version,
+                lock_time: rawTx.attributes.transaction.locktime,
+                inputs: _.map(rawTx.attributes.transaction.inputs, function(input) {
+                  return {
+                    prev_hash: input.prev_hash,
+                    prev_index: input.prev_index,
+                    sequence: input.sequence,
+                    script_sig: input.script_sig
+                  }
+                }),
+                bin_outputs: _.map(rawTx.attributes.transaction.outputs, function(output) {
+                  return {
+                    amount: output.amount,
+                    script_pubkey: output.script_pubkey
+                  }
+                })
+              })
+            })
+            self._transaction_json = self._transaction
+          })
         ]
       }
     ]

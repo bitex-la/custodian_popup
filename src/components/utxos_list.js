@@ -54,7 +54,7 @@ export function utxosList() {
       }, {
         $virus: buttonism_with_size('Create Transaction', 'primary', 'block'),
         onclick() {
-          console.log('constructTransaction')
+          $('#modalDialogTx').modal('show')
         }
       }]
     }]

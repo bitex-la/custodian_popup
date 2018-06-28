@@ -22,11 +22,13 @@ import {debuggerHandler} from './debugger_handler.js'
 import {walletHandler} from './wallets_handler.js'
 import {hamlism} from './lib/hamlism.js'
 import {tabbism} from './lib/bootstrapism.js'
+import {update_epidemic} from './lib/update_epidemic.js'
 
 window.app = {
   $cell: true,
   $tag: 'body.container',
-  $virus: [hamlism, tabbism],
+  $virus: [hamlism, tabbism, update_epidemic],
+  _transaction_json: '',
   $$: [
     signingHandler(),
     multisigSetupHandler(),

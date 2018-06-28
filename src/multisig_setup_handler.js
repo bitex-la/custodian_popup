@@ -44,7 +44,7 @@ function hdNodesManager(){
     _setPath: function(string){
       this._path = string ? bip32.fromString(string).toPathArray() : []
     },
-    _xpub: null,
+    _xpub: '',
     _hdNodeFromTrezor(){
       loading()
       device.run((d) => {
@@ -106,6 +106,7 @@ function hdNodesManager(){
         { $tag: 'input#multisig_setup_xpub.form-control',
           name: 'xpub',
           type: 'text',
+          $update() { this.value = this._xpub  },
           onchange(e){ this._xpub = e.target.value }
         },
         { class: 'input-group-btn', $$: [
