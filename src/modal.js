@@ -6,6 +6,8 @@ export function modal(addUtxos) {
     id: 'modalDialog',
     class: 'modal fade',
     role: 'dialog',
+    _since: '',
+    _limit: '',
     $$: [
       {
         class: 'modal-dialog',
@@ -45,7 +47,13 @@ export function modal(addUtxos) {
                     id: 'since-tx',
                     class: 'form-control',
                     placeholder: 'since',
-                    type: 'number'
+                    type: 'number',
+                    $update() {
+                      this.value = this._since
+                    },
+                    onchange(e) {
+                      this._since = e.target.value
+                    }
                   },
                   {
                     $tag: 'input',
@@ -53,21 +61,13 @@ export function modal(addUtxos) {
                     id: 'limit-tx',
                     class: 'form-control',
                     placeholder: 'limit',
-                    type: 'number'
-                  },
-                  {
-                    $tag: 'input',
-                    name: 'wallet-id',
-                    id: 'wallet-id',
-                    class: 'form-control',
-                    type: 'hidden'
-                  },
-                  {
-                    $tag: 'input',
-                    name: 'wallet-type',
-                    id: 'wallet-type',
-                    class: 'form-control',
-                    type: 'hidden'
+                    type: 'number',
+                    $update() {
+                      this.value = this._limit
+                    },
+                    onchange(e) {
+                      this._limit = e.target.value
+                    }
                   }
                 ]
               },
@@ -83,7 +83,7 @@ export function modal(addUtxos) {
                     $virus: buttonism_with_size('Send', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     onclick() {
-                      addUtxos.call(this, $('#wallet-type').val(), $('#wallet-id').val())
+                      addUtxos.call(this, this._walletType, this._walletId, this._since, this._limit)
                     }
                   }
                 ]

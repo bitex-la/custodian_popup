@@ -10,7 +10,8 @@ export function walletHandler() {
     id: 'wallets',
     $virus: update_epidemic,
     class: 'form',
-    _wallet_type: '',
+    _walletType: '',
+    _walletId: 0,
     _address: '',
     _addresses: [],
     _wallet: {},
@@ -27,7 +28,7 @@ export function walletHandler() {
       this._utxos = utxos
     },
     _getStrAddress(address) {
-      switch(this._wallet_type) {
+      switch(this._walletType) {
         case '/plain_wallets':
           return address.id
           break
@@ -36,7 +37,7 @@ export function walletHandler() {
       }
     },
     _buildWalletsTable() {
-      switch(this._wallet_type) {
+      switch(this._walletType) {
         case '/plain_wallets':
           return ['Id', 'Version', '', '']
         case '/hd_wallets':
@@ -48,9 +49,9 @@ export function walletHandler() {
       }
     },
     $$: [
-      modal(function (walletType, walletId) {
-        let url = `${walletType}/${walletId}/get_utxos?since=${$('#since-tx').val()}&limit=${$('#limit-tx').val()}`
+      modal(function (walletType, walletId, since, limit) {
         let self = this
+        let url = `${self._walletType}/${self._walletId}/get_utxos?since=${since}&limit=${limit}`
         walletService().list(url, function(successData) {
           $('#since-tx').val('')
           $('#limit-tx').val('')
@@ -73,10 +74,10 @@ export function walletHandler() {
         name: 'wallet_type',
         onchange(e) {
           let self = this
-          this._wallet_type = e.target.value
+          this._walletType = e.target.value
           this._wallets = []
           document.getElementsByClassName('wallets-table')[0].classList.remove('d-none')
-          walletService().list(self._wallet_type,
+          walletService().list(self._walletType,
             (successData) => self._addWallets(successData.data),
             (errorData) => console.log(errorData))
         }
@@ -111,7 +112,7 @@ export function walletHandler() {
                     onclick() { 
                       $('.addresses-table').removeClass('d-none')
                       $('.utxos-table').addClass('d-none')
-                      walletService().list(`${self._wallet_type}/${wallet.id}/relationships/addresses`,
+                      walletService().list(`${self._walletType}/${wallet.id}/relationships/addresses`,
                         (successData) => self._addAddresses(_.map(successData.data, (address) => { return self._getStrAddress(address) })),
                         (errorData) => console.log(errorData)) 
                     }
@@ -119,15 +120,12 @@ export function walletHandler() {
                   let utxosButton = {
                     $virus: buttonism_with_size('Show Utxos', 'info', 'small'),
                     onclick() { 
+                      self._walletId = wallet.id
                       $('.addresses-table').addClass('d-none')
                       $('#modalDialog').modal('show')
-                      $('#modalDialog').on('shown.bs.modal', (event) => {
-                        $('#modalDialog').find('#wallet-id').val(wallet.id)
-                        $('#modalDialog').find('#wallet-type').val(self._wallet_type)
-                      })
                     }
                   }
-                  switch(self._wallet_type) {
+                  switch(self._walletType) {
                     case '/plain_wallets':
                       return { $tag: 'tr',
                                $virus: hamlism,
