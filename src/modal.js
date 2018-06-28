@@ -1,9 +1,9 @@
+import {buttonism, buttonism_with_size} from './lib/bootstrapism.js'
 import {update_epidemic} from './lib/update_epidemic.js'
 
-export function modal() {
+export function modal(addUtxos) {
   return {
     id: 'modalDialog',
-    $virus: update_epidemic,
     class: 'modal fade',
     role: 'dialog',
     $$: [
@@ -54,6 +54,20 @@ export function modal() {
                     class: 'form-control',
                     placeholder: 'limit',
                     type: 'number'
+                  },
+                  {
+                    $tag: 'input',
+                    name: 'wallet-id',
+                    id: 'wallet-id',
+                    class: 'form-control',
+                    type: 'hidden'
+                  },
+                  {
+                    $tag: 'input',
+                    name: 'wallet-type',
+                    id: 'wallet-type',
+                    class: 'form-control',
+                    type: 'hidden'
                   }
                 ]
               },
@@ -66,10 +80,11 @@ export function modal() {
                     $text: 'Close'
                   },
                   {
-                    $tag: 'button.btn.btn-primary',
-                    $text: 'Send',
+                    $virus: buttonism_with_size('Send', 'primary', 'small'),
                     'data-dismiss': 'modal',
-                    id: 'okModalHandler'
+                    onclick() {
+                      addUtxos.call(this, $('#wallet-type').val(), $('#wallet-id').val())
+                    }
                   }
                 ]
               }

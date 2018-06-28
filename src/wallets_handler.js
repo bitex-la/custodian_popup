@@ -48,7 +48,23 @@ export function walletHandler() {
       }
     },
     $$: [
-      modal(),
+      modal(function (walletType, walletId) {
+        let url = `${walletType}/${walletId}/get_utxos?since=${$('#since-tx').val()}&limit=${$('#limit-tx').val()}`
+        let self = this
+        walletService().list(url, function(successData) {
+          $('#since-tx').val('')
+          $('#limit-tx').val('')
+          $('.utxos-table').removeClass('d-none')
+          self._addUtxos(_.map(successData.data, (utxo) => {
+            return {
+              amount: utxo.attributes.amount,
+              prev_hash: utxo.attributes.prev_hash,
+              prev_index: utxo.attributes.prev_index
+            }
+          }))
+        },
+        function (errorData) { console.log(errorData) })
+      }),
       { $virus: select_object_groupism('Wallet Type', [
           {id: '', text: 'Select a type wallet'},
           {id: '/plain_wallets', text: 'Plain'},
@@ -105,21 +121,9 @@ export function walletHandler() {
                     onclick() { 
                       $('.addresses-table').addClass('d-none')
                       $('#modalDialog').modal('show')
-                      $('#okModalHandler').click(() => {
-                        walletService().list(`${self._wallet_type}/${wallet.id}/get_utxos?since=${$('#since-tx').val()}&limit=${$('#limit-tx').val()}`,
-                          (successData) => {
-                            $('#since-tx').val('')
-                            $('#limit-tx').val('')
-                            $('.utxos-table').removeClass('d-none')
-                            self._addUtxos(_.map(successData.data, (utxo) => {
-                              return {
-                                amount: utxo.attributes.amount,
-                                prev_hash: utxo.attributes.prev_hash,
-                                prev_index: utxo.attributes.prev_index
-                              }
-                            }))
-                          },
-                          (errorData) => console.log(errorData))
+                      $('#modalDialog').on('shown.bs.modal', (event) => {
+                        $('#modalDialog').find('#wallet-id').val(wallet.id)
+                        $('#modalDialog').find('#wallet-type').val(self._wallet_type)
                       })
                     }
                   }
@@ -202,7 +206,7 @@ export function walletHandler() {
                     $$: [ { $tag: 'td', $text: utxo.amount }, { $tag: 'td', $text: utxo.prev_hash }, { $tag: 'td', $text: utxo.prev_index }]
                   }
                 },
-                update() {
+                $update() {
                   this.innerHTML = ''
                   _.each(this._utxos, (utxo) => this.$build(this._fillUtxos(utxo)))
                 }
