@@ -20,6 +20,7 @@ export function walletHandler() {
     _wallets: [],
     _utxos: [],
     _displayUtxos: 'none',
+    _displayAddresses: 'none',
     _addWallets(wallets) {
       this._wallets = wallets
       this._addresses = []
@@ -113,8 +114,8 @@ export function walletHandler() {
                   let addressesButton = {
                     $virus: buttonism_with_size('Show Addresses', 'info', 'small'),
                     onclick() { 
-                      $('.addresses-table').removeClass('d-none')
                       self._displayUtxos = 'none'
+                      self._displayAddresses = 'block'
                       walletService().list(`${self._walletType}/${wallet.id}/relationships/addresses`,
                         (successData) => self._addAddresses(_.map(successData.data, (address) => { return self._getStrAddress(address) })),
                         (errorData) => console.log(errorData)) 
@@ -124,7 +125,7 @@ export function walletHandler() {
                     $virus: buttonism_with_size('Show Utxos', 'info', 'small'),
                     onclick() { 
                       self._walletId = wallet.id
-                      $('.addresses-table').addClass('d-none')
+                      self._displayAddresses = 'none'
                       $('#modalDialog').modal('show')
                     }
                   }

@@ -2,7 +2,11 @@ import {hamlism} from '../lib/hamlism.js'
 
 export function addressesList() {
   return {
-    $tag: 'table.table.d-none.addresses-table',
+    $tag: 'table.table.addresses-table',
+    style: 'display: none',
+    $update () {
+      this.style = `display: ${this._displayAddresses}`
+    },
     $$: [
       {
         $tag: 'thead',
