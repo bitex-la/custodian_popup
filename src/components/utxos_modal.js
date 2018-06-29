@@ -1,5 +1,4 @@
-import {buttonism, buttonism_with_size} from '../lib/bootstrapism.js'
-import {update_epidemic} from '../lib/update_epidemic.js'
+import {buttonism, buttonismWithSize} from '../lib/bootstrapism.js'
 
 export function modal(addUtxos) {
   return {
@@ -95,7 +94,7 @@ export function modal(addUtxos) {
                     $text: 'Close'
                   },
                   {
-                    $virus: buttonism_with_size('Send', 'primary', 'small'),
+                    $virus: buttonismWithSize('Send', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     onclick() {
                       addUtxos.call(this, this._walletType, this._walletId, this._since, this._limit)

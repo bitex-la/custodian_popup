@@ -1,5 +1,5 @@
 import {hamlism} from '../lib/hamlism.js'
-import {buttonism_with_size} from '../lib/bootstrapism.js'
+import {buttonismWithSize} from '../lib/bootstrapism.js'
 
 export function utxosList() {
   return {
@@ -52,7 +52,7 @@ export function utxosList() {
           }
         }]
       }, {
-        $virus: buttonism_with_size('Create Transaction', 'primary', 'block'),
+        $virus: buttonismWithSize('Create Transaction', 'primary', 'block'),
         'data-toggle': 'modal',
         'data-target': '#modalDialogTx',
         onclick() {

@@ -2,8 +2,8 @@ import * as device from './device.js'
 import * as bitcoin from 'bitcoinjs-lib'
 import {showError, loading, notLoading} from './messages.js'
 import {hamlism} from './lib/hamlism.js'
-import {buttonism, buttonism_with_size, select_groupism, form_groupism} from './lib/bootstrapism.js'
-import {update_epidemic} from './lib/update_epidemic.js'
+import {buttonism, buttonismWithSize, selectGroupism, formGroupism} from './lib/bootstrapism.js'
+import {updateEpidemic} from './lib/update_epidemic.js'
 import {walletService} from './services/wallet_service.js'
 
 var bip32 = require('bip32-path')
@@ -15,7 +15,7 @@ export function multisigSetupHandler(){
   let id = 'multisig_setup'
   return {
     id: 'multisig_setup',
-    $virus: update_epidemic,
+    $virus: updateEpidemic,
     _hdNodes: [],
     _network_name: 'bitcoin',
     _network(){
@@ -25,7 +25,7 @@ export function multisigSetupHandler(){
       _.each(this._hdNodes, (n) => n.keyPair.network = this._network())
     },
     $components: [
-      { $virus: select_groupism('Network', _.keys(bitcoin.networks), 'bitcoin'),
+      { $virus: selectGroupism('Network', _.keys(bitcoin.networks), 'bitcoin'),
         id: 'multisig_setup_network',
         name: 'network',
         onchange(e){ this._network_name = e.target.value }
@@ -77,11 +77,11 @@ function hdNodesManager(){
             $virus: hamlism,
             $tag: '.float-sm-right',
             $$: [
-              { $virus: buttonism_with_size('Create Hd Wallet', 'success', 'small'),
+              { $virus: buttonismWithSize('Create Hd Wallet', 'success', 'small'),
                 onclick(){ custodianManager()._sendHdToCustodian(hdNode) }
               },
               { $tag: 'span', $text: ' ' },
-              { $virus: buttonism_with_size('Create Plain Wallet', 'success', 'small'),
+              { $virus: buttonismWithSize('Create Plain Wallet', 'success', 'small'),
                 onclick(){ custodianManager()._sendPlainToCustodian(hdNode) }
               }
             ]
@@ -91,7 +91,7 @@ function hdNodesManager(){
     },
     $$: [
       { $type: 'h4', $text: '1. Add some HD nodes' },
-      { $virus: form_groupism('Derive a path?'),
+      { $virus: formGroupism('Derive a path?'),
         $tag: 'input#multisig_setup_path',
         $help: `Derive this path from the provided xpub or trezor, and add that
           HD node instead instead of the root one.
@@ -229,19 +229,19 @@ function custodianManager() {
 function multisigManager(){
   return {
     class: "well well-sm",
-    $virus: update_epidemic,
+    $virus: updateEpidemic,
     _path: null,
     _required: null,
     custodianManager,
     $$: [
       { $type: 'h4', $text: '2. Create a multisig address' },
-      { $virus: form_groupism('Required signers'),
+      { $virus: formGroupism('Required signers'),
         $tag: 'input',
         name: 'required',
         type: 'text',
         onkeyup(e){ this._required = e.target.value }
       },
-      { $virus: form_groupism('Path within multisig tree'),
+      { $virus: formGroupism('Path within multisig tree'),
         $tag: 'input',
         name: 'path',
         type: 'text',

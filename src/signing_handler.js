@@ -1,8 +1,8 @@
 import * as device from './device.js'
 import * as bitcoin from 'bitcoinjs-lib'
 import {showError, showSuccess, loading, notLoading} from './messages.js'
-import {select_groupism, buttonism, form_groupism, cardism} from './lib/bootstrapism.js'
-import {update_epidemic} from './lib/update_epidemic.js'
+import {selectGroupism, buttonism, cardism} from './lib/bootstrapism.js'
+import {updateEpidemic} from './lib/update_epidemic.js'
 var bip32 = require('bip32-path')
 var _ = require('lodash')
 
@@ -11,7 +11,7 @@ window.bitcoin = bitcoin
 export function signingHandler(){
   return {
     id: 'signing',
-    $virus: update_epidemic,
+    $virus: updateEpidemic,
     class: 'form',
     _network_name: 'bitcoin',
     _rawtx: null,
@@ -25,7 +25,7 @@ export function signingHandler(){
       }
     },
     $$: [
-      { $virus: select_groupism('Network', _.keys(bitcoin.networks), 'bitcoin'),
+      { $virus: selectGroupism('Network', _.keys(bitcoin.networks), 'bitcoin'),
         name: 'network',
         $update(){ this.value = this._network_name },
         onchange(e){ this._network_name = e.target.value }

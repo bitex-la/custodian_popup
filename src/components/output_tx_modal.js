@@ -1,13 +1,13 @@
 import {hamlism} from '../lib/hamlism.js'
-import {buttonism, buttonism_with_size, select_object_groupism} from '../lib/bootstrapism.js'
-import {update_epidemic} from '../lib/update_epidemic.js'
+import {buttonism, buttonismWithSize, selectObjectGroupism} from '../lib/bootstrapism.js'
+import {updateEpidemic} from '../lib/update_epidemic.js'
 
 export function modalTx(amountFn, addOutputs, createTx) {
   return {
     id: 'modalDialogTx',
     class: 'modal fade',
     role: 'dialog',
-    $virus: update_epidemic,
+    $virus: updateEpidemic,
     _scriptType: '',
     _address: '',
     _amount: 0,
@@ -47,7 +47,7 @@ export function modalTx(amountFn, addOutputs, createTx) {
               {
                 class: 'modal-body',
                 $$: [
-                  { $virus: select_object_groupism('Script Type', [
+                  { $virus: selectObjectGroupism('Script Type', [
                     {id: '', text: 'Select a script type'},
                     {id: 'PAYTOADDRESS', text: 'PAYTOADDRESS'},
                     {id: 'PAYTOSCRIPTHASH', text: 'PAYTOSCRIPTHASH'}], 'script_type'),
@@ -166,7 +166,7 @@ export function modalTx(amountFn, addOutputs, createTx) {
                     }
                   },
                   {
-                    $virus: buttonism_with_size('Create', 'primary', 'small'),
+                    $virus: buttonismWithSize('Create', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     onclick() {
                       createTx(this)

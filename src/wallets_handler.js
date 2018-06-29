@@ -1,6 +1,6 @@
 import {hamlism} from './lib/hamlism.js'
-import {update_epidemic} from './lib/update_epidemic.js'
-import {select_object_groupism, select_groupism, form_groupism, buttonism, buttonism_with_size} from './lib/bootstrapism.js'
+import {updateEpidemic} from './lib/update_epidemic.js'
+import {selectObjectGroupism, buttonism, buttonismWithSize} from './lib/bootstrapism.js'
 import {modal} from './components/utxos_modal.js'
 import {modalTx} from './components/output_tx_modal.js'
 import {addressesList} from './components/addresses_list.js'
@@ -11,7 +11,7 @@ import {walletService} from './services/wallet_service.js'
 export function walletHandler() {
   return {
     id: 'wallets',
-    $virus: update_epidemic,
+    $virus: updateEpidemic,
     class: 'form',
     _walletType: '',
     _walletId: 0,
@@ -78,7 +78,7 @@ export function walletHandler() {
         },
         function (errorData) { console.log(errorData) })
       }),
-      { $virus: select_object_groupism('Wallet Type', [
+      { $virus: selectObjectGroupism('Wallet Type', [
           {id: '', text: 'Select a type wallet'},
           {id: '/plain_wallets', text: 'Plain'},
           {id: '/hd_wallets', text: 'Hd'},
@@ -120,7 +120,7 @@ export function walletHandler() {
                 _fillWallet(wallet) {
                   let self = this
                   let addressesButton = {
-                    $virus: buttonism_with_size('Show Addresses', 'info', 'small'),
+                    $virus: buttonismWithSize('Show Addresses', 'info', 'small'),
                     onclick() { 
                       self._displayUtxos = 'none'
                       self._displayAddresses = 'block'
@@ -130,7 +130,7 @@ export function walletHandler() {
                     }
                   }
                   let utxosButton = {
-                    $virus: buttonism_with_size('Show Utxos', 'info', 'small'),
+                    $virus: buttonismWithSize('Show Utxos', 'info', 'small'),
                     'data-toggle': 'modal',
                     'data-target': '#modalDialog',
                     onclick() { 

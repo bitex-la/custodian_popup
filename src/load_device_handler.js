@@ -1,31 +1,31 @@
 import * as device from './device.js'
 import {showSuccess, loading, notLoading} from './messages.js'
-import {form_checkism, form_groupism} from './lib/bootstrapism.js'
+import {formCheckism, formGroupism} from './lib/bootstrapism.js'
 
 export function loadDeviceHandler(){
   return {
     $tag: 'form#load_device',
     $$: [
       { $tag: 'input#load_device_label',
-        $virus: form_groupism('Label'),
+        $virus: formGroupism('Label'),
         type: 'text',
         name: 'label',
       },
       { $tag: 'input#load_device_pin',
-        $virus: form_groupism('PIN'),
+        $virus: formGroupism('PIN'),
         type: 'text',
         name: 'pin',
       },
       { $tag: 'textarea#load_device_mnemonic',
-        $virus: form_groupism('Mnemonic'),
+        $virus: formGroupism('Mnemonic'),
         name: 'mnemonic',
         rows: 5
       },
-      { $virus: form_checkism('Use Passphrase'),
+      { $virus: formCheckism('Use Passphrase'),
         name: 'passphrase_protection',
         id: 'load_device_passphrase_protection',
       },
-      { $virus: form_checkism('Skip Checksum'),
+      { $virus: formCheckism('Skip Checksum'),
         name: 'skip_checksum',
         id: 'load_device_skip_checksum',
       },

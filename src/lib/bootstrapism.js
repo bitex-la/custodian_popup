@@ -1,6 +1,6 @@
 import {hamlism} from './hamlism.js'
 
-export function form_groupism(label){
+export function formGroupism(label){
   return function(component){
     delete component.$virus
     component.class = 'form-control'
@@ -28,7 +28,7 @@ export function form_groupism(label){
   }
 }
 
-export function form_checkism(label){
+export function formCheckism(label){
   return function(component){
     delete component.$virus
     Object.assign(component, {
@@ -50,7 +50,7 @@ export function form_checkism(label){
   }
 }
 
-export function select_groupism(label, options, selected){
+export function selectGroupism(label, options, selected){
   return function(component){
     let select = Object.assign(component, {
       $type: 'select',
@@ -67,7 +67,7 @@ export function select_groupism(label, options, selected){
   }
 }
 
-export function select_object_groupism(label, options, selected){
+export function selectObjectGroupism(label, options, selected){
   return function(component){
     let select = Object.assign(component, {
       $type: 'select',
@@ -93,7 +93,7 @@ export function buttonism(label, kind = 'primary'){
   }
 }
 
-export function buttonism_with_size(label, kind = 'primary', size = 'block'){
+export function buttonismWithSize(label, kind = 'primary', size = 'block'){
   return function(component){
     return hamlism(_.merge(component, {
       $tag: `button.btn.btn-${size}.btn-${kind}`,

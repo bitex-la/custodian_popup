@@ -1,4 +1,4 @@
-export function update_epidemic(component){
+export function updateEpidemic(component){
 	let recursive_update = (node) => {
 		for(let n of node.children){
 			n.$update && n.$update()
