@@ -103,11 +103,15 @@ export function modalTx(amountFn, addOutputs, createTx) {
                         }, {
                           $tag: 'th',
                           $text: 'Amount'
+                        }, {
+                          $tag: 'th',
+                          $text: ''
                         }]
                       }]
                     }, {
                       $tag: 'tbody',
                       _fillOutputs(output) {
+                        let self = this
                         return {
                           $tag: 'tr',
                           $virus: hamlism,
@@ -120,6 +124,20 @@ export function modalTx(amountFn, addOutputs, createTx) {
                           }, {
                             $tag: 'td',
                             $text: output.amount
+                          }, {
+                            $tag: 'button.close',
+                            'aria-label': 'Close',
+                            $$: [
+                              {
+                                $tag: 'span',
+                                'aria-hidden': true,
+                                $text: 'x'
+                              }
+                            ],
+                            onclick() {
+                              _.remove(self._transaction.outputs, (_output) => { return  _output == output })
+                              self._updateAmount()
+                            }
                           }]
                         }
                       },
