@@ -131,10 +131,11 @@ export function walletHandler() {
                   }
                   let utxosButton = {
                     $virus: buttonism_with_size('Show Utxos', 'info', 'small'),
+                    'data-toggle': 'modal',
+                    'data-target': '#modalDialog',
                     onclick() { 
                       self._walletId = wallet.id
                       self._displayAddresses = 'none'
-                      $('#modalDialog').modal('show')
                     }
                   }
                   switch(self._walletType) {
@@ -177,37 +178,38 @@ export function walletHandler() {
           },
           addressesList(),
           utxosList(),
-          modalTx(function(scriptType, address, amount) {
-            let self = this
-            self._transaction.outputs.push({ script_type: scriptType, address, amount })
-            _.forEach(self._rawTransactions, function (rawTx) {
-              self._transaction.inputs.push({
-                address_n: rawTx.attributes.address.path,
-                prev_hash: rawTx.attributes.transaction.transaction_hash,
-                prev_index: rawTx.attributes.transaction.position
-              })
-              self._transaction.transactions.push({
-                hash: rawTx.attributes.transaction.transaction_hash,
-                version: rawTx.attributes.transaction.version,
-                lock_time: rawTx.attributes.transaction.locktime,
-                inputs: _.map(rawTx.attributes.transaction.inputs, function(input) {
-                  return {
-                    prev_hash: input.prev_hash,
-                    prev_index: input.prev_index,
-                    sequence: input.sequence,
-                    script_sig: input.script_sig
-                  }
-                }),
-                bin_outputs: _.map(rawTx.attributes.transaction.outputs, function(output) {
-                  return {
-                    amount: output.amount,
-                    script_pubkey: output.script_pubkey
-                  }
+          modalTx((self) => _.sum(_.flatMap(self._rawTransactions, (tx) => _.map(tx.attributes.transaction.outputs, (output) => output.amount ))), 
+            (self, scriptType, address, amount) => self._transaction.outputs.push({ script_type: scriptType, address, amount }),
+            (self) => {
+              _.forEach(self._rawTransactions, function (rawTx) {
+                self._transaction.inputs.push({
+                  address_n: rawTx.attributes.address.path,
+                  prev_hash: rawTx.attributes.transaction.transaction_hash,
+                  prev_index: rawTx.attributes.transaction.position
+                })
+                self._transaction.transactions.push({
+                  hash: rawTx.attributes.transaction.transaction_hash,
+                  version: rawTx.attributes.transaction.version,
+                  lock_time: rawTx.attributes.transaction.locktime,
+                  inputs: _.map(rawTx.attributes.transaction.inputs, function(input) {
+                    return {
+                      prev_hash: input.prev_hash,
+                      prev_index: input.prev_index,
+                      sequence: input.sequence,
+                      script_sig: input.script_sig
+                    }
+                  }),
+                  bin_outputs: _.map(rawTx.attributes.transaction.outputs, function(output) {
+                    return {
+                      amount: output.amount,
+                      script_pubkey: output.script_pubkey
+                    }
+                  })
                 })
               })
-            })
-            self._transaction_json = self._transaction
-          })
+              self._transaction_json = self._transaction
+            }
+          )
         ]
       }
     ]

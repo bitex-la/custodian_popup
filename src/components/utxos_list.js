@@ -53,8 +53,10 @@ export function utxosList() {
         }]
       }, {
         $virus: buttonism_with_size('Create Transaction', 'primary', 'block'),
+        'data-toggle': 'modal',
+        'data-target': '#modalDialogTx',
         onclick() {
-          $('#modalDialogTx').modal('show')
+          document.querySelector('#modalDialogTx').updateAmount()
         }
       }]
     }]

@@ -1,14 +1,19 @@
+import {hamlism} from '../lib/hamlism.js'
 import {buttonism, buttonism_with_size, select_object_groupism} from '../lib/bootstrapism.js'
 import {update_epidemic} from '../lib/update_epidemic.js'
 
-export function modalTx(createTx) {
+export function modalTx(amountFn, addOutputs, createTx) {
   return {
     id: 'modalDialogTx',
     class: 'modal fade',
     role: 'dialog',
+    $virus: update_epidemic,
     _scriptType: '',
     _address: '',
     _amount: 0,
+    updateAmount() {
+      this._amount = amountFn(this)
+    },
     $$: [
       {
         class: 'modal-dialog',
@@ -82,6 +87,47 @@ export function modalTx(createTx) {
                     onchange(e) {
                       this._amount = e.target.value
                     }
+                  },
+                  {
+                    $tag: 'table.table',
+                    $$: [{
+                      $tag: 'thead',
+                      $$: [{
+                        $tag: 'tr',
+                        $$: [{
+                          $tag: 'th',
+                          $text: 'Script Type'
+                        }, {
+                          $tag: 'th',
+                          $text: 'Address'
+                        }, {
+                          $tag: 'th',
+                          $text: 'Amount'
+                        }]
+                      }]
+                    }, {
+                      $tag: 'tbody',
+                      _fillOutputs(output) {
+                        return {
+                          $tag: 'tr',
+                          $virus: hamlism,
+                          $$: [{
+                            $tag: 'td',
+                            $text: output.script_type
+                          }, {
+                            $tag: 'td',
+                            $text: output.address
+                          }, {
+                            $tag: 'td',
+                            $text: output.amount
+                          }]
+                        }
+                      },
+                      $update() {
+                        this.innerHTML = ''
+                        _.each(this._transaction.outputs, (output) => this.$build(this._fillOutputs(output)))
+                      }
+                    }]
                   }
                 ]
               },
@@ -94,10 +140,17 @@ export function modalTx(createTx) {
                     $text: 'Close'
                   },
                   {
-                    $virus: buttonism_with_size('Send', 'primary', 'small'),
+                    $tag: 'button.btn.btn-success',
+                    $text: 'Add',
+                    onclick() {
+                      addOutputs(this, this._scriptType, this._address, this._amount)
+                    }
+                  },
+                  {
+                    $virus: buttonism_with_size('Create', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     onclick() {
-                      createTx.call(this, this._scriptType, this._address, this._amount)
+                      createTx(this)
                     }
                   }
                 ]

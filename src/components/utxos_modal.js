@@ -40,36 +40,51 @@ export function modal(addUtxos) {
               },
               {
                 class: 'modal-body',
-                $$: [
-                  {
-                    $tag: 'input',
-                    name: 'since',
-                    id: 'since-tx',
-                    class: 'form-control',
-                    placeholder: 'since',
-                    type: 'number',
-                    $update() {
-                      this.value = this._since
+                $$: [{
+                  $tag: '.row',
+                  $$: [
+                    {
+                      $tag: '.col-sm',
+                      $$: [{
+                        $tag: 'input',
+                        name: 'since',
+                        id: 'since-tx',
+                        class: 'form-control',
+                        placeholder: 'since',
+                        type: 'number',
+                        $update() {
+                          this.value = this._since
+                        },
+                        onchange(e) {
+                          this._since = e.target.value
+                        }
+                      }]
                     },
-                    onchange(e) {
-                      this._since = e.target.value
+                    {
+                      $tag: '.col-sm',
+                      $$: [{
+                        $tag: 'input',
+                        name: 'limit',
+                        id: 'limit-tx',
+                        class: 'form-control',
+                        placeholder: 'limit',
+                        type: 'number',
+                        $update() {
+                          this.value = this._limit
+                        },
+                        onchange(e) {
+                          this._limit = e.target.value
+                        },
+                        onkeyup(e) {
+                          if (e.keyCode == 13) {
+                            addUtxos.call(this, this._walletType, this._walletId, this._since, this._limit)
+                            $('#modalDialog').modal('hide')
+                          }
+                        }
+                      }]
                     }
-                  },
-                  {
-                    $tag: 'input',
-                    name: 'limit',
-                    id: 'limit-tx',
-                    class: 'form-control',
-                    placeholder: 'limit',
-                    type: 'number',
-                    $update() {
-                      this.value = this._limit
-                    },
-                    onchange(e) {
-                      this._limit = e.target.value
-                    }
-                  }
-                ]
+                  ]
+                }]
               },
               {
                 class: 'modal-footer',
