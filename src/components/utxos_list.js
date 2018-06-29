@@ -56,7 +56,7 @@ export function utxosList() {
         'data-toggle': 'modal',
         'data-target': '#modalDialogTx',
         onclick() {
-          document.querySelector('#modalDialogTx').updateAmount()
+          document.querySelector('#modalDialogTx')._updateAmount()
         }
       }]
     }]

@@ -11,12 +11,12 @@ export function modalTx(amountFn, addOutputs, createTx) {
     _scriptType: '',
     _address: '',
     _amount: 0,
-    updateAmount() {
-      this._amount = amountFn(this)
+    _updateAmount() {
+      this._amount = amountFn(this) - _.sum(_.map(this._transaction.outputs, (tx) => parseFloat(tx.amount)))
     },
     $$: [
       {
-        class: 'modal-dialog',
+        class: 'modal-dialog modal-lg',
         role: 'document',
         $$: [
           {
@@ -144,6 +144,7 @@ export function modalTx(amountFn, addOutputs, createTx) {
                     $text: 'Add',
                     onclick() {
                       addOutputs(this, this._scriptType, this._address, this._amount)
+                      this._updateAmount()
                     }
                   },
                   {
