@@ -29,6 +29,7 @@ window.app = {
   $tag: 'body.container',
   $virus: [hamlism, tabbism, updateEpidemic],
   _transaction_json: '',
+  _networkName: 'bitcoin',
   $$: [
     signingHandler(),
     multisigSetupHandler(),

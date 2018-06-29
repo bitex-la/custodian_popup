@@ -17,9 +17,8 @@ export function multisigSetupHandler(){
     id: 'multisig_setup',
     $virus: updateEpidemic,
     _hdNodes: [],
-    _network_name: 'bitcoin',
     _network(){
-      return bitcoin.networks[this._network_name]
+      return bitcoin.networks[this._networkName]
     },
     $update(){
       _.each(this._hdNodes, (n) => n.keyPair.network = this._network())
@@ -28,7 +27,7 @@ export function multisigSetupHandler(){
       { $virus: selectGroupism('Network', _.keys(bitcoin.networks), 'bitcoin'),
         id: 'multisig_setup_network',
         name: 'network',
-        onchange(e){ this._network_name = e.target.value }
+        onchange(e){ this._networkName = e.target.value }
       },
       hdNodesManager(),
       { $tag: 'hr' },
@@ -48,7 +47,7 @@ function hdNodesManager(){
     _hdNodeFromTrezor(){
       loading()
       device.run((d) => {
-        return d.session.getPublicKey(this._path, this._network_name)
+        return d.session.getPublicKey(this._path, this._networkName)
           .then((result) => {
             this._addHdNodeFromXpub(result.message.xpub)
             notLoading()

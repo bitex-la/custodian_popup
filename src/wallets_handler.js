@@ -7,6 +7,7 @@ import {addressesList} from './components/addresses_list.js'
 import {utxosList} from './components/utxos_list.js'
 
 import {walletService} from './services/wallet_service.js'
+import {blockdozerService} from './services/blockdozer_service.js'
 
 export function walletHandler() {
   return {
@@ -37,6 +38,13 @@ export function walletHandler() {
     },
     _addUtxos(utxos) {
       this._utxos = utxos
+    },
+    _calculateFee(callback) {
+      let self = this
+      blockdozerService().satoshisPerByte(this._networkName, (sxb) => {
+        let fee = (10 + (149 * self._transaction.inputs.length ) + (35 * self._transaction.outputs.length) ) * sxb
+        callback(fee)
+      })
     },
     _getStrAddress(address) {
       switch(this._walletType) {
@@ -207,7 +215,11 @@ export function walletHandler() {
                   })
                 })
               })
+
               self._transaction_json = self._transaction
+              self._calculateFee((fee) => {
+                _.forEach(self._transaction.outputs, (output) => output['amount'] = output.amount - fee)
+              })
             }
           )
         ]

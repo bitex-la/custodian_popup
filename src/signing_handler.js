@@ -13,7 +13,6 @@ export function signingHandler(){
     id: 'signing',
     $virus: updateEpidemic,
     class: 'form',
-    _network_name: 'bitcoin',
     _rawtx: null,
     $update(){
       if(this._rawtx){
@@ -27,8 +26,8 @@ export function signingHandler(){
     $$: [
       { $virus: selectGroupism('Network', _.keys(bitcoin.networks), 'bitcoin'),
         name: 'network',
-        $update(){ this.value = this._network_name },
-        onchange(e){ this._network_name = e.target.value }
+        $update(){ this.value = this._networkName },
+        onchange(e){ this._networkName = e.target.value }
       },
       { $tag: '.form-group textarea#tansaction_json.form-control',
         name: 'transaction_json',
@@ -47,7 +46,7 @@ export function signingHandler(){
           }
         },
         onclick(){
-          signTransaction(this._transaction_json, this._network_name)
+          signTransaction(this._transaction_json, this._networkName)
             .then(this._handle_signing_result)
         }
       },
@@ -56,7 +55,7 @@ export function signingHandler(){
           { $virus: buttonism('Load multisig transaction', 'info'),
             onclick(){
               this._transaction_json = exampleSpendMultisigJson()
-              this._network_name = 'testnet'
+              this._networkName = 'testnet'
             }
           },
         ]
@@ -65,7 +64,7 @@ export function signingHandler(){
         $$: [
           { $virus: buttonism('Load transaction', 'info'),
             onclick(){ 
-              this._network_name = 'testnet'
+              this._networkName = 'testnet'
               this._transaction_json = exampleSpendAddressJson()
             }
           },

@@ -12,9 +12,12 @@ export function baseService() {
       })
     },
     listFromNode (url, success_callback, error_callback) {
+      return this.getMethod(nodeUrl + url, success_callback, error_callback)
+    },
+    getMethod (url, success_callback, error_callback) {
       return jQuery.ajax({
         method: 'GET',
-        url: nodeUrl + url,
+        url: url,
         contentType: 'application/json; charset=utf-8',
         crossDomain: true,
         success: success_callback,
