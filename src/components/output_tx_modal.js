@@ -172,7 +172,11 @@ export function modalTx() {
                     $virus: buttonismWithSize('Create', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     onclick() {
-                      this._transaction_json = Transaction().createTx(this)
+                      let self = this
+                      Transaction().createTx(self, (tx) => {
+                        document.querySelector('#signing')._transactionJson = tx
+                        document.querySelector('#signing').$update()
+                      })
                       $('.nav-pills a[href="#tab_signing"]').tab('show')
                     }
                   }

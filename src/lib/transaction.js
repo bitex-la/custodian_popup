@@ -10,11 +10,11 @@ export function Transaction(_networkName) {
     _calculateFee(_networkName, callback) {
       let self = this
       blockdozerService().satoshisPerByte(_networkName, (sxb) => {
-        let fee = (10 + (149 * self._transaction.inputs.length ) + (35 * self._transaction.outputs.length) ) * sxb
+        let fee = (10 + (149 * self._transaction.inputs.length) + (35 * self._transaction.outputs.length)) * sxb
         callback(fee)
       })
     },
-    createTx: function (_this) {
+    createTx: function (_this, callback) {
       let self = this
       _.forEach(_this._rawTransaction, function (rawTx) {
         if (_this._walletType == '/hd_wallets') {
@@ -58,10 +58,13 @@ export function Transaction(_networkName) {
       })
 
       self._calculateFee(_this._networkName, (fee) => {
-        _.forEach(_this._outputs, (output) => output['amount'] = output.amount - fee)
+        self._transaction.outputs = _.map(_this._outputs, (output) => {
+          let outputResult = Object.assign({}, output)
+          outputResult['amount'] = outputResult['amount'] - fee
+          return outputResult
+        })
+        callback(self._transaction)
       })
-      self._transaction.outputs = _this._outputs
-      return self._transaction
     }
   }
 }

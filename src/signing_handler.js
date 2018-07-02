@@ -12,6 +12,7 @@ export function signingHandler(){
   return {
     id: 'signing',
     $virus: updateEpidemic,
+    _transactionJson: '',
     class: 'form',
     _rawtx: null,
     $update(){
@@ -33,42 +34,22 @@ export function signingHandler(){
         name: 'transaction_json',
         rows: 15,
         $update(){
-          this.$text = JSON.stringify(this._transaction_json, true, '  ')
+          this.$text = JSON.stringify(this._transactionJson, true, '  ')
         }
       },
       { $tag: 'button.btn.btn-primary.btn-block.mt-1',
         $text: 'Sign transaction',
         _handle_signing_result(result){
-          this._transaction_json = result.json
+          this._transactionJson = result.json
           this._rawtx = result.rawtx
           if(result.done){
             showSuccess("All signed, try to propagate rawtx")
           }
         },
         onclick(){
-          signTransaction(this._transaction_json, this._networkName)
+          signTransaction(this._transactionJson, this._networkName)
             .then(this._handle_signing_result)
         }
-      },
-      { $virus: cardism("Example testnet multisig transaction"),
-        $$: [
-          { $virus: buttonism('Load multisig transaction', 'info'),
-            onclick(){
-              this._transaction_json = exampleSpendMultisigJson()
-              this._networkName = 'testnet'
-            }
-          },
-        ]
-      },
-      { $virus: cardism("Example testnet transaction"),
-        $$: [
-          { $virus: buttonism('Load transaction', 'info'),
-            onclick(){ 
-              this._networkName = 'testnet'
-              this._transaction_json = exampleSpendAddressJson()
-            }
-          },
-        ]
       }
     ]
   }
