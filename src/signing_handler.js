@@ -21,7 +21,16 @@ export function signingHandler(){
           class: 'alert alert-secondary',
           $type: 'textarea',
           cols: 100,
-          $text: this._rawtx })
+          $text: this._rawtx
+        })
+        this.$build({
+          $type: 'button',
+          class: 'button btn btn-primary btn-block mt-1',
+          $text: 'Broadcast Transaction',
+          onclick() {
+            console.log('broadcasted')
+          }
+        })
       }
     },
     $$: [
@@ -39,7 +48,7 @@ export function signingHandler(){
       },
       { $tag: 'button.btn.btn-primary.btn-block.mt-1',
         $text: 'Sign transaction',
-        _handle_signing_result(result){
+        _handleSigningResult(result){
           this._transactionJson = result.json
           this._rawtx = result.rawtx
           if(result.done){
@@ -48,7 +57,7 @@ export function signingHandler(){
         },
         onclick(){
           signTransaction(this._transactionJson, this._networkName)
-            .then(this._handle_signing_result)
+            .then(this._handleSigningResult)
         }
       }
     ]
