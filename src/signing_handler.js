@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib'
 import {showError, showSuccess, loading, notLoading} from './messages.js'
 import {selectGroupism, buttonism, cardism} from './lib/bootstrapism.js'
 import {updateEpidemic} from './lib/update_epidemic.js'
+import {transactionService} from './services/transaction_service.js'
 var bip32 = require('bip32-path')
 var _ = require('lodash')
 
@@ -28,7 +29,7 @@ export function signingHandler(){
           class: 'button btn btn-primary btn-block mt-1',
           $text: 'Broadcast Transaction',
           onclick() {
-            console.log('broadcasted')
+            transactionService().broadcast(this._rawtx)
           }
         })
       }
