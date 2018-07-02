@@ -7,7 +7,6 @@ import {addressesList} from './components/addresses_list.js'
 import {utxosList} from './components/utxos_list.js'
 
 import {walletService} from './services/wallet_service.js'
-import {blockdozerService} from './services/blockdozer_service.js'
 
 export function walletHandler() {
   return {
@@ -23,8 +22,7 @@ export function walletHandler() {
     _utxos: [],
     _displayUtxos: 'none',
     _displayAddresses: 'none',
-    _rawTransactions: [],
-    _transaction: {
+    _rawTransaction: {
       outputs: [],
       inputs: [],
       transactions: []
@@ -38,13 +36,6 @@ export function walletHandler() {
     },
     _addUtxos(utxos) {
       this._utxos = utxos
-    },
-    _calculateFee(callback) {
-      let self = this
-      blockdozerService().satoshisPerByte(this._networkName, (sxb) => {
-        let fee = (10 + (149 * self._transaction.inputs.length ) + (35 * self._transaction.outputs.length) ) * sxb
-        callback(fee)
-      })
     },
     _getStrAddress(address) {
       switch(this._walletType) {
@@ -75,7 +66,7 @@ export function walletHandler() {
           self._since = ''
           self._limit = ''
           self._displayUtxos = 'block'
-          self._rawTransactions = successData.data
+          self._rawTransaction = successData.data
           self._addUtxos(_.map(successData.data, (utxo) => {
             return {
               amount: utxo.attributes.transaction.satoshis,
@@ -184,44 +175,7 @@ export function walletHandler() {
               }
             ]
           },
-          addressesList(),
-          utxosList(),
-          modalTx((self) => _.sum(_.flatMap(self._rawTransactions, (tx) => _.map(tx.attributes.transaction.outputs, (output) => output.amount ))), 
-            (self, scriptType, address, amount) => self._transaction.outputs.push({ script_type: scriptType, address, amount }),
-            (self) => {
-              _.forEach(self._rawTransactions, function (rawTx) {
-                self._transaction.inputs.push({
-                  address_n: rawTx.attributes.address.path,
-                  prev_hash: rawTx.attributes.transaction.transaction_hash,
-                  prev_index: rawTx.attributes.transaction.position
-                })
-                self._transaction.transactions.push({
-                  hash: rawTx.attributes.transaction.transaction_hash,
-                  version: rawTx.attributes.transaction.version,
-                  lock_time: rawTx.attributes.transaction.locktime,
-                  inputs: _.map(rawTx.attributes.transaction.inputs, function(input) {
-                    return {
-                      prev_hash: input.prev_hash,
-                      prev_index: input.prev_index,
-                      sequence: input.sequence,
-                      script_sig: input.script_sig
-                    }
-                  }),
-                  bin_outputs: _.map(rawTx.attributes.transaction.outputs, function(output) {
-                    return {
-                      amount: output.amount,
-                      script_pubkey: output.script_pubkey
-                    }
-                  })
-                })
-              })
-
-              self._transaction_json = self._transaction
-              self._calculateFee((fee) => {
-                _.forEach(self._transaction.outputs, (output) => output['amount'] = output.amount - fee)
-              })
-            }
-          )
+          addressesList(), utxosList(), modalTx()
         ]
       }
     ]

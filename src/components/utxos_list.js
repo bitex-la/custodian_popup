@@ -56,6 +56,7 @@ export function utxosList() {
         'data-toggle': 'modal',
         'data-target': '#modalDialogTx',
         onclick() {
+          document.querySelector('#modalDialogTx')._totalAmount = _.sum(_.map(this._utxos, (utxo) => parseFloat(utxo.amount)))
           document.querySelector('#modalDialogTx')._updateAmount()
         }
       }]

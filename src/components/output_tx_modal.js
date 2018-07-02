@@ -1,8 +1,9 @@
 import {hamlism} from '../lib/hamlism.js'
 import {buttonism, buttonismWithSize, selectObjectGroupism} from '../lib/bootstrapism.js'
+import {Transaction} from '../lib/transaction.js'
 import {updateEpidemic} from '../lib/update_epidemic.js'
 
-export function modalTx(amountFn, addOutputs, createTx) {
+export function modalTx() {
   return {
     id: 'modalDialogTx',
     class: 'modal fade',
@@ -11,8 +12,10 @@ export function modalTx(amountFn, addOutputs, createTx) {
     _scriptType: '',
     _address: '',
     _amount: 0,
+    _outputs: [],
+    _totalAmount: 0,
     _updateAmount() {
-      this._amount = amountFn(this) - _.sum(_.map(this._transaction.outputs, (tx) => parseFloat(tx.amount)))
+      this._amount = this._totalAmount - _.sum(_.map(this._outputs, (tx) => parseFloat(tx.amount)))
     },
     $$: [
       {
@@ -135,7 +138,7 @@ export function modalTx(amountFn, addOutputs, createTx) {
                               }
                             ],
                             onclick() {
-                              _.remove(self._transaction.outputs, (_output) => { return  _output == output })
+                              _.remove(self._outputs, (_output) => { return  _output == output })
                               self._updateAmount()
                             }
                           }]
@@ -143,7 +146,7 @@ export function modalTx(amountFn, addOutputs, createTx) {
                       },
                       $update() {
                         this.innerHTML = ''
-                        _.each(this._transaction.outputs, (output) => this.$build(this._fillOutputs(output)))
+                        _.each(this._outputs, (output) => this.$build(this._fillOutputs(output)))
                       }
                     }]
                   }
@@ -161,7 +164,7 @@ export function modalTx(amountFn, addOutputs, createTx) {
                     $tag: 'button.btn.btn-success',
                     $text: 'Add',
                     onclick() {
-                      addOutputs(this, this._scriptType, this._address, this._amount)
+                      this._outputs.push({ script_type: this._scriptType, address: this._address, amount: this._amount })
                       this._updateAmount()
                     }
                   },
@@ -169,7 +172,7 @@ export function modalTx(amountFn, addOutputs, createTx) {
                     $virus: buttonismWithSize('Create', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     onclick() {
-                      createTx(this)
+                      this._transaction_json = Transaction().createTx(this)
                       $('.nav-pills a[href="#tab_signing"]').tab('show')
                     }
                   }
