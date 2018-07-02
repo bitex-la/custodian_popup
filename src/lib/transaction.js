@@ -17,11 +17,25 @@ export function Transaction(_networkName) {
     createTx: function (_this) {
       let self = this
       _.forEach(_this._rawTransaction, function (rawTx) {
-        self._transaction.inputs.push({
-          address_n: rawTx.attributes.address.path,
-          prev_hash: rawTx.attributes.transaction.transaction_hash,
-          prev_index: rawTx.attributes.transaction.position
-        })
+        if (_this._walletType == '/hd_wallets') {
+          self._transaction.inputs.push({
+            address_n: rawTx.attributes.address.path,
+            prev_hash: rawTx.attributes.transaction.transaction_hash,
+            prev_index: rawTx.attributes.transaction.position
+          })
+        } else if (_this._walletType == '/multisig_wallets') {
+          self._transaction.inputs.push({
+            address_n: rawTx.attributes.address.path,
+            prev_hash: rawTx.attributes.transaction.transaction_hash,
+            prev_index: rawTx.attributes.transaction.position,
+            script_type: 'SPENDMULTISIG',
+            multisig: {
+              signatures: rawTx.attributes.multisig.signatures,
+              m: rawTx.attributes.multisig.m,
+              pubkeys: rawTx.attributes.pubkeys
+            }
+          })
+        }
         self._transaction.transactions.push({
           hash: rawTx.attributes.transaction.transaction_hash,
           version: rawTx.attributes.transaction.version,
