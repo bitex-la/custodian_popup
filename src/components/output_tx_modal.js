@@ -170,6 +170,7 @@ export function modalTx(amountFn, addOutputs, createTx) {
                     'data-dismiss': 'modal',
                     onclick() {
                       createTx(this)
+                      $('.nav-pills a[href="#tab_signing"]').tab('show')
                     }
                   }
                 ]
