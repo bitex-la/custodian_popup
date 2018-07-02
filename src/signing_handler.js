@@ -17,19 +17,20 @@ export function signingHandler(){
     class: 'form',
     _rawtx: null,
     $update(){
-      if(this._rawtx){
-        this.$build({
+      let self = this
+      if (self._rawtx){
+        self.$build({
           class: 'alert alert-secondary',
           $type: 'textarea',
           cols: 100,
           $text: this._rawtx
         })
-        this.$build({
+        self.$build({
           $type: 'button',
           class: 'button btn btn-primary btn-block mt-1',
           $text: 'Broadcast Transaction',
           onclick() {
-            transactionService().broadcast(this._rawtx)
+            transactionService().broadcast(self._rawtx)
           }
         })
       }
