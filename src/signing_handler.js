@@ -70,30 +70,32 @@ function signTransaction(original_json, coin){
   let json = _.cloneDeep(original_json)
   loading()
   return device.run((d) => {
-    return d.session.signTx(json.inputs, json.outputs, json.transactions, coin)
-      .then((res) => {
-        let signed = res.message.serialized.serialized_tx
-        let signatures = res.message.serialized.signatures
-        if(_.some(json.inputs, (i) => i.multisig )) {
-          return d.session.getPublicKey([]).then( (result) => {
-            let publicKey = result.message.node.public_key
-            _.each(json.inputs, (input, inputIndex) => {
-              let signatureIndex = _.findIndex(input.multisig.pubkeys,
-                (p) => p.node.public_key == publicKey)
-              input.multisig.signatures[signatureIndex] = signatures[inputIndex]
-            })
+    d.session.signEthTx([44, 37310, 0, 0], '01', '01', '1000', 'b5ae11144f988735aecf469b96b72f979736dbcc', '40', null, 33).then(function (result) { console.log(result); } )
 
-            let done = _.every(json.inputs, (i) => {
-              return _.compact(i.multisig.signatures).length >= i.multisig.m
-            })
+    //return d.session.signTx(json.inputs, json.outputs, json.transactions, coin)
+    //  .then((res) => {
+    //    let signed = res.message.serialized.serialized_tx
+    //    let signatures = res.message.serialized.signatures
+    //    if(_.some(json.inputs, (i) => i.multisig )) {
+    //      return d.session.getPublicKey([]).then( (result) => {
+    //        let publicKey = result.message.node.public_key
+    //        _.each(json.inputs, (input, inputIndex) => {
+    //          let signatureIndex = _.findIndex(input.multisig.pubkeys,
+    //            (p) => p.node.public_key == publicKey)
+    //          input.multisig.signatures[signatureIndex] = signatures[inputIndex]
+    //        })
 
-            notLoading()
-            return {json: json, done: done, rawtx: signed}
-          })
-        }else{
-          return { json: json, done: true, rawtx: signed }
-        }
-      })
+    //        let done = _.every(json.inputs, (i) => {
+    //          return _.compact(i.multisig.signatures).length >= i.multisig.m
+    //        })
+
+    //        notLoading()
+    //        return {json: json, done: done, rawtx: signed}
+    //      })
+    //    }else{
+    //      return { json: json, done: true, rawtx: signed }
+    //    }
+    //  })
   })
 }
 

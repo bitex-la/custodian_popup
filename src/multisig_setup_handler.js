@@ -47,11 +47,19 @@ function hdNodesManager(){
     _hdNodeFromTrezor(){
       loading()
       device.run((d) => {
-        return d.session.getPublicKey(this._path, this._networkName)
+        debugger
+        //44 rsk index tree address
+        //37310 network id testnet rsk
+        //137 network id mainnet rsk
+        return d.session.ethereumGetAddress([44, 37310, 0, 0, 0])
           .then((result) => {
-            this._addHdNodeFromXpub(result.message.xpub)
-            notLoading()
+            console.log(result)
           })
+        //return d.session.getPublicKey(this._path, this._networkName)
+        //  .then((result) => {
+        //    this._addHdNodeFromXpub(result.message.xpub)
+        //    notLoading()
+        //  })
       })
     },
     _addHdNodeFromXpub(xpub){
