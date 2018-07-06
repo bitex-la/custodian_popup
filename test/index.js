@@ -4,10 +4,14 @@ fixture `Getting Started`
     .page `http://localhost:9966`
 
 var mock = RequestMock()
-  .onRequestTo(/\/hd_wallets\//)
+  .onRequestTo({url: /hd_wallets/, method: 'GET', isAjax: true})
   .respond((req, res) => {
-    console.log(res)
-    res.setBody({data: { attributes: {  }, id: '123', type: 'hd_wallet' }})
+
+    res.headers['content-type'] = 'application/json; charset=utf-8'
+
+    res.statusCode = '200'
+    res.setBody([{data: { attributes: { version: 1, 
+                                       xpub: 'tpubD6NzVbkrYhZ4YSh1zgHc1L2fNXQmSZM1FEbVFpNGzK9J1GDuhRnfoLUA7Unzq44qHVviVtyKdfLjnJYiuTUTjYAJt6Un4svFfRPb7m6TvZk' }, id: '123', type: 'hd_wallet' }}])
   })
 
 test('Check navbar', async t => {
