@@ -30,7 +30,8 @@
     "hd-wallet": "^7.11.3",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
-    "trezor.js": "6.1.0"
+    "trezor.js": "6.1.0",
+    "web3": "^1.0.0-beta.34"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

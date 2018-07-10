@@ -5,6 +5,8 @@ import {hamlism} from './lib/hamlism.js'
 import {buttonism, buttonismWithSize, selectGroupism, formGroupism} from './lib/bootstrapism.js'
 import {updateEpidemic} from './lib/update_epidemic.js'
 import {walletService} from './services/wallet_service.js'
+import networks from './lib/networks.js'
+import hdkey from 'ethereumjs-wallet/hdkey'
 
 var bip32 = require('bip32-path')
 var _ = require('lodash')
@@ -17,6 +19,7 @@ export function multisigSetupHandler(){
     id: 'multisig_setup',
     $virus: updateEpidemic,
     _hdNodes: [],
+    _ethAddresses: [],
     _network(){
       return bitcoin.networks[this._networkName]
     },
@@ -24,7 +27,7 @@ export function multisigSetupHandler(){
       _.each(this._hdNodes, (n) => n.keyPair.network = this._network())
     },
     $components: [
-      { $virus: selectGroupism('Network', _.keys(bitcoin.networks), 'bitcoin'),
+      { $virus: selectGroupism('Network', _.keys(networks), 'bitcoin'),
         id: 'multisig_setup_network',
         name: 'network',
         onchange(e){ this._networkName = e.target.value }
@@ -45,27 +48,36 @@ function hdNodesManager(){
     },
     _xpub: '',
     _hdNodeFromTrezor(){
+      let networkName = this._networkName;
       loading()
       device.run((d) => {
-        debugger
-        //44 rsk index tree address
-        //37310 network id testnet rsk
-        //137 network id mainnet rsk
-        return d.session.ethereumGetAddress([44, 37310, 0, 0, 0])
-          .then((result) => {
-            console.log(result)
-          })
-        //return d.session.getPublicKey(this._path, this._networkName)
-        //  .then((result) => {
-        //    this._addHdNodeFromXpub(result.message.xpub)
-        //    notLoading()
-        //  })
+        switch(networkName) {
+          case 'rsk':
+            return d.session.ethereumGetAddress([44, 137, 0, 0, 0])
+              .then((result) => {
+                this._addEthAddress(result)
+              })
+          case 'rsk_testnet':
+            return d.session.ethereumGetAddress([44, 37310, 0, 0, 0])
+              .then((result) => {
+                this._addEthAddress(result)
+              })
+          default:
+            return d.session.getPublicKey(this._path, this._networkName)
+              .then((result) => {
+                this._addHdNodeFromXpub(result.message.xpub)
+                notLoading()
+              })
+        }
       })
     },
-    _addHdNodeFromXpub(xpub){
+    _addHdNodeFromXpub(xpub) {
       this._hdNodes.push(bitcoin.HDNode.fromBase58(xpub, this._network()))
     },
-    _hdNodeContainer(hdNode){
+    _addEthAddress(data) {
+      this._ethAddresses.push(data)
+    },
+    _hdNodeContainer(hdNode) {
       let self = this
       return {
         $virus: hamlism,
@@ -93,6 +105,24 @@ function hdNodesManager(){
                 onclick(){ custodianManager()._sendPlainToCustodian(hdNode) }
               }
             ]
+          }
+        ]
+      }
+    },
+    _hdNodeEthContainer(node) {
+      let self = this
+      return {
+        $virus: hamlism,
+        $tag: 'li.list-group-item',
+        $$: [
+          { $tag: 'button.close',
+            $text: '×',
+            onclick(e) { self._ethAddresses = _.without(self._ethAddresses, node) }
+          },
+          { $tag: 'p span', $text: node.message.path },
+          { $tag: 'input.form-control.form-control-sm',
+            value: node.message.address,
+            readonly: true
           }
         ]
       }
@@ -127,9 +157,15 @@ function hdNodesManager(){
         onclick(){ this._hdNodeFromTrezor() }
       },
       { $tag: 'ul.list-group.hd-nodes.mt-3',
-        $update(){
+        $update() {
           this.innerHTML = ''
           _.each(this._hdNodes, (n) => this.$build(this._hdNodeContainer(n)))
+        }
+      },
+      { $tag: 'ul.list-group.hd-nodes.mt-3',
+        $update() {
+          this.innerHTML = ''
+          _.each(this._ethAddresses, (n) => this.$build(this._hdNodeEthContainer(n)))
         }
       }
     ]
