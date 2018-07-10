@@ -82,7 +82,8 @@ function hdNodesManager(){
           },
           {
             $virus: hamlism,
-            $tag: '.float-sm-right',
+            $tag: '.float-sm-right ',
+            class: 'wallet-creation',
             $$: [
               { $virus: buttonismWithSize('Create Hd Wallet', 'success', 'small'),
                 onclick(){ custodianManager()._sendHdToCustodian(hdNode) }
@@ -116,7 +117,7 @@ function hdNodesManager(){
           $update() { this.value = this._xpub  },
           onchange(e){ this._xpub = e.target.value }
         },
-        { class: 'input-group-btn', $$: [
+        { class: 'input-group-btn add-node-group', $$: [
           { $virus: buttonism('Add node'),
             onclick(){ this._addHdNodeFromXpub(this._xpub) }
           }
