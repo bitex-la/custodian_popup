@@ -6,7 +6,7 @@ import {buttonism, buttonismWithSize, selectGroupism, formGroupism} from './lib/
 import {updateEpidemic} from './lib/update_epidemic.js'
 import {walletService} from './services/wallet_service.js'
 import networks from './lib/networks.js'
-import hdkey from 'ethereumjs-wallet/hdkey'
+import Wallet from 'ethereumjs-wallet'
 
 var bip32 = require('bip32-path')
 var _ = require('lodash')
@@ -48,31 +48,41 @@ function hdNodesManager(){
     },
     _xpub: '',
     _hdNodeFromTrezor(){
+      let self = this
       let networkName = this._networkName;
       loading()
       device.run((d) => {
+        let _path = this._path
         switch(networkName) {
           case 'rsk':
-            return d.session.ethereumGetAddress([44, 137, 0, 0, 0])
-              .then((result) => {
-                this._addEthAddress(result)
-              })
+            TrezorConnect.getXPubKey([44, 137, 0, 0], (result) => {
+              this._addHdNodeFromXpubRsk(result)
+              console.log(result)
+            })
+            break
           case 'rsk_testnet':
-            return d.session.ethereumGetAddress([44, 37310, 0, 0, 0])
-              .then((result) => {
-                this._addEthAddress(result)
-              })
+            TrezorConnect.getXPubKey([44, 37310, 0, 0], (result) => {
+              this._addHdNodeFromXpubRsk(result)
+              console.log(result)
+            })
+
+            break
           default:
-            return d.session.getPublicKey(this._path, this._networkName)
+            return d.session.getPublicKey(_path, networkName)
               .then((result) => {
                 this._addHdNodeFromXpub(result.message.xpub)
                 notLoading()
               })
+            break
         }
       })
     },
     _addHdNodeFromXpub(xpub) {
       this._hdNodes.push(bitcoin.HDNode.fromBase58(xpub, this._network()))
+    },
+    _addHdNodeFromXpubRsk(node) {
+      debugger
+      this._hdNodes.push(node)
     },
     _addEthAddress(data) {
       this._ethAddresses.push(data)
