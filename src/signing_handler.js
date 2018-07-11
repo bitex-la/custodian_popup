@@ -18,6 +18,7 @@ export function signingHandler(){
     _transactionJson: '',
     class: 'form',
     _rawtx: null,
+    _rskAddress: '',
     $update(){
       let self = this
       if (self._rawtx){
@@ -46,6 +47,7 @@ export function signingHandler(){
       { $tag: '.form-group textarea#tansaction_json.form-control',
         name: 'transaction_json',
         rows: 15,
+        onchange(e){ this._transactionJson = e.target.value },
         $update(){
           this.$text = JSON.stringify(this._transactionJson, true, '  ')
         }
@@ -59,9 +61,18 @@ export function signingHandler(){
             showSuccess("All signed, try to propagate rawtx")
           }
         },
-        onclick(){
-          signTransaction(this._transactionJson, this._networkName)
-            .then(this._handleSigningResult)
+        onclick () {
+          switch(this._networkName) {
+            case 'rsk':
+              signRskTransaction([44, 137, 0, 0], this._transactionJson)
+              break
+            case 'rsk_testnet':
+              signRskTransaction([44, 37310, 0, 0], this._transactionJson)
+              break
+            default:
+              signTransaction(this._transactionJson, this._networkName)
+                .then(this._handleSigningResult)
+          }
         }
       }
     ]
@@ -72,32 +83,39 @@ function signTransaction(original_json, coin){
   let json = _.cloneDeep(original_json)
   loading()
   return device.run((d) => {
-    d.session.signEthTx([44, 37310, 0, 0], '01', '01', '1000', 'b5ae11144f988735aecf469b96b72f979736dbcc', '40', null, 33).then(function (result) { console.log(result); } )
+    return d.session.signTx(json.inputs, json.outputs, json.transactions, coin)
+      .then((res) => {
+        let signed = res.message.serialized.serialized_tx
+        let signatures = res.message.serialized.signatures
+        if(_.some(json.inputs, (i) => i.multisig )) {
+          return d.session.getPublicKey([]).then( (result) => {
+            let publicKey = result.message.node.public_key
+            _.each(json.inputs, (input, inputIndex) => {
+              let signatureIndex = _.findIndex(input.multisig.pubkeys,
+                (p) => p.node.public_key == publicKey)
+              input.multisig.signatures[signatureIndex] = signatures[inputIndex]
+            })
 
-    //return d.session.signTx(json.inputs, json.outputs, json.transactions, coin)
-    //  .then((res) => {
-    //    let signed = res.message.serialized.serialized_tx
-    //    let signatures = res.message.serialized.signatures
-    //    if(_.some(json.inputs, (i) => i.multisig )) {
-    //      return d.session.getPublicKey([]).then( (result) => {
-    //        let publicKey = result.message.node.public_key
-    //        _.each(json.inputs, (input, inputIndex) => {
-    //          let signatureIndex = _.findIndex(input.multisig.pubkeys,
-    //            (p) => p.node.public_key == publicKey)
-    //          input.multisig.signatures[signatureIndex] = signatures[inputIndex]
-    //        })
+            let done = _.every(json.inputs, (i) => {
+              return _.compact(i.multisig.signatures).length >= i.multisig.m
+            })
 
-    //        let done = _.every(json.inputs, (i) => {
-    //          return _.compact(i.multisig.signatures).length >= i.multisig.m
-    //        })
+            notLoading()
+            return {json: json, done: done, rawtx: signed}
+          })
+        }else{
+          return { json: json, done: true, rawtx: signed }
+        }
+      })
+  })
+}
 
-    //        notLoading()
-    //        return {json: json, done: done, rawtx: signed}
-    //      })
-    //    }else{
-    //      return { json: json, done: true, rawtx: signed }
-    //    }
-    //  })
+function signRskTransaction(path, address) {
+  loading()
+  return device.run((d) => {
+    d.session.signEthTx(path, '01', '01', '1000', address, '40', null, 33).then(function (result) {
+      console.log(result); 
+    })
   })
 }
 
