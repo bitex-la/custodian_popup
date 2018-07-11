@@ -5,6 +5,8 @@ import {selectGroupism, buttonism, cardism} from './lib/bootstrapism.js'
 import {updateEpidemic} from './lib/update_epidemic.js'
 import {transactionService} from './services/transaction_service.js'
 import networks from './lib/networks.js'
+import Web3 from 'web3'
+import EthereumTx from 'ethereumjs-tx'
 
 var bip32 = require('bip32-path')
 var _ = require('lodash')
@@ -18,7 +20,7 @@ export function signingHandler(){
     _transactionJson: '',
     class: 'form',
     _rawtx: null,
-    _rskAddress: '',
+    _rskAddress: '0x7986b3df570230288501eea3d890bd66948c9b79',
     $update(){
       let self = this
       if (self._rawtx){
@@ -64,10 +66,10 @@ export function signingHandler(){
         onclick () {
           switch(this._networkName) {
             case 'rsk':
-              signRskTransaction([44, 137, 0, 0], this._transactionJson)
+              signRskTransaction([44, 137, 0, 0], this._transactionJson, this._rskAddress, 1, 10, 40, null)
               break
             case 'rsk_testnet':
-              signRskTransaction([44, 37310, 0, 0], this._transactionJson)
+              signRskTransaction([44, 37310, 0, 0], this._transactionJson, this._rskAddress, 1, 10, 40, null)
               break
             default:
               signTransaction(this._transactionJson, this._networkName)
@@ -110,13 +112,56 @@ function signTransaction(original_json, coin){
   })
 }
 
-function signRskTransaction(path, address) {
+function signRskTransaction(path, to, from, gasPriceGwei, rawGasLimit, value, data) {
   loading()
   return device.run((d) => {
-    d.session.signEthTx(path, '01', '01', '1000', address, '40', null, 33).then(function (result) {
-      console.log(result); 
+    let web3 = getWeb3()
+    let count = null
+    let gasPrice = `0x${gasPriceGwei * 1e9}`
+    let gasLimit = `0x${rawGasLimit}`
+    let address = `0x${to}`
+
+    getNonce(from).then(result => {
+      count = `0x${result}`
+
+      d.session.signEthTx(path, count, gasPrice, gasLimit, address, value, null, 33).then(function (response) {
+        let tx = {
+          nonce: count,
+          gasPrice,
+          gasLimit,
+          to,
+          value: `0x${value}`,
+          data,
+          chainId: 33,
+          from
+        }
+        tx.v =  response.v
+        tx.r = `0x${response.r}`
+        tx.s = `0x${response.s}`
+        let ethtx = new EthereumTx(tx)
+        const serializedTx = ethtx.serialize()
+        const rawTx = '0x' + serializedTx.toString('hex')
+        web3.eth.sendRawTransaction(rawTx, function (result) {
+          console.log(result)
+        })
+      })
     })
   })
+}
+
+
+function getNonce(address) {
+  let web3 = getWeb3()
+  return new Promise (function (resolve,reject) {
+    web3.eth.getTransactionCount(address, 'pending', function (error, result) {
+      console.log('Nonce ' + result)
+      resolve(result)
+    })
+  })
+}
+
+function getWeb3 () {
+  return new Web3(new Web3.providers.HttpProvider('http://localhost:4444'))
 }
 
 function exampleSpendAddressJson(){
