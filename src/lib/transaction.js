@@ -65,6 +65,46 @@ export function Transaction(_networkName) {
         })
         callback(self._transaction)
       })
+    },
+    getExpensiveRskTransactions(account, startBlockNumber, endBlockNumber) {
+      if (endBlockNumber == null) {
+        endBlockNumber = eth.blockNumber
+        console.log("Using endBlockNumber: " + endBlockNumber)
+      }
+      if (startBlockNumber == null) {
+        startBlockNumber = endBlockNumber - 1000
+        console.log("Using startBlockNumber: " + startBlockNumber)
+      }
+      console.log("Searching for transactions to/from account \"" + account + "\" within blocks "  + startBlockNumber + " and " + endBlockNumber)
+
+      var transactions = []
+      for (var i = startBlockNumber; i <= endBlockNumber; i++) {
+        if (i % 1000 == 0) {
+          console.log("Searching block " + i)
+        }
+        var block = eth.getBlock(i, true)
+        if (block != null && block.transactions != null) {
+          block.transactions.forEach( function(e) {
+            if (account == "*" || account == e.from || account == e.to) {
+              transactions.push({
+                tx_hash: e.hash,
+                nonce: e.nonce,
+                blockHash: e.blockHash,
+                blockNumber: e.blockNumber,
+                transactionIndex: e.transactionIndex,
+                from: e.from,
+                to: e.to,
+                value: e.value,
+                timestamp: block.timestamp + " " + new Date(block.timestamp * 1000).toGMTString(),
+                gasPrice: e.gasPrice,
+                gas: e.gas,
+                input: e.input
+              })
+            }
+          })
+        }
+      }
+      return transactions
     }
   }
 }

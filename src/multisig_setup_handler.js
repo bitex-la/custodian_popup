@@ -23,6 +23,9 @@ export function multisigSetupHandler(){
     _network(){
       return bitcoin.networks[this._networkName]
     },
+    _addEthAddress(data) {
+      this._ethAddresses.push(data)
+    },
     $update(){
       _.each(this._hdNodes, (n) => n.keyPair.network = this._network())
     },
@@ -30,7 +33,18 @@ export function multisigSetupHandler(){
       { $virus: selectGroupism('Network', _.keys(networks), 'bitcoin'),
         id: 'multisig_setup_network',
         name: 'network',
-        onchange(e){ this._networkName = e.target.value }
+        onchange(e){
+          this._networkName = e.target.value
+          if (this._networkName === 'rsk_testnet') {
+            this._addEthAddress({
+              type: 'EthereumAddress',
+              message: {
+                address: 'b4b3bbb8a149e9cddaa1ed6984942408e5b6a7ff',
+                path: [44, 37310, 0, 0, 0]
+              }
+            })
+          }
+        }
       },
       hdNodesManager(),
       { $tag: 'hr' },
@@ -55,16 +69,17 @@ function hdNodesManager(){
         let _path = this._path
         switch(networkName) {
           case 'rsk':
-            TrezorConnect.getXPubKey([44, 137, 0, 0], (result) => {
-              this._addHdNodeFromXpubRsk(result)
-              console.log(result)
-            })
+            return d.session.ethereumGetAddress([44, 137, 0, 0, 0])
+              .then((result) => {
+                this._addEthAddress(result)
+              })
             break
           case 'rsk_testnet':
-            TrezorConnect.getXPubKey([44, 37310, 0, 0], (result) => {
-              this._addHdNodeFromXpubRsk(result)
-              console.log(result)
-            })
+            return d.session.ethereumGetAddress([44, 37310, 0, 0, 0])
+              .then((result) => {
+                console.log(result)
+                this._addEthAddress(result)
+              })
 
             break
           default:
@@ -79,13 +94,6 @@ function hdNodesManager(){
     },
     _addHdNodeFromXpub(xpub) {
       this._hdNodes.push(bitcoin.HDNode.fromBase58(xpub, this._network()))
-    },
-    _addHdNodeFromXpubRsk(node) {
-      debugger
-      this._hdNodes.push(node)
-    },
-    _addEthAddress(data) {
-      this._ethAddresses.push(data)
     },
     _hdNodeContainer(hdNode) {
       let self = this
