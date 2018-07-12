@@ -112,24 +112,21 @@ function signTransaction(original_json, coin){
   })
 }
 
-function signRskTransaction(path, to, from, gasPriceGwei, rawGasLimit, value, data) {
+function signRskTransaction(path, to, from, gasPriceGwei, gasLimit, value, data) {
   loading()
   return device.run((d) => {
     let web3 = getWeb3()
     let count = null
-    let gasPrice = `0x${gasPriceGwei * 1e9}`
-    let gasLimit = `0x${rawGasLimit}`
-    let address = `0x${to}`
+    let gasPrice = gasPriceGwei * 1e9
 
-    getNonce(from).then(result => {
-      count = `0x${result}`
+    getNonce(from).then(nonce => {
 
-      d.session.signEthTx(path, count, gasPrice, gasLimit, address, value, null, 33).then(function (response) {
+      d.session.signEthTx(path, nonce, gasPrice.toString(), gasLimit.toString(), to, value.toString(), null, 33).then(function (response) {
         let tx = {
-          nonce: count,
-          gasPrice,
-          gasLimit,
-          to,
+          nonce: `0x${nonce}`,
+          gasPrice: `0x${gasPrice}`,
+          gasLimit: `0x${gasLimit}`,
+          to: `0x${to}`,
           value: `0x${value}`,
           data,
           chainId: 33,
@@ -141,9 +138,7 @@ function signRskTransaction(path, to, from, gasPriceGwei, rawGasLimit, value, da
         let ethtx = new EthereumTx(tx)
         const serializedTx = ethtx.serialize()
         const rawTx = '0x' + serializedTx.toString('hex')
-        web3.eth.sendRawTransaction(rawTx, function (result) {
-          console.log(result)
-        })
+        web3.eth.sendSignedTransaction(rawTx).on('receipt', console.log).on('error', console.log)
       })
     })
   })
@@ -152,10 +147,9 @@ function signRskTransaction(path, to, from, gasPriceGwei, rawGasLimit, value, da
 
 function getNonce(address) {
   let web3 = getWeb3()
-  return new Promise (function (resolve,reject) {
+  return new Promise (function (resolve, reject) {
     web3.eth.getTransactionCount(address, 'pending', function (error, result) {
-      console.log('Nonce ' + result)
-      resolve(result)
+      resolve(result === 0 ? '01' : result)
     })
   })
 }
