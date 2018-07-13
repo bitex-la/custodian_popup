@@ -33,7 +33,7 @@ export function Transaction(_networkName) {
             multisig: {
               signatures: rawTx.attributes.multisig.signatures,
               m: rawTx.attributes.multisig.m,
-              pubkeys: rawTx.attributes.pubkeys
+              pubkeys: rawTx.attributes.multisig.pubkeys
             }
           })
         }
