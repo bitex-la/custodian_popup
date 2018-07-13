@@ -82,7 +82,7 @@ export function signingHandler(){
 }
 
 function signTransaction(original_json, coin){
-  let json = _.cloneDeep(original_json)
+  let json = JSON.parse(_.cloneDeep(original_json))
   loading()
   return device.run((d) => {
     return d.session.signTx(json.inputs, json.outputs, json.transactions, coin)
