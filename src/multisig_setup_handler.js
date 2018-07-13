@@ -33,18 +33,7 @@ export function multisigSetupHandler(){
       { $virus: selectGroupism('Network', _.keys(networks), 'bitcoin'),
         id: 'multisig_setup_network',
         name: 'network',
-        onchange(e){
-          this._networkName = e.target.value
-          if (this._networkName === 'rsk_testnet') {
-            this._addEthAddress({
-              type: 'EthereumAddress',
-              message: {
-                address: 'b4b3bbb8a149e9cddaa1ed6984942408e5b6a7ff',
-                path: [44, 37310, 0, 0, 0]
-              }
-            })
-          }
-        }
+        onchange(e){ this._networkName = e.target.value }
       },
       hdNodesManager(),
       { $tag: 'hr' },
