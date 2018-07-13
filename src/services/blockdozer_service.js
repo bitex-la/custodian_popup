@@ -5,9 +5,7 @@ export function blockdozerService() {
     satoshisPerByte (network, success_callback, error_callback) {
       return jQuery.ajax({
         method: 'GET',
-        url: `${this.chooseRootUrl(network)}/api/utils/estimatefee`,
-        contentType: 'application/json; charset=utf-8',
-        crossDomain: true
+        url: `${this.chooseRootUrl(network)}/api/utils/estimatefee`
       })
     },
     chooseRootUrl (network) {
