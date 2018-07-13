@@ -53,6 +53,7 @@ export function utxosList() {
         }]
       }, {
         $virus: buttonismWithSize('Create Transaction', 'primary', 'block'),
+        'data-id': 'create-transaction',
         'data-toggle': 'modal',
         'data-target': '#modalDialogTx',
         onclick() {

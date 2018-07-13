@@ -7,10 +7,11 @@ export function Transaction(_networkName) {
       inputs: [],
       transactions: []
     },
-    _calculateFee(_networkName, callback) {
+    _calculateFee(_networkName, outputLength, callback) {
       let self = this
-      blockdozerService().satoshisPerByte(_networkName, (sxb) => {
-        let fee = (10 + (149 * self._transaction.inputs.length) + (35 * self._transaction.outputs.length)) * sxb
+      blockdozerService().satoshisPerByte(_networkName).done((data) => {
+        let satoshis = parseFloat(data[2]) * 100000000
+        let fee = (10 + (149 * self._transaction.inputs.length) + (35 * outputLength)) * satoshis
         callback(fee)
       })
     },
@@ -57,7 +58,7 @@ export function Transaction(_networkName) {
         })
       })
 
-      self._calculateFee(_this._networkName, (fee) => {
+      self._calculateFee(_this._networkName, _this._outputs.length, (fee) => {
         self._transaction.outputs = _.map(_this._outputs, (output) => {
           let outputResult = Object.assign({}, output)
           outputResult['amount'] = outputResult['amount'] - fee

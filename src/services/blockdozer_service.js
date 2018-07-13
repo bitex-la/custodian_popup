@@ -3,10 +3,12 @@ import {baseService} from './base_service.js'
 export function blockdozerService() {
   return {
     satoshisPerByte (network, success_callback, error_callback) {
-      $.get(`${this.chooseRootUrl(network)}/api/utils/estimatefee`, (data) => {
-        let satoshis = parseFloat(data[2]) * 100000000
-        success_callback(satoshis)
-      }, error_callback)
+      return jQuery.ajax({
+        method: 'GET',
+        url: `${this.chooseRootUrl(network)}/api/utils/estimatefee`,
+        contentType: 'application/json; charset=utf-8',
+        crossDomain: true
+      })
     },
     chooseRootUrl (network) {
       switch (network) {

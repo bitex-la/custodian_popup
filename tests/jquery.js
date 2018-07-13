@@ -3,6 +3,7 @@ import fs from 'fs'
 
 export async function mockJQueryAjax(t, responseCallback) {
     await t.eval(new Function(fs.readFileSync('./node_modules/jquery/dist/jquery.js').toString()))
+    await t.eval(new Function(fs.readFileSync('./src/lib/bootstrap.min.js').toString()))
 
     var clientFunction = ClientFunction((responseCallback) => {
       function ajaxResponse(response) {

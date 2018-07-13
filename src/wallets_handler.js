@@ -120,6 +120,7 @@ export function walletHandler() {
                   let self = this
                   let addressesButton = {
                     $virus: buttonismWithSize('Show Addresses', 'info', 'small'),
+                    'data-id': 'show-addresses',
                     onclick() { 
                       self._displayUtxos = 'none'
                       self._displayAddresses = 'block'
@@ -130,6 +131,7 @@ export function walletHandler() {
                   }
                   let utxosButton = {
                     $virus: buttonismWithSize('Show Utxos', 'info', 'small'),
+                    'data-id': 'show-utxos',
                     'data-toggle': 'modal',
                     'data-target': '#modalDialog',
                     onclick() { 

@@ -92,7 +92,7 @@ export function modalTx() {
                     }
                   },
                   {
-                    $tag: 'table.table',
+                    $tag: 'table.table.table-outputs-tx',
                     $$: [{
                       $tag: 'thead',
                       $$: [{
@@ -162,6 +162,7 @@ export function modalTx() {
                   },
                   {
                     $tag: 'button.btn.btn-success',
+                    'data-id': 'add-output-tx',
                     $text: 'Add',
                     onclick() {
                       this._outputs.push({ script_type: this._scriptType, address: this._address, amount: this._amount })
@@ -171,6 +172,7 @@ export function modalTx() {
                   {
                     $virus: buttonismWithSize('Create', 'primary', 'small'),
                     'data-dismiss': 'modal',
+                    'data-id': 'create-tx',
                     onclick() {
                       let self = this
                       Transaction().createTx(self, (tx) => {
