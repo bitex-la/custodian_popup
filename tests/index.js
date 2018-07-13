@@ -1,18 +1,8 @@
 import { Selector, RequestMock } from 'testcafe'
+import { mockJQueryAjax } from './jquery.js'
 
 fixture `Getting Started`
     .page `http://localhost:9966`
-
-var mock = RequestMock()
-  .onRequestTo({url: /hd_wallets/, method: 'GET', isAjax: true})
-  .respond((req, res) => {
-
-    res.headers['content-type'] = 'application/json; charset=utf-8'
-
-    res.statusCode = '200'
-    res.setBody([{data: { attributes: { version: 1, 
-                                       xpub: 'tpubD6NzVbkrYhZ4YSh1zgHc1L2fNXQmSZM1FEbVFpNGzK9J1GDuhRnfoLUA7Unzq44qHVviVtyKdfLjnJYiuTUTjYAJt6Un4svFfRPb7m6TvZk' }, id: '123', type: 'hd_wallet' }}])
-  })
 
 test('Check navbar', async t => {
     await t.expect(Selector('.nav-item:first-child a').innerText).eql('Signing')
@@ -23,12 +13,23 @@ test('Check navbar', async t => {
 })
 
 test
-  .requestHooks(mock)
   ('Creates a Node', async t => {
     const selectNetwork = Selector('#multisig_setup_network')
     const nodeList = Selector('.hd-nodes')
 
     const selectWallet = Selector('#wallets select')
+
+    mockJQueryAjax(t, (params, ajaxResponse) => {
+      let hdWallet = { attributes: { version: 1, 
+        xpub: 'tpubD6NzVbkrYhZ4YSh1zgHc1L2fNXQmSZM1FEbVFpNGzK9J1GDuhRnfoLUA7Unzq44qHVviVtyKdfLjnJYiuTUTjYAJt6Un4svFfRPb7m6TvZk' },
+        id: '123', type: 'hd_wallet' }
+
+      if (params.method === 'POST' && /hd_wallets/.test(params.url)) {
+        return ajaxResponse({data: hdWallet})
+      } else if (params.method === 'GET' && /hd_wallets/.test(params.url)) {
+        return ajaxResponse({data: [hdWallet]})
+      }
+    })
 
     await t
       .click('a[href="#tab_multisig_setup"]')
@@ -42,5 +43,5 @@ test
       .click('a[href="#tab_wallets"]')
       .click(selectWallet)
       .click(selectWallet.find('option').withText('Hd'))
-      .expect(Selector('.wallets-table').textContent).contains('mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn')
+      .expect(Selector('.wallets-table').textContent).contains('tpubD6NzVb')
 })
