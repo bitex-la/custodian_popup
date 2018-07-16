@@ -1,4 +1,8 @@
+import * as device from '../device.js'
+import {showError, showSuccess, loading, notLoading} from '../messages.js'
 import {blockdozerService} from '../services/blockdozer_service.js'
+import Web3 from 'web3'
+import EthereumTx from 'ethereumjs-tx'
 
 export function Transaction(_networkName) {
   return {
@@ -66,6 +70,85 @@ export function Transaction(_networkName) {
         })
         callback(self._transaction)
       })
+    },
+    signTransaction(original_json, coin){
+      let rawJson = _.cloneDeep(original_json)
+      let json = null
+      if (typeof rawJson == 'string') {
+        json = JSON.parse(_.cloneDeep(original_json))
+      } else if (typeof rawJson == 'object') {
+        json = rawJson
+      }
+      loading()
+      return device.run((d) => {
+        return d.session.signTx(json.inputs, json.outputs, json.transactions, coin)
+          .then((res) => {
+            let signed = res.message.serialized.serialized_tx
+            let signatures = res.message.serialized.signatures
+            if(_.some(json.inputs, (i) => i.multisig )) {
+              return d.session.getPublicKey([]).then( (result) => {
+                let publicKey = result.message.node.public_key
+                _.each(json.inputs, (input, inputIndex) => {
+                  let signatureIndex = _.findIndex(input.multisig.pubkeys,
+                    (p) => p.node.public_key == publicKey)
+                  input.multisig.signatures[signatureIndex] = signatures[inputIndex]
+                })
+
+                let done = _.every(json.inputs, (i) => {
+                  return _.compact(i.multisig.signatures).length >= i.multisig.m
+                })
+
+                notLoading()
+                return {json: json, done: done, rawtx: signed}
+              })
+            }else{
+              return { json: json, done: true, rawtx: signed }
+            }
+          })
+      })
+    },
+    signRskTransaction(path, to, from, gasPriceGwei, gasLimit, value, data) {
+      let self = this
+      loading()
+      return device.run((d) => {
+        let web3 = self.getWeb3()
+        let count = null
+        let gasPrice = gasPriceGwei * 1e9
+
+        self.getNonce(from).then(nonce => {
+
+          d.session.signEthTx(path, nonce, gasPrice.toString(), gasLimit.toString(), to, value.toString(), null, 33).then(function (response) {
+            let tx = {
+              nonce: `0x${nonce}`,
+              gasPrice: `0x${gasPrice}`,
+              gasLimit: `0x${gasLimit}`,
+              to: `0x${to}`,
+              value: `0x${value}`,
+              data,
+              chainId: 33,
+              from
+            }
+            tx.v =  response.v
+            tx.r = `0x${response.r}`
+            tx.s = `0x${response.s}`
+            let ethtx = new EthereumTx(tx)
+            const serializedTx = ethtx.serialize()
+            const rawTx = '0x' + serializedTx.toString('hex')
+            web3.eth.sendSignedTransaction(rawTx).on('receipt', console.log).on('error', console.log)
+          })
+        })
+      })
+    },
+    getNonce(address) {
+      let web3 = this.getWeb3()
+      return new Promise (function (resolve, reject) {
+        web3.eth.getTransactionCount(address, 'pending', function (error, result) {
+          resolve(result === 0 ? '01' : `0${result + 1}`)
+        })
+      })
+    },
+    getWeb3 () {
+      return new Web3(new Web3.providers.HttpProvider('http://localhost:4444'))
     },
     getExpensiveRskTransactions(account, startBlockNumber, endBlockNumber) {
       if (endBlockNumber == null) {

@@ -5,8 +5,7 @@ import {selectGroupism, buttonism, cardism} from './lib/bootstrapism.js'
 import {updateEpidemic} from './lib/update_epidemic.js'
 import {transactionService} from './services/transaction_service.js'
 import networks from './lib/networks.js'
-import Web3 from 'web3'
-import EthereumTx from 'ethereumjs-tx'
+import {Transaction} from './lib/transaction.js'
 
 var bip32 = require('bip32-path')
 var _ = require('lodash')
@@ -64,98 +63,12 @@ export function signingHandler(){
           }
         },
         onclick () {
-          switch(this._networkName) {
-            case 'rsk':
-              signRskTransaction([44, 137, 0, 0], this._transactionJson, this._rskAddress, 1, 10, 40, null)
-              break
-            case 'rsk_testnet':
-              signRskTransaction([44, 37310, 0, 0], this._transactionJson, this._rskAddress, 1, 10, 40, null)
-              break
-            default:
-              signTransaction(this._transactionJson, this._networkName)
-                .then(this._handleSigningResult)
-          }
+          Transaction(this._networkName).signTransaction(this._transactionJson, this._networkName)
+            .then(this._handleSigningResult)
         }
       }
     ]
   }
-}
-
-function signTransaction(original_json, coin){
-  let json = JSON.parse(_.cloneDeep(original_json))
-  loading()
-  return device.run((d) => {
-    return d.session.signTx(json.inputs, json.outputs, json.transactions, coin)
-      .then((res) => {
-        let signed = res.message.serialized.serialized_tx
-        let signatures = res.message.serialized.signatures
-        if(_.some(json.inputs, (i) => i.multisig )) {
-          return d.session.getPublicKey([]).then( (result) => {
-            let publicKey = result.message.node.public_key
-            _.each(json.inputs, (input, inputIndex) => {
-              let signatureIndex = _.findIndex(input.multisig.pubkeys,
-                (p) => p.node.public_key == publicKey)
-              input.multisig.signatures[signatureIndex] = signatures[inputIndex]
-            })
-
-            let done = _.every(json.inputs, (i) => {
-              return _.compact(i.multisig.signatures).length >= i.multisig.m
-            })
-
-            notLoading()
-            return {json: json, done: done, rawtx: signed}
-          })
-        }else{
-          return { json: json, done: true, rawtx: signed }
-        }
-      })
-  })
-}
-
-function signRskTransaction(path, to, from, gasPriceGwei, gasLimit, value, data) {
-  loading()
-  return device.run((d) => {
-    let web3 = getWeb3()
-    let count = null
-    let gasPrice = gasPriceGwei * 1e9
-
-    getNonce(from).then(nonce => {
-
-      d.session.signEthTx(path, nonce, gasPrice.toString(), gasLimit.toString(), to, value.toString(), null, 33).then(function (response) {
-        let tx = {
-          nonce: `0x${nonce}`,
-          gasPrice: `0x${gasPrice}`,
-          gasLimit: `0x${gasLimit}`,
-          to: `0x${to}`,
-          value: `0x${value}`,
-          data,
-          chainId: 33,
-          from
-        }
-        tx.v =  response.v
-        tx.r = `0x${response.r}`
-        tx.s = `0x${response.s}`
-        let ethtx = new EthereumTx(tx)
-        const serializedTx = ethtx.serialize()
-        const rawTx = '0x' + serializedTx.toString('hex')
-        web3.eth.sendSignedTransaction(rawTx).on('receipt', console.log).on('error', console.log)
-      })
-    })
-  })
-}
-
-
-function getNonce(address) {
-  let web3 = getWeb3()
-  return new Promise (function (resolve, reject) {
-    web3.eth.getTransactionCount(address, 'pending', function (error, result) {
-      resolve(result === 0 ? '01' : result)
-    })
-  })
-}
-
-function getWeb3 () {
-  return new Web3(new Web3.providers.HttpProvider('http://localhost:4444'))
 }
 
 function exampleSpendAddressJson(){

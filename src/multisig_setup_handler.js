@@ -7,6 +7,7 @@ import {updateEpidemic} from './lib/update_epidemic.js'
 import {walletService} from './services/wallet_service.js'
 import networks from './lib/networks.js'
 import Wallet from 'ethereumjs-wallet'
+import {rskModal} from './components/rsk_modal.js'
 
 var bip32 = require('bip32-path')
 var _ = require('lodash')
@@ -66,7 +67,6 @@ function hdNodesManager(){
           case 'rsk_testnet':
             return d.session.ethereumGetAddress([44, 37310, 0, 0, 0])
               .then((result) => {
-                console.log(result)
                 this._addEthAddress(result)
               })
 
@@ -121,7 +121,11 @@ function hdNodesManager(){
       return {
         $virus: hamlism,
         $tag: 'li.list-group-item',
+        _toRskAddress: '',
+        _fromRskAddress: '',
+        _rskAmount: 0,
         $$: [
+          rskModal(self._networkName),
           { $tag: 'button.close',
             $text: '×',
             onclick(e) { self._ethAddresses = _.without(self._ethAddresses, node) }
@@ -130,6 +134,22 @@ function hdNodesManager(){
           { $tag: 'input.form-control.form-control-sm',
             value: node.message.address,
             readonly: true
+          },
+          {
+            $virus: hamlism,
+            $tag: '.float-sm-right ',
+            class: 'rsk-tx-creation',
+            $$: [
+              { $virus: buttonismWithSize('Create Transaction', 'success', 'small'),
+                'data-id': 'rsk-tx-creation',
+                'data-toggle': 'modal',
+                'data-target': '#modalDialogRsk',
+                onclick(e) {
+                  this._fromRskAddress = node.message.address
+                  document.querySelector('#modalDialogRsk').$update()
+                }
+              }
+            ]
           }
         ]
       }
@@ -359,11 +379,11 @@ function generateMultisig(hdNodes, required, multisig_path, network){
   let path_array = _.compact(_.split(multisig_path, '/'))
   return {
     address: address,
-    as_input: nodes_as_input(hdNodes, path_array, required)
+    as_input: nodesAsInput(hdNodes, path_array, required)
   }
 }
 
-function nodes_as_input(hdNodes, path, required){
+function nodesAsInput(hdNodes, path, required){
   return {
     address_n: path,
     prev_hash: '[previous transaction hash]',
