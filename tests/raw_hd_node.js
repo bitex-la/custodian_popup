@@ -13,7 +13,7 @@ test('Check navbar', async t => {
 })
 
 test
-  ('Creates a Node', async t => {
+  ('Creates a Raw Hd Node', async t => {
 
     mockJQueryAjax(t, (params, ajaxResponse) => {
       let hdWallet = { attributes: { version: 1, 

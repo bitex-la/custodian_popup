@@ -181,6 +181,7 @@ function hdNodesManager(){
         ]},
       ]},
       { $virus: buttonism('Add node from Trezor'),
+        'data-id': 'add-node-from-trezor',
         onclick(){ this._hdNodeFromTrezor() }
       },
       { $tag: 'ul.list-group.hd-nodes.mt-3',

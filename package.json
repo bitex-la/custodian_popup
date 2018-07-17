@@ -46,14 +46,15 @@
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.2.0",
     "browserify": "^13.1.1",
+    "casperjs": "1.1.4",
     "exorcist": "^0.4.0",
     "npm-run-all": "^4.1.3",
+    "sinon": "^6.1.3",
     "testcafe": "^0.20.4",
     "uglifyify": "^3.0.1",
     "watchify": "^3.6.0",
     "webpack": "^4.1.1",
     "webpack-cli": "^2.0.12",
-    "webpack-dev-server": "^3.1.1",
-    "casperjs": "1.1.4"
+    "webpack-dev-server": "^3.1.1"
   }
 }
