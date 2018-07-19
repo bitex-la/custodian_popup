@@ -107,37 +107,52 @@ export function Transaction(_networkName) {
           })
       })
     },
-    signRskTransaction(path, to, from, gasPriceGwei, gasLimit, value, data) {
+    signRskTransaction(path, to, from, gasPriceGwei, gasLimitFromParam, value, data) {
       let self = this
       loading()
       return device.run((d) => {
         let web3 = self.getWeb3()
         let count = null
-        let gasPrice = gasPriceGwei * 1e9
+        self.getGasPrice((gasValue) => {
+          let gasPrice = gasPriceGwei === null ? `0${gasValue}` : gasPriceGwei * 1e9
+          let gasLimit = gasLimitFromParam  === null ? self.getGasLimit(data) : gasLimitFromParam
 
-        self.getNonce(from).then(nonce => {
+          self.getNonce(from).then(nonce => {
 
-          d.session.signEthTx(path, nonce, gasPrice.toString(), gasLimit.toString(), to, value.toString(), null, 33).then(function (response) {
-            let tx = {
-              nonce: `0x${nonce}`,
-              gasPrice: `0x${gasPrice}`,
-              gasLimit: `0x${gasLimit}`,
-              to: `0x${to}`,
-              value: `0x${value}`,
-              data,
-              chainId: 33,
-              from: `0x${from}`
-            }
-            tx.v =  response.v
-            tx.r = `0x${response.r}`
-            tx.s = `0x${response.s}`
-            let ethtx = new EthereumTx(tx)
-            const serializedTx = ethtx.serialize()
-            const rawTx = '0x' + serializedTx.toString('hex')
-            web3.eth.sendSignedTransaction(rawTx).on('receipt', console.log).on('error', console.log)
+            let gasLimitForTrezor = gasLimit.toString().length % 2 === 0 ? gasLimit.toString() : `0${gasLimit}`
+
+            d.session.signEthTx(path, nonce, gasPrice.toString(), gasLimitForTrezor, to, value.toString(), null, 33).then(function (response) {
+              let tx = {
+                nonce: `0x${nonce}`,
+                gasPrice: `0x${gasPrice}`,
+                gasLimit: `0x${gasLimit}`,
+                to: `0x${to}`,
+                value: `0x${value}`,
+                data,
+                chainId: 33,
+                from: `0x${from}`
+              }
+              tx.v =  response.v
+              tx.r = `0x${response.r}`
+              tx.s = `0x${response.s}`
+              let ethtx = new EthereumTx(tx)
+              const serializedTx = ethtx.serialize()
+              const rawTx = '0x' + serializedTx.toString('hex')
+              web3.eth.sendSignedTransaction(rawTx).on('receipt', console.log).on('error', console.log)
+            })
           })
         })
       })
+    },
+    getGasPrice(callback) {
+      let web3 = this.getWeb3()
+      let gasPrice = web3.eth.getGasPrice().then(response => {
+        callback(response === '0' ? 1 : response)
+      })
+    },
+    getGasLimit(data) {
+      let dataSizeInBytes = data === null ? 1 : (new TextEncoder('utf-8').encode(data)).length
+      return 21000 + 68 * dataSizeInBytes
     },
     getNonce(address) {
       let web3 = this.getWeb3()
