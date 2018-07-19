@@ -3,8 +3,6 @@ import { Selector, RequestMock } from 'testcafe'
 import { mockJQueryAjax } from './jquery.js'
 import { mockTrezor } from './trezor.js'
 
-import * as device from '../src/device.js'
-
 fixture `Getting Started`
     .page `http://localhost:9966`
 

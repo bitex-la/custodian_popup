@@ -5,6 +5,7 @@ import {pinHandler} from './pin_handler.js';
 import {passphraseHandler, blankPassphraseHandler} from './passphrase_handler.js';
 import {showError, loading, notLoading} from './messages.js'
 import * as trezor from 'trezor.js';
+window.$trezor = trezor
 var semvercmp = require('semver-compare');
 var bip44 = require('bip44-constants')
 
@@ -144,7 +145,7 @@ function initTransport() {
     let configUrl = CONFIG_URL + '?' + timestamp;
 
     let result = new Promise((resolve, reject) => {
-      let list = new trezor.DeviceList({configUrl});
+      let list = new window.$trezor.DeviceList({configUrl});
       let onError;
       let onTransport = () => {
         list.removeListener('error', onError);
