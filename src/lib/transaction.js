@@ -126,7 +126,7 @@ export function Transaction(_networkName) {
               value: `0x${value}`,
               data,
               chainId: 33,
-              from
+              from: `0x${from}`
             }
             tx.v =  response.v
             tx.r = `0x${response.r}`
@@ -143,7 +143,7 @@ export function Transaction(_networkName) {
       let web3 = this.getWeb3()
       return new Promise (function (resolve, reject) {
         web3.eth.getTransactionCount(address, 'pending', function (error, result) {
-          resolve(result === 0 ? '01' : `0${result + 1}`)
+          resolve(result === 0 ? '01' : `0${result}`)
         })
       })
     },
