@@ -158,7 +158,7 @@ export function Transaction(_networkName) {
       let web3 = this.getWeb3()
       return new Promise (function (resolve, reject) {
         web3.eth.getTransactionCount(address, 'pending', function (error, result) {
-          resolve(result === 0 ? '01' : `0${result}`)
+          resolve(`0${result}`)
         })
       })
     },

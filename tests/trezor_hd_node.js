@@ -38,6 +38,8 @@ test
 
     await t
       .click('a[href="#tab_multisig_setup"]')
+      .click(selectNetwork)
+      .click(selectNetwork.find('option').withText('testnet'))
       .click('button[data-id="add-node-from-trezor"]')
     /*
       .typeText('#multisig_setup_xpub', 'tpubD6NzVbkrYhZ4YSh1zgHc1L2fNXQmSZM1FEbVFpNGzK9J1GDuhRnfoLUA7Unzq44qHVviVtyKdfLjnJYiuTUTjYAJt6Un4svFfRPb7m6TvZk')

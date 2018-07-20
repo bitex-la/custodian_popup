@@ -56,6 +56,7 @@ function hdNodesManager(){
       let networkName = this._networkName;
       loading()
       device.run((d) => {
+
         let _path = this._path
         switch(networkName) {
           case 'rsk':
