@@ -3,7 +3,7 @@ import {baseService} from './base_service.js'
 export function transactionService() {
   return {
     broadcast (hash, successCallback, errorCallback) {
-      jQuery.ajax({
+      return jQuery.ajax({
         method: 'POST',
         url: `${nodeUrl}/transactions/broadcast`,
         contentType: 'application/json; charset=utf-8',

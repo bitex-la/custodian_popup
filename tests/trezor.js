@@ -19,7 +19,17 @@ export async function mockTrezor(t) {
                           on: function (name, callback) {  },
                           getPublicKey: function (path) { return new Promise((resolve, reject) => { 
                             resolve({ message: { xpub: 'tpubD6NzVbkrYhZ4YSh1zgHc1L2fNXQmSZM1FEbVFpNGzK9J1GDuhRnfoLUA7Unzq44qHVviVtyKdfLjnJYiuTUTjYAJt6Un4svFfRPb7m6TvZk' } }) })
-                          }
+                          },
+                          signTx: function (inputs, outputs, transactions, coin) { return new Promise((resolve, reject) => {
+                            resolve({
+                              message: {
+                                serialized: {
+                                  serialized_tx: '000serializedTx',
+                                  signatures: ['1', '2', '3']
+                                }
+                              }
+                            })
+                          }) }
                         }
                      })
               return new Promise(function (resolve, reject) {  })

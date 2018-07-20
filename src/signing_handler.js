@@ -24,7 +24,7 @@ export function signingHandler(){
       let self = this
       if (self._rawtx){
         self.$build({
-          class: 'alert alert-secondary',
+          class: 'alert alert-secondary serialized-hex-tx',
           $type: 'textarea',
           cols: 100,
           $text: this._rawtx
@@ -32,9 +32,12 @@ export function signingHandler(){
         self.$build({
           $type: 'button',
           class: 'button btn btn-primary btn-block mt-1',
+          id: 'broadcast-transaction',
           $text: 'Broadcast Transaction',
           onclick() {
-            transactionService().broadcast(self._rawtx)
+            transactionService().broadcast(self._rawtx).then((result) => {
+              showSuccess('Transaction Broadcasted')
+            })
           }
         })
       }
@@ -54,6 +57,7 @@ export function signingHandler(){
         }
       },
       { $tag: 'button.btn.btn-primary.btn-block.mt-1',
+        id: 'sign-transaction',
         $text: 'Sign transaction',
         _handleSigningResult(result){
           this._transactionJson = result.json

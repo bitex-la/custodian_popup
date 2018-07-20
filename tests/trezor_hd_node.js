@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { Selector, RequestMock } from 'testcafe'
 import { mockJQueryAjax } from './jquery.js'
 import { mockTrezor } from './trezor.js'
@@ -10,7 +9,6 @@ test
   ('Creates a Trezor Hd Node', async t => {
 
     mockTrezor(t)
-    //sinon.mock(device.run)
 
     mockJQueryAjax(t, (params, ajaxResponse) => {
       let hdWallet = { attributes: { version: 1, 
@@ -28,6 +26,8 @@ test
         return ajaxResponse({data: [hdWallet]})
       } else if (params.method === 'GET' && /estimatefee/.test(params.url)) {
         return ajaxResponse({2: '0.00001000'})
+      } else if (params.method === 'POST' && /transactions\/broadcast/.test(params.url)) {
+        return ajaxResponse(null)
       }
     })
 
@@ -41,11 +41,6 @@ test
       .click(selectNetwork)
       .click(selectNetwork.find('option').withText('testnet'))
       .click('button[data-id="add-node-from-trezor"]')
-    /*
-      .typeText('#multisig_setup_xpub', 'tpubD6NzVbkrYhZ4YSh1zgHc1L2fNXQmSZM1FEbVFpNGzK9J1GDuhRnfoLUA7Unzq44qHVviVtyKdfLjnJYiuTUTjYAJt6Un4svFfRPb7m6TvZk')
-      .click(selectNetwork)
-      .click(selectNetwork.find('option').withText('testnet'))
-      .click('.add-node-group > button')
       .expect(nodeList.exists).ok()
       .expect(nodeList.textContent).contains('mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn')
       .click('.wallet-creation > button')
@@ -70,5 +65,8 @@ test
       .expect(Selector('input[name="amount"]').value).eql('0')
       .click('button[data-id="create-tx"]')
       .expect(Selector('#tansaction_json').textContent).contains('"script_type": "PAYTOADDRESS",\n      "address": "mgYDL9xvE9bDAXQdWseNttP5V6iaRmBVZK",\n      "amount": 569000')
-      */
+      .click('button#sign-transaction')
+      .expect(Selector('.serialized-hex-tx').textContent).contains('000serializedTx')
+      .click('button#broadcast-transaction')
+      .expect(Selector('#messages').textContent).contains('Transaction Broadcasted')
 })
