@@ -8,7 +8,8 @@
   },
   "author": "Bitex <http://bitex.la>",
   "license": "MIT",
-  "scripts": {
+   "scripts": {
+    "build": "webpack --mode production",
     "dev": "webpack-dev-server",
     "e2e": "bash ./wait_localhost.sh && testcafe chrome test/*",
     "test": "npm-run-all --parallel --race dev e2e"
