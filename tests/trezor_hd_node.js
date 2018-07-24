@@ -33,7 +33,8 @@ test
 
     const selectNetwork = Selector('#multisig_setup_network')
     const nodeList = Selector('.hd-nodes')
-    const selectWallet = Selector('#wallets select')
+    const selectNetworkWallet = Selector('#wallets select[name="network"]')
+    const selectWallet = Selector('#wallets select[name="wallet_type"]')
     const selectScriptType = Selector('select[name="script_type"]')
 
     await t
@@ -45,6 +46,8 @@ test
       .expect(nodeList.textContent).contains('mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn')
       .click('.wallet-creation > button')
       .click('a[href="#tab_wallets"]')
+      .click(selectNetworkWallet)
+      .click(selectNetworkWallet.find('option').withText('testnet'))
       .click(selectWallet)
       .click(selectWallet.find('option').withText('Hd'))
       .expect(Selector('.wallets-table').textContent).contains('tpubD6NzVb')
