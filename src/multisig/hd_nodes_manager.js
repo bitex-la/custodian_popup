@@ -44,7 +44,11 @@ export function hdNodesManager (){
       })
     },
     _addHdNodeFromXpub(xpub) {
-      this._hdNodes.push(bitcoin.HDNode.fromBase58(xpub, this._network()))
+      try {
+        this._hdNodes.push(bitcoin.HDNode.fromBase58(xpub, this._network()))
+      } catch (error) {
+        showError(error)
+      }
     },
     _hdNodeContainer(hdNode) {
       let self = this

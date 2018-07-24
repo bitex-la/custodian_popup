@@ -10,6 +10,7 @@
   "license": "MIT",
    "scripts": {
     "build": "webpack --mode production",
+    "prod": "webpack-dev-server --open --config webpack.prod.config.js",
     "dev": "webpack-dev-server",
     "e2e": "bash ./wait_localhost.sh && testcafe chrome test/*",
     "test": "npm-run-all --parallel --race dev e2e"
