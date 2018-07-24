@@ -1,4 +1,5 @@
 import * as device from '../device.js'
+import { rskModal } from '../components/rsk_modal.js'
 import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../lib/bootstrapism.js'
 import { hamlism } from '../lib/hamlism.js'
 import { showError, loading, notLoading } from '../messages.js'

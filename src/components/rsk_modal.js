@@ -124,10 +124,10 @@ export function rskModal(networkName) {
                     onclick() {
                       switch(networkName) {
                         case 'rsk':
-                          Transaction('rsk').signRskTransaction([44, 137, 0, 0], this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
+                          Transaction('rsk').signRskTransaction([44, 137, 0, 0, 0], this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
                           break
                         case 'rsk_testnet':
-                          Transaction('rsk_testnet').signRskTransaction([44, 37310, 0, 0], this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
+                          Transaction('rsk_testnet').signRskTransaction([44, 37310, 0, 0, 0], this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
                           break
                       }
                     }
