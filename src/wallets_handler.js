@@ -1,12 +1,14 @@
 import {hamlism} from './lib/hamlism.js'
 import {updateEpidemic} from './lib/update_epidemic.js'
-import {selectObjectGroupism, buttonism, buttonismWithSize} from './lib/bootstrapism.js'
+import {selectGroupism, selectObjectGroupism, buttonism, buttonismWithSize} from './lib/bootstrapism.js'
 import {modal} from './components/utxos_modal.js'
 import {modalTx} from './components/output_tx_modal.js'
 import {addressesList} from './components/addresses_list.js'
 import {utxosList} from './components/utxos_list.js'
 
 import {walletService} from './services/wallet_service.js'
+
+import networks from './lib/networks.js'
 
 export function walletHandler() {
   return {
@@ -58,6 +60,19 @@ export function walletHandler() {
           return []
       }
     },
+    _chooseBackUrl(_networkName) {
+      switch(_networkName) {
+        case 'testnet':
+          window.nodeUrl = 'http://localhost:9100'
+          break
+        case 'litecoin':
+          window.nodeUrl = 'http://localhost:9200'
+          break
+        case 'bitcoin_cash_testnet':
+          window.nodeUrl = 'http://localhost:9300'
+          break
+      }
+    },
     $$: [
       modal(function (walletType, walletId, since, limit) {
         let self = this
@@ -77,6 +92,11 @@ export function walletHandler() {
         },
         function (errorData) { console.log(errorData) })
       }),
+      { $virus: selectGroupism('Network', _.keys(networks), 'bitcoin'),
+        name: 'network',
+        $update(){ this.value = this._networkName },
+        onchange(e){ this._networkName = e.target.value }
+      },
       { $virus: selectObjectGroupism('Wallet Type', [
           {id: '', text: 'Select a type wallet'},
           {id: '/plain_wallets', text: 'Plain'},
@@ -88,6 +108,7 @@ export function walletHandler() {
           this._walletType = e.target.value
           this._wallets = []
           document.getElementsByClassName('wallets-table')[0].classList.remove('d-none')
+          self._chooseBackUrl(self._networkName)
           walletService().list(self._walletType,
             (successData) => self._addWallets(successData.data),
             (errorData) => console.log(errorData))
