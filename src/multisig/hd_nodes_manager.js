@@ -87,7 +87,7 @@ export function hdNodesManager (){
       let self = this
       return {
         $virus: hamlism,
-        $tag: 'li.list-group-item',
+        $tag: 'li.list-group-item.rsk-node',
         _toRskAddress: '',
         _fromRskAddress: '',
         _rskAmount: 0,

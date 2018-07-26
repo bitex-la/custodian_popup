@@ -8,7 +8,7 @@
   },
   "author": "Bitex <http://bitex.la>",
   "license": "MIT",
-   "scripts": {
+  "scripts": {
     "build": "webpack --mode production",
     "prod": "webpack-dev-server --open --config webpack.prod.config.js",
     "dev": "webpack-dev-server",
@@ -35,7 +35,8 @@
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
     "trezor.js": "6.1.0",
-    "web3": "^1.0.0-beta.34"
+    "web3": "^1.0.0-beta.34",
+    "web3-mock": "github:werner/web3-mock"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

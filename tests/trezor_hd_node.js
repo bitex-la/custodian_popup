@@ -2,7 +2,7 @@ import { Selector, RequestMock } from 'testcafe'
 import { mockJQueryAjax } from './jquery.js'
 import { mockTrezor } from './trezor.js'
 
-fixture `Getting Started`
+fixture `Testing Hd Wallet`
     .page `http://localhost:9966`
 
 test

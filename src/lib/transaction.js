@@ -1,7 +1,7 @@
 import * as device from '../device.js'
 import {showError, showSuccess, loading, notLoading} from '../messages.js'
 import {blockdozerService} from '../services/blockdozer_service.js'
-import Web3 from 'web3'
+import * as Web3 from 'web3'
 import EthereumTx from 'ethereumjs-tx'
 
 export function Transaction(_networkName) {
@@ -146,6 +146,7 @@ export function Transaction(_networkName) {
     },
     getGasPrice(callback) {
       let web3 = this.getWeb3()
+      //ethGasPrice
       let gasPrice = web3.eth.getGasPrice().then(response => {
         callback(response === '0' ? 1 : response)
       })
@@ -163,7 +164,8 @@ export function Transaction(_networkName) {
       })
     },
     getWeb3 () {
-      return new Web3(new Web3.providers.HttpProvider('http://localhost:4444'))
+      debugger
+      return new Web3.default(new Web3.providers.HttpProvider('http://localhost:4444'))
     },
     getExpensiveRskTransactions(account, startBlockNumber, endBlockNumber) {
       if (endBlockNumber == null) {
