@@ -3,7 +3,8 @@ import { rskModal } from '../components/rsk_modal.js'
 import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../lib/bootstrapism.js'
 import { hamlism } from '../lib/hamlism.js'
 import { showError, loading, notLoading } from '../messages.js'
-import { custodianManager } from '../services/custodian_manager.js'
+import { CustodianManager } from '../services/custodian_manager.js'
+import config from '../config.js'
 
 export function hdNodesManager (){
   return {
@@ -22,13 +23,13 @@ export function hdNodesManager (){
         let _path = this._path
         switch(networkName) {
           case 'rsk':
-            return d.session.ethereumGetAddress([44, 137, 0, 0, 0])
+            return d.session.ethereumGetAddress(config.rskMainNetPath)
               .then((result) => {
                 this._addEthAddress(result)
               })
             break
           case 'rsk_testnet':
-            return d.session.ethereumGetAddress([44, 37310, 0, 0, 0])
+            return d.session.ethereumGetAddress(config.rskTestNetPath)
               .then((result) => {
                 this._addEthAddress(result)
               })
@@ -72,11 +73,17 @@ export function hdNodesManager (){
             class: 'wallet-creation',
             $$: [
               { $virus: buttonismWithSize('Create Hd Wallet', 'success', 'small'),
-                onclick(){ custodianManager()._sendHdToCustodian(hdNode) }
+                onclick(){ 
+                  config.nodeSelected = config._chooseBackUrl(self._networkName)
+                  CustodianManager(config)._sendHdToCustodian(hdNode) 
+                }
               },
               { $tag: 'span', $text: ' ' },
               { $virus: buttonismWithSize('Create Plain Wallet', 'success', 'small'),
-                onclick(){ custodianManager()._sendPlainToCustodian(hdNode) }
+                onclick(){
+                  config.nodeSelected = config._chooseBackUrl(self._networkName)
+                  CustodianManager(config)._sendPlainToCustodian(hdNode) 
+                }
               }
             ]
           }

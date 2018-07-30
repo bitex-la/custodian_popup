@@ -10,7 +10,6 @@ test
   ('Creates and test a rsk transaction', async t => {
 
     mockTrezor(t);
-    console.log(t)
 
     const selectNetwork = Selector('#multisig_setup_network');
     const nodeList = Selector('.rsk-node');

@@ -1,15 +1,15 @@
 import { walletService } from '../services/wallet_service.js'
 import { showError, showInfo } from '../messages.js'
 
-export function custodianManager() {
+export function CustodianManager(config) {
   return {
     _createWallet(type, wallet, hdNodes, buildAddress) {
-      walletService().create(`/${type}`,
+      walletService(config).create(`/${type}`,
         wallet,
         (walletResponse) => {
           _.forEach(hdNodes, (node) => {
             let address = buildAddress(node.getAddress())
-            walletService().create(`/${type}/${walletResponse.data.id}/relationships/addresses`,
+            walletService(config).create(`/${type}/${walletResponse.data.id}/relationships/addresses`,
               address,
               (address) => showInfo('Address saved'),
               (error) => showError(error.statusText))

@@ -6,6 +6,7 @@ import {updateEpidemic} from './lib/update_epidemic.js'
 import {transactionService} from './services/transaction_service.js'
 import networks from './lib/networks.js'
 import {Transaction} from './lib/transaction.js'
+import config from './config.js'
 
 var bip32 = require('bip32-path')
 var _ = require('lodash')
@@ -35,7 +36,8 @@ export function signingHandler(){
           id: 'broadcast-transaction',
           $text: 'Broadcast Transaction',
           onclick() {
-            transactionService().broadcast(self._rawtx).then((result) => {
+            config.nodeSelected = config._chooseBackUrl(self._networkName)
+            transactionService(config).broadcast(self._rawtx).then((result) => {
               showSuccess('Transaction Broadcasted')
             })
           }

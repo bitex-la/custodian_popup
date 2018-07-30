@@ -9,6 +9,7 @@ import {utxosList} from './components/utxos_list.js'
 import {walletService} from './services/wallet_service.js'
 
 import networks from './lib/networks.js'
+import config from './config.js'
 
 export function walletHandler() {
   return {
@@ -60,24 +61,11 @@ export function walletHandler() {
           return []
       }
     },
-    _chooseBackUrl(_networkName) {
-      switch(_networkName) {
-        case 'testnet':
-          window.nodeUrl = 'http://localhost:9100'
-          break
-        case 'litecoin':
-          window.nodeUrl = 'http://localhost:9200'
-          break
-        case 'bitcoin_cash_testnet':
-          window.nodeUrl = 'http://localhost:9300'
-          break
-      }
-    },
     $$: [
       modal(function (walletType, walletId, since, limit) {
         let self = this
         let url = `${self._walletType}/${self._walletId}/get_utxos?since=${since}&limit=${limit}`
-        walletService().list(url, function(successData) {
+        walletService(config).list(url, function(successData) {
           self._since = ''
           self._limit = ''
           self._displayUtxos = 'block'
@@ -108,8 +96,8 @@ export function walletHandler() {
           this._walletType = e.target.value
           this._wallets = []
           document.getElementsByClassName('wallets-table')[0].classList.remove('d-none')
-          self._chooseBackUrl(self._networkName)
-          walletService().list(self._walletType,
+          config.nodeSelected = config._chooseBackUrl(self._networkName)
+          walletService(config).list(self._walletType,
             (successData) => self._addWallets(successData.data),
             (errorData) => console.log(errorData))
         }
@@ -145,7 +133,7 @@ export function walletHandler() {
                     onclick() { 
                       self._displayUtxos = 'none'
                       self._displayAddresses = 'block'
-                      walletService().list(`${self._walletType}/${wallet.id}/relationships/addresses`,
+                      walletService(config).list(`${self._walletType}/${wallet.id}/relationships/addresses`,
                         (successData) => self._addAddresses(_.map(successData.data, (address) => { return self._getStrAddress(address) })),
                         (errorData) => console.log(errorData)) 
                     }
