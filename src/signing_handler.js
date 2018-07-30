@@ -134,6 +134,8 @@ function exampleSpendMultisigJson(){
   utxo: ['c6199535c5e2bbf6437c87dfa4d8b6b16f6f9dae66eaa3205cb7044af974d6a8', 0]
   utxo_url: https://testnet.blockexplorer.com/api/tx/c6199535c5e2bbf6437c87dfa4d8b6b16f6f9dae66eaa3205cb7044af974d6a8
   root_extended_public_keys:
+    x:
+      xpub: 'xpub661MyMwAqRbcG9mRZW2tccfkuRxUoTuw4j2B5m1hYGEVfHDxaH5cdie93W2fr4TfMiP3Yss5pYywx3JWu166AEwE5vXD9HcXSHqWZvp7xkF'
     0:
       passphrase: 'one'
       xpub: 'tpubD6NzVbkrYhZ4YSh1zgHc1L2fNXQmSZM1FEbVFpNGzK9J1GDuhRnfoLUA7Unzq44qHVviVtyKdfLjnJYiuTUTjYAJt6Un4svFfRPb7m6TvZk'

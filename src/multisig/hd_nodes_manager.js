@@ -5,6 +5,7 @@ import { hamlism } from '../lib/hamlism.js'
 import { showError, loading, notLoading } from '../messages.js'
 import { CustodianManager } from '../services/custodian_manager.js'
 import config from '../config.js'
+import Wallet from 'ethereumjs-wallet'
 
 export function hdNodesManager (){
   return {
@@ -16,7 +17,7 @@ export function hdNodesManager (){
     _xpub: '',
     _hdNodeFromTrezor(){
       let self = this
-      let networkName = this._networkName;
+      let networkName = this._networkName
       loading()
       device.run((d) => {
 
@@ -47,7 +48,22 @@ export function hdNodesManager (){
     },
     _addHdNodeFromXpub(xpub) {
       try {
-        this._hdNodes.push(bitcoin.HDNode.fromBase58(xpub, this._network()))
+        switch(this._networkName) {
+          case 'rsk':
+          case 'rsk_testnet':
+            let ethWallet = Wallet.fromExtendedPublicKey(xpub)
+            ethWallet['keyPair'] = { network:  this._networkName }
+            ethWallet.neutered = () => {
+              return {
+                toBase58: () => xpub
+              }
+            }
+            this._hdNodes.push(ethWallet)
+            break
+          default:
+            this._hdNodes.push(bitcoin.HDNode.fromBase58(xpub, this._network()))
+            break
+        }
       } catch (error) {
         showError(error)
       }
@@ -62,7 +78,7 @@ export function hdNodesManager (){
             $text: '×',
             onclick(e){ self._hdNodes = _.without(self._hdNodes, hdNode) }
           },
-          { $tag: 'p span', $text: hdNode.getAddress() },
+          { $tag: 'p span', $text: hdNode instanceof Wallet ?  hdNode.getAddress().toString('hex') : hdNode.getAddress() },
           { $tag: 'input.form-control.form-control-sm',
             value: hdNode.neutered().toBase58(),
             readonly: true

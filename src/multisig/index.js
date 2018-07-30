@@ -6,7 +6,6 @@ import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../l
 import { updateEpidemic } from '../lib/update_epidemic.js'
 import { walletService } from '../services/wallet_service.js'
 import networks from '../lib/networks.js'
-import Wallet from 'ethereumjs-wallet'
 import { hdNodesManager } from './hd_nodes_manager.js'
 import { multisigManager } from './multisig_manager.js'
 
