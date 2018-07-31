@@ -22,7 +22,13 @@ export function multisigSetupHandler(){
     _hdNodes: [],
     _ethAddresses: [],
     _network(){
-      return bitcoin.networks[this._networkName]
+        switch(this._networkName) {
+          case 'rsk':
+          case 'rsk_testnet':
+            return bitcoin.networks['bitcoin']
+          default:
+            return bitcoin.networks[this._networkName]
+        }
     },
     _addEthAddress(data) {
       this._ethAddresses.push(data)

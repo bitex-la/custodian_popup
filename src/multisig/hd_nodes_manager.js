@@ -20,21 +20,29 @@ export function hdNodesManager (){
       let networkName = this._networkName
       loading()
       device.run((d) => {
-
         let _path = this._path
         switch(networkName) {
           case 'rsk':
-            return d.session.ethereumGetAddress(config.rskMainNetPath)
-              .then((result) => {
-                this._addEthAddress(result)
-              })
-            break
           case 'rsk_testnet':
-            return d.session.ethereumGetAddress(config.rskTestNetPath)
+            d.session.getPublicKey(_path, 'bitcoin')
               .then((result) => {
-                this._addEthAddress(result)
+                d.session.ethereumGetAddress(config.rskTestNetPath)
+                  .then((address) => {
+                    let hdNode = bitcoin.HDNode.fromBase58(result.message.xpub, this._network())
+                    hdNode.ethAddress = address.message.address
+                    hdNode.getAddress = () => {
+                      switch(self._networkName) {
+                        case 'rsk':
+                        case 'rsk_testnet':
+                          return hdNode.ethAddress
+                        default:
+                          return hdNode.keyPair.getAddress()
+                      }
+                    }
+                    this._hdNodes.push(hdNode)
+                    notLoading()
+                  })
               })
-
             break
           default:
             return d.session.getPublicKey(_path, networkName)
@@ -47,26 +55,9 @@ export function hdNodesManager (){
       })
     },
     _addHdNodeFromXpub(xpub) {
-      try {
-        switch(this._networkName) {
-          case 'rsk':
-          case 'rsk_testnet':
-            let ethWallet = Wallet.fromExtendedPublicKey(xpub)
-            ethWallet['keyPair'] = { network:  this._networkName }
-            ethWallet.neutered = () => {
-              return {
-                toBase58: () => xpub
-              }
-            }
-            this._hdNodes.push(ethWallet)
-            break
-          default:
-            this._hdNodes.push(bitcoin.HDNode.fromBase58(xpub, this._network()))
-            break
-        }
-      } catch (error) {
-        showError(error)
-      }
+      let networkName = this._network()
+      let hdNode = bitcoin.HDNode.fromBase58(xpub, networkName)
+      this._hdNodes.push(hdNode)
     },
     _hdNodeContainer(hdNode) {
       let self = this
@@ -78,7 +69,7 @@ export function hdNodesManager (){
             $text: '×',
             onclick(e){ self._hdNodes = _.without(self._hdNodes, hdNode) }
           },
-          { $tag: 'p span', $text: hdNode instanceof Wallet ?  hdNode.getAddress().toString('hex') : hdNode.getAddress() },
+          { $tag: 'p span', $text: hdNode.getAddress() },
           { $tag: 'input.form-control.form-control-sm',
             value: hdNode.neutered().toBase58(),
             readonly: true
@@ -166,7 +157,28 @@ export function hdNodesManager (){
         },
         { class: 'input-group-btn add-node-group', $$: [
           { $virus: buttonism('Add node'),
-            onclick(){ this._addHdNodeFromXpub(this._xpub) }
+            onclick(){
+              try {
+                switch(this._networkName) {
+                  case 'rsk':
+                  case 'rsk_testnet':
+                    let ethWallet = Wallet.fromExtendedPublicKey(xpub)
+                    ethWallet['keyPair'] = { network:  this._networkName }
+                    ethWallet.neutered = () => {
+                      return {
+                        toBase58: () => xpub
+                      }
+                    }
+                    this._addHdNodeFromXpub(ethWallet) 
+                    break
+                  default:
+                    this._addHdNodeFromXpub(this._xpub) 
+                    break
+                }
+              } catch (error) {
+                showError(error)
+              }
+            }
           }
         ]},
       ]},
