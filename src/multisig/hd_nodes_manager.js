@@ -63,6 +63,9 @@ export function hdNodesManager (){
       let self = this
       return {
         $virus: hamlism,
+        _toRskAddress: '',
+        _fromRskAddress: '',
+        _rskAmount: 0,
         $tag: 'li.list-group-item',
         $$: [
           { $tag: 'button.close',
@@ -79,6 +82,24 @@ export function hdNodesManager (){
             $tag: '.float-sm-right ',
             class: 'wallet-creation',
             $$: [
+              rskModal(self._networkName),
+              { $virus: buttonismWithSize('Create Transaction', 'success', 'small'),
+                'data-id': 'rsk-tx-creation',
+                'data-toggle': 'modal',
+                'data-target': '#modalDialogRsk',
+                $update() {
+                  if (self._networkName === 'rsk' || self._networkName === 'rsk_testnet') {
+                    this.classList.add('visible')
+                  } else {
+                    this.classList.add('invisible')
+                  }
+                },
+                onclick(e) {
+                  this._fromRskAddress = hdNode.getAddress()
+                  document.querySelector('#modalDialogRsk').$update()
+                }
+              },
+              { $tag: 'span', $text: ' ' },
               { $virus: buttonismWithSize('Create Hd Wallet', 'success', 'small'),
                 onclick(){ 
                   config.nodeSelected = config._chooseBackUrl(self._networkName)
@@ -90,44 +111,6 @@ export function hdNodesManager (){
                 onclick(){
                   config.nodeSelected = config._chooseBackUrl(self._networkName)
                   CustodianManager(config)._sendPlainToCustodian(hdNode) 
-                }
-              }
-            ]
-          }
-        ]
-      }
-    },
-    _hdNodeEthContainer(node) {
-      let self = this
-      return {
-        $virus: hamlism,
-        $tag: 'li.list-group-item.rsk-node',
-        _toRskAddress: '',
-        _fromRskAddress: '',
-        _rskAmount: 0,
-        $$: [
-          rskModal(self._networkName),
-          { $tag: 'button.close',
-            $text: '×',
-            onclick(e) { self._ethAddresses = _.without(self._ethAddresses, node) }
-          },
-          { $tag: 'p span', $text: node.message.path },
-          { $tag: 'input.form-control.form-control-sm',
-            value: node.message.address,
-            readonly: true
-          },
-          {
-            $virus: hamlism,
-            $tag: '.float-sm-right ',
-            class: 'rsk-tx-creation',
-            $$: [
-              { $virus: buttonismWithSize('Create Transaction', 'success', 'small'),
-                'data-id': 'rsk-tx-creation',
-                'data-toggle': 'modal',
-                'data-target': '#modalDialogRsk',
-                onclick(e) {
-                  this._fromRskAddress = node.message.address
-                  document.querySelector('#modalDialogRsk').$update()
                 }
               }
             ]
