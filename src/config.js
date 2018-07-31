@@ -9,6 +9,9 @@ function Config(defaultServer) {
     rskTestNetPath: [44, 37310, 0, 0, 0],
     _chooseBackUrl(_networkName) {
       switch(_networkName) {
+        case 'rsk':
+        case 'rsk_testnet':
+        case 'bitcoin':
         case 'testnet':
           return 'btcNodeUrl'
         case 'litecoin':

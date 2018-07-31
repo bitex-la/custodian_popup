@@ -12,7 +12,7 @@ test
     mockTrezor(t);
 
     const selectNetwork = Selector('#multisig_setup_network');
-    const nodeList = Selector('.rsk-node');
+    const nodeList = Selector('.hd-nodes')
 
     await t
       .click('a[href="#tab_multisig_setup"]')
@@ -20,10 +20,5 @@ test
       .click(selectNetwork.find('option').withText('rsk_testnet'))
       .click('button[data-id="add-node-from-trezor"]')
       .expect(nodeList.exists).ok()
-      .expect(nodeList.textContent).contains('44,37310,0,0,0')
-      .click('button[data-id="rsk-tx-creation"]')
-      .expect(Selector('#from-address-rsk').value).contains('b5ae11144f988735aecf469b96b72f979736dbcc')
-      .typeText('input[id="to-address-rsk"]', 'b4b3bbb8a149e9cddaa1ed6984942408e5b6a7ff')
-      .typeText('input[id="amount-rsk"]', '11000000')
-      .click('button[data-id="create-rsk-tx"]')
+      .expect(nodeList.textContent).contains('b5ae11144f988735aecf469b96b72f979736dbcc')
   })

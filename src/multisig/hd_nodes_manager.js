@@ -24,7 +24,7 @@ export function hdNodesManager (){
         switch(networkName) {
           case 'rsk':
           case 'rsk_testnet':
-            d.session.getPublicKey(_path, 'bitcoin')
+            d.session.getPublicKey(config.rskTestNetPath, 'bitcoin')
               .then((result) => {
                 d.session.ethereumGetAddress(config.rskTestNetPath)
                   .then((address) => {
@@ -159,17 +159,23 @@ export function hdNodesManager (){
           { $virus: buttonism('Add node'),
             onclick(){
               try {
+                let self = this
                 switch(this._networkName) {
                   case 'rsk':
                   case 'rsk_testnet':
-                    let ethWallet = Wallet.fromExtendedPublicKey(xpub)
-                    ethWallet['keyPair'] = { network:  this._networkName }
-                    ethWallet.neutered = () => {
-                      return {
-                        toBase58: () => xpub
+                    let hdNode = bitcoin.HDNode.fromBase58(self._xpub, this._network())
+                    let ethWallet = Wallet.fromExtendedPublicKey(self._xpub)
+                    hdNode.ethAddress = ethWallet.getAddress().toString('hex')
+                    hdNode.getAddress = () => {
+                      switch(self._networkName) {
+                        case 'rsk':
+                        case 'rsk_testnet':
+                          return hdNode.ethAddress
+                        default:
+                          return hdNode.keyPair.getAddress()
                       }
                     }
-                    this._addHdNodeFromXpub(ethWallet) 
+                    this._hdNodes.push(hdNode)
                     break
                   default:
                     this._addHdNodeFromXpub(this._xpub) 
