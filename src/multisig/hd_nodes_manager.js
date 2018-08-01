@@ -1,4 +1,5 @@
 import * as device from '../device.js'
+import TrezorConnect from 'trezor-connect'
 import { rskModal } from '../components/rsk_modal.js'
 import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../lib/bootstrapism.js'
 import { hamlism } from '../lib/hamlism.js'
@@ -15,44 +16,42 @@ export function hdNodesManager (){
       this._path = string ? bip32.fromString(string).toPathArray() : []
     },
     _xpub: '',
-    _hdNodeFromTrezor(){
+    async _hdNodeFromTrezor() {
       let self = this
       let networkName = this._networkName
       loading()
-      device.run((d) => {
-        let _path = this._path
-        switch(networkName) {
-          case 'rsk':
-          case 'rsk_testnet':
-            d.session.getPublicKey(config.rskTestNetPath, 'bitcoin')
-              .then((result) => {
-                d.session.ethereumGetAddress(config.rskTestNetPath)
-                  .then((address) => {
-                    let hdNode = bitcoin.HDNode.fromBase58(result.message.xpub, this._network())
-                    hdNode.ethAddress = address.message.address
-                    hdNode.getAddress = () => {
-                      switch(self._networkName) {
-                        case 'rsk':
-                        case 'rsk_testnet':
-                          return hdNode.ethAddress
-                        default:
-                          return hdNode.keyPair.getAddress()
-                      }
-                    }
-                    this._hdNodes.push(hdNode)
-                    notLoading()
-                  })
-              })
-            break
-          default:
-            return d.session.getPublicKey(_path, networkName)
-              .then((result) => {
-                this._addHdNodeFromXpub(result.message.xpub)
-                notLoading()
-              })
-            break
-        }
-      })
+      let _path = this._path
+      switch(networkName) {
+        case 'rsk':
+        case 'rsk_testnet':
+          const rskResult = await TrezorConnect.getPublicKey(config.rskTestNetPath, 'bitcoin')
+          if (rskResult.success) {
+            const address = await TrezorConnect.ethereumGetAddress(config.rskTestNetPath)
+            if (address.success) {
+              let hdNode = bitcoin.HDNode.fromBase58(rskResult.message.xpub, this._network())
+              hdNode.ethAddress = address.message.address
+              hdNode.getAddress = () => {
+                switch(self._networkName) {
+                  case 'rsk':
+                  case 'rsk_testnet':
+                    return hdNode.ethAddress
+                  default:
+                    return hdNode.keyPair.getAddress()
+                }
+              }
+              this._hdNodes.push(hdNode)
+              notLoading()
+            }
+          }
+          break
+        default:
+          const result = await TrezorConnect.getPublicKey(_path, networkName)
+          if (result.success) {
+            this._addHdNodeFromXpub(result.message.xpub)
+            notLoading()
+          }
+          break
+      }
     },
     _addHdNodeFromXpub(xpub) {
       let networkName = this._network()

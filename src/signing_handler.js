@@ -1,4 +1,3 @@
-import * as device from './device.js'
 import * as bitcoin from 'bitcoinjs-lib'
 import {showError, showSuccess, loading, notLoading} from './messages.js'
 import {selectGroupism, buttonism, cardism} from './lib/bootstrapism.js'
