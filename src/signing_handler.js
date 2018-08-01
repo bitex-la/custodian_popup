@@ -1,3 +1,4 @@
+import {Transaction} from './lib/transaction'
 import * as bitcoin from 'bitcoinjs-lib'
 import {showError, showSuccess, loading, notLoading} from './messages.js'
 import {selectGroupism, buttonism, cardism} from './lib/bootstrapism.js'
@@ -67,8 +68,11 @@ export function signingHandler(){
           }
         },
         onclick () {
-          Transaction(this._networkName).signTransaction(this._transactionJson, this._networkName)
-            .then(this._handleSigningResult)
+          let transaction = new Transaction()
+          let transactionJson = typeof(this._transactionJson) === "string" ? JSON.parse(this._transactionJson) : this._transactionJson
+          transaction.signTransaction(transactionJson, this._networkName).then((result) => {
+              this._handleSigningResult(result)
+            })
         }
       }
     ]

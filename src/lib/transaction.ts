@@ -9,7 +9,12 @@ const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
 
 interface InTransaction {
-  outputs: Array<object>;
+  outputs: Array<{
+    script_type: string;
+    address: string;
+    amount: string;
+  }>;
+
   inputs: Array<{ 
     address_n: string; 
     prev_hash: string; 
@@ -33,7 +38,7 @@ interface RawTx {
       version: string;
       locktime: number;
       inputs: Array<{ prev_hash: string; prev_index: string; sequence: string; script_sig: string }>;
-      outputs: Array<{ amount: number; script_pubkey: string }>
+      outputs: Array<{ amount: string; script_pubkey: string }>
     };
 
     multisig: {
@@ -99,7 +104,7 @@ export class Transaction {
         }),
         bin_outputs: _.map(rawTx.attributes.transaction.outputs, function(output) {
           return {
-            amount: output.amount,
+            amount: output.amount.toString(),
             script_pubkey: output.script_pubkey
           }
         })
@@ -116,9 +121,10 @@ export class Transaction {
     })
   }
  
-  async signTransaction (original_json: InTransaction, coin: string) {
+  async signTransaction (original_json: InTransaction, coin: string): Promise<any> {
     let json = _.cloneDeep(original_json);
     loading();
+    json.outputs = _.map(json.outputs, (output) => { output['amount'] = output.amount.toString(); return output})
     const result = await TrezorConnect.signTransaction({inputs: json.inputs, outputs: json.outputs, coin});
     if (result.success) {
       let signed = result.payload.serializedTx;
@@ -140,16 +146,25 @@ export class Transaction {
           })
 
           notLoading();
-          return {json: json, done: done, rawtx: signed};
+          return new Promise(resolve => {
+            resolve({json: json, done: done, rawtx: signed})
+          });
 
         } else {
-          showError(resultPk.payload.error);
+          return new Promise((resolve, reject) => {
+            reject({json: resultPk.payload.error, done: false, rawtx: null})
+          });
         }
       }else{
-        return { json: json, done: true, rawtx: signed };
+        return new Promise(resolve => {
+          resolve({json: json, done: true, rawtx: signed})
+        });
       }
+    } else {
+      return new Promise((resolve, reject) => {
+        reject({json: result.payload.error, done: false, rawtx: null})
+      });
     }
-
   }
 
   async signRskTransaction(path: Array<number>, to: string, _from: string, gasPriceGwei: number, gasLimitFromParam: string, value: string, data?: string) {
