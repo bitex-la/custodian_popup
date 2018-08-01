@@ -4,7 +4,6 @@ import {selectGroupism, buttonism, cardism} from './lib/bootstrapism.js'
 import {updateEpidemic} from './lib/update_epidemic.js'
 import {transactionService} from './services/transaction_service.js'
 import networks from './lib/networks.js'
-import {Transaction} from './lib/transaction.js'
 import config from './config.js'
 
 var bip32 = require('bip32-path')

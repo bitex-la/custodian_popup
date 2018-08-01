@@ -1,6 +1,6 @@
+import {Transaction} from '../lib/transaction'
 import {updateEpidemic} from '../lib/update_epidemic.js'
 import {buttonismWithSize} from '../lib/bootstrapism.js'
-import {Transaction} from '../lib/transaction.js'
 
 export function rskModal(networkName) {
   return {
@@ -122,12 +122,13 @@ export function rskModal(networkName) {
                     'data-dismiss': 'modal',
                     'data-id': 'create-rsk-tx',
                     onclick() {
+                      let transaction = new Transaction()
                       switch(networkName) {
                         case 'rsk':
-                          Transaction('rsk').signRskTransaction([44, 137, 0, 0, 0], this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
+                          transaction.signRskTransaction([44, 137, 0, 0, 0], this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
                           break
                         case 'rsk_testnet':
-                          Transaction('rsk_testnet').signRskTransaction([44, 37310, 0, 0, 0], this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
+                          transaction.signRskTransaction([44, 37310, 0, 0, 0], this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
                           break
                       }
                     }

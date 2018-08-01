@@ -63,7 +63,7 @@ export class Transaction {
     })
   }
 
-  createTx (_this: HandleParent, callback: Function) {
+  createTx (_this: HandleParent, _networkName: string, callback: Function) {
     let self = this
     _.forEach(_this._rawTransaction, function (rawTx) {
       if (_this._walletType == '/hd_wallets') {
@@ -106,7 +106,7 @@ export class Transaction {
       })
     })
 
-    self.calculateFee(_this._networkName, _this._outputs.length, (fee: number) => {
+    self.calculateFee(_networkName, _this._outputs.length, (fee: number) => {
       self._transaction.outputs = _.map(_this._outputs, (output) => {
         let outputResult = (<any>Object).assign({}, output)
         outputResult['amount'] = outputResult['amount'] - fee
@@ -168,7 +168,7 @@ export class Transaction {
       transaction: {
         to,
         value: `0x${value}`,
-        data: null,
+        data: "",
         chainId: 33,
         nonce: `0x${nonce}`,
         gasLimit: `0x${gasLimit}`,
@@ -181,18 +181,18 @@ export class Transaction {
         nonce: `0x${nonce}`,
         gasPrice: `0x${gasPrice}`,
         gasLimit: `0x${gasLimit}`,
-        to: `0x${to}`,
+        to: to,
         value: `0x${value}`,
         data,
         chainId: 33,
-        from: `0x${_from}`,
+        from: _from,
         v: 0,
         r: '',
         s: ''
       };
       tx.v =  result.payload.v;
-      tx.r = `0x${result.payload.r}`;
-      tx.s = `0x${result.payload.s}`;
+      tx.r = result.payload.r;
+      tx.s = result.payload.s;
       let ethtx = new EthereumTx(tx);
       const serializedTx = ethtx.serialize();
       const rawTx = '0x' + serializedTx.toString('hex');
@@ -219,7 +219,7 @@ export class Transaction {
   getNonce(address: string): Promise<string> {
     let web3 = this.getWeb3()
     return new Promise((resolve, reject) => {
-      web3.eth.getTransactionCount(address, 'pending', function (error: any, result: string) {
+      web3.eth.getTransactionCount(address.toLowerCase(), 'pending', function (error: any, result: string) {
         resolve(`0${result}`)
       });
     });
