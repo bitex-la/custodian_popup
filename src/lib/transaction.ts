@@ -1,8 +1,10 @@
 import * as _  from 'lodash';
 
-import * as device from '../device';
 import {showError, showSuccess, loading, notLoading} from '../messages';
 import {blockdozerService} from '../services/blockdozer_service.js';
+import config from '../config.js';
+
+const TrezorConnect = require('trezor-connect').default;
 const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
 
@@ -114,86 +116,102 @@ export class Transaction {
     })
   }
  
-  signTransaction (original_json: InTransaction, coin: string) {
-    let json = _.cloneDeep(original_json)
-    loading()
-    return device.run((d: device.Device) => {
-      return d.session.signTx(json.inputs, json.outputs, json.transactions, coin)
-        .then((res) => {
-          let signed = res.message.serialized.serialized_tx
-          let signatures = res.message.serialized.signatures
-          if(_.some(json.inputs, (i) => i.multisig )) {
-            return d.session.getPublicKey([]).then( (result) => {
-              let publicKey = result.message.node.public_key
-              _.each(json.inputs, (input, inputIndex) => {
-                let signatureIndex = _.findIndex(input.multisig.pubkeys,
-                  (p: { node: { public_key: string } }) => p.node.public_key == publicKey)
-                input.multisig.signatures[signatureIndex] = signatures[inputIndex]
-              })
+  async signTransaction (original_json: InTransaction, coin: string) {
+    let json = _.cloneDeep(original_json);
+    loading();
+    const result = await TrezorConnect.signTransaction({inputs: json.inputs, outputs: json.outputs, coin});
+    if (result.success) {
+      let signed = result.payload.serializedTx;
+      let signatures = result.payload.signatures;
 
-              let done = _.every(json.inputs, (i) => {
-                return _.compact(i.multisig.signatures).length >= i.multisig.m
-              })
+      if(_.some(json.inputs, (i) => i.multisig )) {
+        const resultPk = await TrezorConnect.getPublicKey({path: []});
+        if (resultPk.success) {
 
-              notLoading()
-              return {json: json, done: done, rawtx: signed}
-            })
-          }else{
-            return { json: json, done: true, rawtx: signed }
-          }
-        })
-    })
+          let publicKey = result.payload.node.public_key;
+          _.each(json.inputs, (input, inputIndex) => {
+            let signatureIndex = _.findIndex(input.multisig.pubkeys,
+              (p: { node: { public_key: string } }) => p.node.public_key == publicKey);
+            input.multisig.signatures[signatureIndex] = signatures[inputIndex];
+          })
+
+          let done = _.every(json.inputs, (i) => {
+            return _.compact(i.multisig.signatures).length >= i.multisig.m;
+          })
+
+          notLoading();
+          return {json: json, done: done, rawtx: signed};
+
+        } else {
+          showError(resultPk.payload.error);
+        }
+      }else{
+        return { json: json, done: true, rawtx: signed };
+      }
+    }
+
   }
 
-  signRskTransaction(path: Array<number>, to: string, from: string, gasPriceGwei: number, gasLimitFromParam: string, value: string, data?: string) {
+  async signRskTransaction(path: Array<number>, to: string, _from: string, gasPriceGwei: number, gasLimitFromParam: string, value: string, data?: string) {
     let self = this;
     loading();
-    return device.run((d: device.Device) => {
-      let web3 = self.getWeb3();
-      let count = null;
-      self.getGasPrice((gasValue: number) => {
-        let gasPrice = gasPriceGwei === null ? `0${gasValue}` : gasPriceGwei * 1e9;
-        let gasLimit = gasLimitFromParam  === null ? self.getGasLimit(data) : gasLimitFromParam;
+    let web3 = self.getWeb3();
+    let count = null;
+    let gasValue: number = await self.getGasPrice();
+    let gasPrice = gasPriceGwei === null ? `0${gasValue}` : gasPriceGwei * 1e9;
+    let gasLimit = gasLimitFromParam  === null ? self.getGasLimit(data) : gasLimitFromParam;
+    let nonce: string = await self.getNonce(_from);
+    let gasLimitForTrezor: string = gasLimit.toString().length % 2 === 0 ? gasLimit.toString() : `0${gasLimit}`;
 
-        self.getNonce(from).then(nonce => {
+    const result = await TrezorConnect.ethereumSignTransaction({
+      path,
+      transaction: {
+        to,
+        value: `0x${value}`,
+        data: null,
+        chainId: 33,
+        nonce: `0x${nonce}`,
+        gasLimit: `0x${gasLimit}`,
+        gasPrice: `0x${gasPrice}`
+      }
+    });
 
-          let gasLimitForTrezor: string = gasLimit.toString().length % 2 === 0 ? gasLimit.toString() : `0${gasLimit}`;
+    if (result.success) {
+      let tx = {
+        nonce: `0x${nonce}`,
+        gasPrice: `0x${gasPrice}`,
+        gasLimit: `0x${gasLimit}`,
+        to: `0x${to}`,
+        value: `0x${value}`,
+        data,
+        chainId: 33,
+        from: `0x${_from}`,
+        v: 0,
+        r: '',
+        s: ''
+      };
+      tx.v =  result.payload.v;
+      tx.r = `0x${result.payload.r}`;
+      tx.s = `0x${result.payload.s}`;
+      let ethtx = new EthereumTx(tx);
+      const serializedTx = ethtx.serialize();
+      const rawTx = '0x' + serializedTx.toString('hex');
+      web3.eth.sendSignedTransaction(rawTx).on('receipt', console.log).on('error', console.log);
+    } else {
+      showError(result.payload.error);
+    }
+  }
 
-          d.session.signEthTx(path, nonce, gasPrice.toString(), gasLimitForTrezor, to, value.toString(), null, 33).then(function (response) {
-            let tx = {
-              nonce: `0x${nonce}`,
-              gasPrice: `0x${gasPrice}`,
-              gasLimit: `0x${gasLimit}`,
-              to: `0x${to}`,
-              value: `0x${value}`,
-              data,
-              chainId: 33,
-              from: `0x${from}`,
-              v: 0,
-              r: '',
-              s: ''
-            }
-            tx.v =  response.v
-            tx.r = `0x${response.r}`
-            tx.s = `0x${response.s}`
-            let ethtx = new EthereumTx(tx)
-            const serializedTx = ethtx.serialize()
-            const rawTx = '0x' + serializedTx.toString('hex')
-            web3.eth.sendSignedTransaction(rawTx).on('receipt', console.log).on('error', console.log)
-          })
-        })
+  getGasPrice(): Promise<number> {
+    let web3 = this.getWeb3()
+    return new Promise(resolve => {
+      web3.eth.getGasPrice().then((response: string) => {
+        resolve(response === '0' ? 1 : parseFloat(response))
       })
     })
   }
 
-  getGasPrice(callback) {
-    let web3 = this.getWeb3()
-    let gasPrice = web3.eth.getGasPrice().then(response => {
-      callback(response === '0' ? 1 : response)
-    })
-  }
-
-  getGasLimit(data) {
+  getGasLimit(data: string) {
     let dataSizeInBytes = data === null ? 1 : (new TextEncoder().encode(data)).length
     return 21000 + 68 * dataSizeInBytes
   }
@@ -201,54 +219,13 @@ export class Transaction {
   getNonce(address: string): Promise<string> {
     let web3 = this.getWeb3()
     return new Promise((resolve, reject) => {
-      web3.eth.getTransactionCount(address, 'pending', function (error, result) {
+      web3.eth.getTransactionCount(address, 'pending', function (error: any, result: string) {
         resolve(`0${result}`)
       });
     });
   }
 
   getWeb3 () {
-    return new Web3(new Web3.providers.HttpProvider('http://localhost:4444'))
-  }
-
-  getExpensiveRskTransactions(account, startBlockNumber, endBlockNumber) {
-    if (endBlockNumber == null) {
-      endBlockNumber = eth.blockNumber
-      console.log("Using endBlockNumber: " + endBlockNumber)
-    }
-    if (startBlockNumber == null) {
-      startBlockNumber = endBlockNumber - 1000
-      console.log("Using startBlockNumber: " + startBlockNumber)
-    }
-    console.log("Searching for transactions to/from account \"" + account + "\" within blocks "  + startBlockNumber + " and " + endBlockNumber)
-
-    var transactions = []
-    for (var i = startBlockNumber; i <= endBlockNumber; i++) {
-      if (i % 1000 == 0) {
-        console.log("Searching block " + i)
-      }
-      var block = eth.getBlock(i, true)
-      if (block != null && block.transactions != null) {
-        block.transactions.forEach( function(e) {
-          if (account == "*" || account == e.from || account == e.to) {
-            transactions.push({
-              tx_hash: e.hash,
-              nonce: e.nonce,
-              blockHash: e.blockHash,
-              blockNumber: e.blockNumber,
-              transactionIndex: e.transactionIndex,
-              from: e.from,
-              to: e.to,
-              value: e.value,
-              timestamp: block.timestamp + " " + new Date(block.timestamp * 1000).toGMTString(),
-              gasPrice: e.gasPrice,
-              gas: e.gas,
-              input: e.input
-            })
-          }
-        })
-      }
-    }
-    return transactions
+    return new Web3(new Web3.providers.HttpProvider(config.rskNodeUrl))
   }
 }

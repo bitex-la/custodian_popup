@@ -1,4 +1,3 @@
-import * as device from '../device.js'
 import TrezorConnect from 'trezor-connect'
 import { rskModal } from '../components/rsk_modal.js'
 import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../lib/bootstrapism.js'
@@ -20,16 +19,16 @@ export function hdNodesManager (){
       let self = this
       let networkName = this._networkName
       loading()
-      let _path = this._path
+      let _path = this._path.length === 0 ? config._chooseDerivationPath(networkName) : this._path
       switch(networkName) {
         case 'rsk':
         case 'rsk_testnet':
-          const rskResult = await TrezorConnect.getPublicKey(config.rskTestNetPath, 'bitcoin')
+          const rskResult = await TrezorConnect.getPublicKey({path: _path})
           if (rskResult.success) {
-            const address = await TrezorConnect.ethereumGetAddress(config.rskTestNetPath)
+            const address = await TrezorConnect.ethereumGetAddress({path: _path})
             if (address.success) {
-              let hdNode = bitcoin.HDNode.fromBase58(rskResult.message.xpub, this._network())
-              hdNode.ethAddress = address.message.address
+              let hdNode = bitcoin.HDNode.fromBase58(rskResult.payload.xpub, this._network())
+              hdNode.ethAddress = address.payload.address
               hdNode.getAddress = () => {
                 switch(self._networkName) {
                   case 'rsk':
@@ -41,14 +40,20 @@ export function hdNodesManager (){
               }
               this._hdNodes.push(hdNode)
               notLoading()
+            } else {
+              showError(address.payload.error)
             }
+          } else {
+            showError(rskResult.payload.error)
           }
           break
         default:
-          const result = await TrezorConnect.getPublicKey(_path, networkName)
+          const result = await TrezorConnect.getPublicKey({path: _path, coin: networkName})
           if (result.success) {
-            this._addHdNodeFromXpub(result.message.xpub)
+            this._addHdNodeFromXpub(result.payload.xpub)
             notLoading()
+          } else {
+            showError(result.payload.error)
           }
           break
       }

@@ -1,4 +1,3 @@
-import * as device from '../device.js'
 import * as bitcoin from 'bitcoinjs-lib'
 import { showError, loading, notLoading } from '../messages.js'
 import { hamlism } from '../lib/hamlism.js'
