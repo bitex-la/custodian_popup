@@ -25,6 +25,7 @@
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "bip32-path": "0.4.2",
     "bip44-constants": "^2.3.0",
+    "bitcoin-to-rsk-key-utils": "github:rsksmart/utils",
     "bitcoinjs-lib": "^3.3.1",
     "bowser": "^1.9.3",
     "coininfo": "^4.0.1",
@@ -38,8 +39,7 @@
     "mock-trezor": "^1.0.8",
     "trezor-connect": "^5.0.27",
     "trezor.js": "6.1.0",
-    "web3": "^1.0.0-beta.34",
-    "web3-mock": "github:werner/web3-mock"
+    "web3": "^1.0.0-beta.34"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

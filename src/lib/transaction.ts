@@ -4,6 +4,7 @@ import {showError, showSuccess, loading, notLoading} from '../messages';
 import {blockdozerService} from '../services/blockdozer_service.js';
 import config from '../config.js';
 
+const rskUtils = require('bitcoin-to-rsk-key-utils/rsk-conversion-utils.js');
 const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
 
@@ -264,6 +265,18 @@ export class Transaction {
         return resolve(result);
       })
     });
+  }
+
+  getRskPrivateKeyFromBtc(privKey: string) {
+    return rskUtils.privKeyToRskFormat(privKey);
+  }
+
+  getRskAddressFromBtc(privKey: string) {
+    return rskUtils.getRskAddress(privKey);
+  }
+
+  getBtcPrivKeyFromRsk(net: string, privKey: string) {
+    return rskUtils.getBtcPrivateKey(net, privKey);
   }
 
   getWeb3 () {
