@@ -192,7 +192,8 @@ export function modalTx() {
                     'data-id': 'create-tx',
                     onclick() {
                       let self = this
-                      Transaction().createTx(self, (tx) => {
+                      let transaction = new Transaction()
+                      transaction.createTx(self, this._networkName, (tx) => {
                         document.querySelector('#signing')._transactionJson = tx
                         document.querySelector('#signing').$update()
                       })

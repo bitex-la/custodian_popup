@@ -5,7 +5,7 @@ import {selectGroupism, buttonism, cardism} from './lib/bootstrapism.js'
 import {updateEpidemic} from './lib/update_epidemic.js'
 import {transactionService} from './services/transaction_service.js'
 import networks from './lib/networks.js'
-import config from './config.js'
+import config from './config'
 
 var bip32 = require('bip32-path')
 var _ = require('lodash')

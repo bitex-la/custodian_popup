@@ -1,7 +1,6 @@
 import { Selector, RequestMock } from 'testcafe'
 import { mockJQueryAjax } from './jquery.js'
 import { mockTrezor } from './trezor.js'
-import { mockWeb3 } from './web3_fake_provider.js'
 
 fixture `Testing Rsk transactions`
   .page `http://localhost:9966`

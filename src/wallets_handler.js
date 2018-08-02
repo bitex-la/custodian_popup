@@ -9,7 +9,7 @@ import {utxosList} from './components/utxos_list.js'
 import {walletService} from './services/wallet_service.js'
 
 import networks from './lib/networks.js'
-import config from './config.js'
+import config from './config'
 
 export function walletHandler() {
   return {

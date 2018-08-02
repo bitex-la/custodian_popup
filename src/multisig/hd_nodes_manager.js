@@ -3,7 +3,7 @@ import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../l
 import { hamlism } from '../lib/hamlism.js'
 import { showError, loading, notLoading } from '../messages.js'
 import { CustodianManager } from '../services/custodian_manager.js'
-import config from '../config.js'
+import config from '../config'
 import Wallet from 'ethereumjs-wallet'
 
 export function hdNodesManager (){

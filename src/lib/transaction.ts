@@ -2,7 +2,7 @@ import * as _  from 'lodash';
 
 import {showError, showSuccess, loading, notLoading} from '../messages';
 import {blockdozerService} from '../services/blockdozer_service.js';
-import config from '../config.js';
+import config from '../config';
 
 const rskUtils = require('bitcoin-to-rsk-key-utils/rsk-conversion-utils.js');
 const Web3 = require('web3');
@@ -20,20 +20,27 @@ interface ABIDefinition {
 
 type ABIDataTypes = "uint256" | "boolean" | "string" | "bytes" | string;
 
-interface InTransaction {
-  outputs: Array<{
-    script_type: string;
-    address: string;
-    amount: string;
-  }>;
+interface Input {
+  address_n: string; 
+  prev_hash: string; 
+  prev_index: string; 
+  sequence?: string;
+  script_sig?: string;
+  multisig?: { pubkeys: Array<{ node: { public_key: string } }>, signatures: Array<string>, m: number }; 
+  script_type?: string;
+}
 
-  inputs: Array<{ 
-    address_n: string; 
-    prev_hash: string; 
-    prev_index: string; 
-    multisig?: { pubkeys: Array<{ node: { public_key: string } }>, signatures: Array<string>, m: number }; 
-    script_type?: string;
-  }>;
+interface Output {
+  script_type?: string;
+  address: string;
+  amount: string;
+  script_pubkey?: string;
+}
+
+interface InTransaction {
+  outputs: Array<Output>;
+
+  inputs: Array<Input>;
     
   transactions: Array<object>;
 }
@@ -70,27 +77,28 @@ interface HandleParent {
 
 export class Transaction {
 
-  _transaction: InTransaction;
+  transaction: InTransaction = { outputs: [], inputs: [], transactions: [] };
 
   calculateFee (_networkName: string, outputLength: number, callback: Function) {
     blockdozerService().satoshisPerByte(_networkName).done((data: {2: string}) => {
       let satoshis = parseFloat(data[2]) * 100000000;
-      let fee = (10 + (149 * this._transaction.inputs.length) + (35 * outputLength)) * satoshis;
+      let fee = (10 + (149 * this.transaction.inputs.length) + (35 * outputLength)) * satoshis;
       callback(fee);
     })
   }
 
   createTx (_this: HandleParent, _networkName: string, callback: Function) {
     let self = this
-    _.forEach(_this._rawTransaction, function (rawTx) {
+    console.log(callback);
+    _.forEach(_this._rawTransaction, function (rawTx: RawTx) {
       if (_this._walletType == '/hd_wallets') {
-        self._transaction.inputs.push({
+        self.transaction.inputs.push({
           address_n: rawTx.attributes.address.path,
           prev_hash: rawTx.attributes.transaction.transaction_hash,
           prev_index: rawTx.attributes.transaction.position
-        })
+        });
       } else if (_this._walletType == '/multisig_wallets') {
-        self._transaction.inputs.push({
+        self.transaction.inputs.push({
           address_n: rawTx.attributes.address.path,
           prev_hash: rawTx.attributes.transaction.transaction_hash,
           prev_index: rawTx.attributes.transaction.position,
@@ -100,13 +108,13 @@ export class Transaction {
             m: rawTx.attributes.multisig.m,
             pubkeys: rawTx.attributes.multisig.pubkeys
           }
-        })
+        });
       }
-      self._transaction.transactions.push({
+      self.transaction.transactions.push({
         hash: rawTx.attributes.transaction.transaction_hash,
         version: rawTx.attributes.transaction.version,
         lock_time: rawTx.attributes.transaction.locktime,
-        inputs: _.map(rawTx.attributes.transaction.inputs, function(input) {
+        inputs: _.map(rawTx.attributes.transaction.inputs, function(input: Input) {
           return {
             prev_hash: input.prev_hash,
             prev_index: input.prev_index,
@@ -114,29 +122,29 @@ export class Transaction {
             script_sig: input.script_sig
           }
         }),
-        bin_outputs: _.map(rawTx.attributes.transaction.outputs, function(output) {
+        bin_outputs: _.map(rawTx.attributes.transaction.outputs, function(output: Output) {
           return {
             amount: output.amount.toString(),
             script_pubkey: output.script_pubkey
           }
         })
-      })
-    })
+      });
+    });
 
     self.calculateFee(_networkName, _this._outputs.length, (fee: number) => {
-      self._transaction.outputs = _.map(_this._outputs, (output) => {
+      self.transaction.outputs = _.map(_this._outputs, (output: Output) => {
         let outputResult = (<any>Object).assign({}, output)
         outputResult['amount'] = outputResult['amount'] - fee
         return outputResult
-      })
-      callback(self._transaction)
-    })
+      });
+      callback(self.transaction)
+    });
   }
  
   async signTransaction (original_json: InTransaction, coin: string): Promise<any> {
     let json = _.cloneDeep(original_json);
     loading();
-    json.outputs = _.map(json.outputs, (output) => { output['amount'] = output.amount.toString(); return output});
+    json.outputs = _.map(json.outputs, (output: Output) => { output['amount'] = output.amount.toString(); return output});
     const result = await (<any>window).TrezorConnect.signTransaction({inputs: json.inputs, outputs: json.outputs, coin});
     if (result.success) {
       let signed = result.payload.serializedTx;
