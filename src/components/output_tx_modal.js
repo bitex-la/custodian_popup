@@ -1,6 +1,6 @@
 import {hamlism} from '../lib/hamlism.js'
 import {buttonism, buttonismWithSize, selectObjectGroupism} from '../lib/bootstrapism.js'
-import {Transaction} from '../lib/transaction.js'
+import {Transaction} from '../lib/transaction'
 import {updateEpidemic} from '../lib/update_epidemic.js'
 
 export function modalTx() {
@@ -64,18 +64,35 @@ export function modalTx() {
                     }
                   },
                   {
-                    $tag: 'input',
-                    name: 'address',
-                    id: 'address',
-                    class: 'form-control',
-                    placeholder: 'Address',
-                    type: 'text',
-                    $update() {
-                      this.value = this._address
-                    },
-                    onchange(e) {
-                      this._address = e.target.value
-                    }
+                    class: 'form-group input-group',
+                    $$: [
+                      {
+                        $tag: 'input',
+                        name: 'address',
+                        id: 'address',
+                        class: 'form-control',
+                        placeholder: 'Address',
+                        type: 'text',
+                        $update() {
+                          this.value = this._address
+                        },
+                        onchange(e) {
+                          this._address = e.target.value
+                        }
+                      },
+                      {
+                        class: 'input-group-btn add-node-group',
+                        $$: [
+                          {
+                            $virus: buttonism('RSK'),
+                            onclick() {
+                              let transaction = new Transaction();
+                              transaction.getFederationAdress(this._networkName).then((address) => this._address = address)
+                            }
+                          }
+                        ]
+                      }
+                    ]
                   },
                   {
                     $tag: 'input',

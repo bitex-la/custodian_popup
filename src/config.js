@@ -42,6 +42,14 @@ function Config(defaultServer) {
           return 'bchNodeUrl'
           break
       }
+    },
+    _getUrlRskNode(_networkName) {
+      switch(_networkName) {
+        case 'rsk':
+          return 'https://public-node.rsk.co/'
+        case 'rsk_testnet':
+          return 'https://public-node.testnet.rsk.co/'
+      }
     }
   }
 }

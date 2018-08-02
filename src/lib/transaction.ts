@@ -252,7 +252,7 @@ export class Transaction {
   }
 
   getFederationAdress(network: string): Promise<string> {
-    var web3 = new Web3(config.getUrlRskNode(network));
+    var web3 = new Web3(config._getUrlRskNode(network));
 
     var abi: Array<ABIDefinition> = [{ "name": "getFederationAddress", "type": "function", "constant": true, "inputs": [], "outputs": [{ "name": "", "type": "string" }] }];
     var address = "0x0000000000000000000000000000000001000006";
