@@ -85,9 +85,9 @@ export function modalTx() {
                         $$: [
                           {
                             $virus: buttonism('RSK'),
-                            onclick() {
-                              let transaction = new Transaction();
-                              transaction.getFederationAdress(this._networkName).then((address) => this._address = address)
+                            async onclick() {
+                              let transaction = new Transaction()
+                              this._address = await transaction.getFederationAdress(this._networkName)
                             }
                           }
                         ]
