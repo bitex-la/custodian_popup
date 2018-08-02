@@ -4,9 +4,20 @@ import {showError, showSuccess, loading, notLoading} from '../messages';
 import {blockdozerService} from '../services/blockdozer_service.js';
 import config from '../config.js';
 
-const TrezorConnect = require('trezor-connect').default;
 const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
+
+interface ABIDefinition {
+    constant?: boolean;
+    payable?: boolean;
+    anonymous?: boolean;
+    inputs?: Array<{ name: string; type: ABIDataTypes; indexed?: boolean }>;
+    name?: string;
+    outputs?: Array<{ name: string; type: ABIDataTypes }>;
+    type: "function" | "constructor" | "event" | "fallback";
+}
+
+type ABIDataTypes = "uint256" | "boolean" | "string" | "bytes" | string;
 
 interface InTransaction {
   outputs: Array<{
@@ -124,14 +135,14 @@ export class Transaction {
   async signTransaction (original_json: InTransaction, coin: string): Promise<any> {
     let json = _.cloneDeep(original_json);
     loading();
-    json.outputs = _.map(json.outputs, (output) => { output['amount'] = output.amount.toString(); return output})
-    const result = await TrezorConnect.signTransaction({inputs: json.inputs, outputs: json.outputs, coin});
+    json.outputs = _.map(json.outputs, (output) => { output['amount'] = output.amount.toString(); return output});
+    const result = await (<any>window).TrezorConnect.signTransaction({inputs: json.inputs, outputs: json.outputs, coin});
     if (result.success) {
       let signed = result.payload.serializedTx;
       let signatures = result.payload.signatures;
 
       if(_.some(json.inputs, (i) => i.multisig )) {
-        const resultPk = await TrezorConnect.getPublicKey({path: []});
+        const resultPk = await (<any>window).TrezorConnect.getPublicKey({path: []});
         if (resultPk.success) {
 
           let publicKey = result.payload.node.public_key;
@@ -178,7 +189,7 @@ export class Transaction {
     let nonce: string = await self.getNonce(_from);
     let gasLimitForTrezor: string = gasLimit.toString().length % 2 === 0 ? gasLimit.toString() : `0${gasLimit}`;
 
-    const result = await TrezorConnect.ethereumSignTransaction({
+      const result = await (<any>window).TrezorConnect.ethereumSignTransaction({
       path,
       transaction: {
         to,
@@ -237,6 +248,21 @@ export class Transaction {
       web3.eth.getTransactionCount(address.toLowerCase(), 'pending', function (error: any, result: string) {
         resolve(`0${result}`)
       });
+    });
+  }
+
+  getFederationAdress(network: string): Promise<string> {
+    var web3 = new Web3(config.getUrlRskNode(network));
+
+    var abi: Array<ABIDefinition> = [{ "name": "getFederationAddress", "type": "function", "constant": true, "inputs": [], "outputs": [{ "name": "", "type": "string" }] }];
+    var address = "0x0000000000000000000000000000000001000006";
+
+    var FedContract = new web3.eth.Contract(abi, address);
+
+    return new Promise(resolve => {
+      FedContract.methods.getFederationAddress().call().then(function(result: string) {
+        return resolve(result);
+      })
     });
   }
 

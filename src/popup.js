@@ -1,6 +1,8 @@
 'use strict'
 
 import $ from 'jquery'
+import TrezorConnect from 'trezor-connect'
+window.TrezorConnect = TrezorConnect
 window.jQuery = window.$ = $
 import _  from 'lodash'
 window._ = _

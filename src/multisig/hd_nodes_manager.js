@@ -1,4 +1,3 @@
-import TrezorConnect from 'trezor-connect'
 import { rskModal } from '../components/rsk_modal.js'
 import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../lib/bootstrapism.js'
 import { hamlism } from '../lib/hamlism.js'
@@ -23,9 +22,9 @@ export function hdNodesManager (){
       switch(networkName) {
         case 'rsk':
         case 'rsk_testnet':
-          const rskResult = await TrezorConnect.getPublicKey({path: _path})
+          const rskResult = await window.TrezorConnect.getPublicKey({path: _path})
           if (rskResult.success) {
-            const address = await TrezorConnect.ethereumGetAddress({path: _path})
+            const address = await window.TrezorConnect.ethereumGetAddress({path: _path})
             if (address.success) {
               let hdNode = bitcoin.HDNode.fromBase58(rskResult.payload.xpub, this._network())
               hdNode.ethAddress = address.payload.address
@@ -48,7 +47,7 @@ export function hdNodesManager (){
           }
           break
         default:
-          const result = await TrezorConnect.getPublicKey({path: _path, coin: networkName})
+          const result = await window.TrezorConnect.getPublicKey({path: _path, coin: networkName})
           if (result.success) {
             this._addHdNodeFromXpub(result.payload.xpub)
             notLoading()
