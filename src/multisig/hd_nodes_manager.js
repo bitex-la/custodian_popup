@@ -68,7 +68,6 @@ export function hdNodesManager (){
         $virus: hamlism,
         _toRskAddress: '',
         _fromRskAddress: '',
-        _rskAmount: 0,
         $tag: 'li.list-group-item',
         $$: [
           { $tag: 'button.close',
@@ -104,6 +103,7 @@ export function hdNodesManager (){
               },
               { $tag: 'span', $text: ' ' },
               { $virus: buttonismWithSize('Create Hd Wallet', 'success', 'small'),
+                'data-id': 'hd-wallet-creation',
                 onclick(){ 
                   config.nodeSelected = config._chooseBackUrl(self._networkName)
                   CustodianManager(config)._sendHdToCustodian(hdNode) 

@@ -189,7 +189,7 @@ export class Transaction {
     let nonce: string = await self.getNonce(_from);
     let gasLimitForTrezor: string = gasLimit.toString().length % 2 === 0 ? gasLimit.toString() : `0${gasLimit}`;
 
-      const result = await (<any>window).TrezorConnect.ethereumSignTransaction({
+    const result = await (<any>window).TrezorConnect.ethereumSignTransaction({
       path,
       transaction: {
         to,

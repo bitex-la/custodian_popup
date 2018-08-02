@@ -8,6 +8,7 @@ export function rskModal(networkName) {
     class: 'modal fade',
     role: 'dialog',
     $virus: updateEpidemic,
+    _rskAmount: 0,
     $$: [
       {
         class: 'modal-dialog modal-lg',
