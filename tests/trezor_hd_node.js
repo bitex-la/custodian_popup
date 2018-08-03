@@ -71,5 +71,5 @@ test
       .click('button#sign-transaction')
       .expect(Selector('.serialized-hex-tx').textContent).contains('000serializedTx')
       .click('button#broadcast-transaction')
-      .expect(Selector('#messages').textContent).contains('Transaction Broadcasted')
+      .expect(Selector('.messages').textContent).contains('Transaction Broadcasted')
 })
