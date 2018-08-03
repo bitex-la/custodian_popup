@@ -5,6 +5,7 @@ import { showError, loading, notLoading } from '../messages.js'
 import { CustodianManager } from '../services/custodian_manager.js'
 import config from '../config'
 import Wallet from 'ethereumjs-wallet'
+import bip32 from 'bip32'
 
 export function hdNodesManager (){
   return {
@@ -26,7 +27,7 @@ export function hdNodesManager (){
           if (rskResult.success) {
             const address = await window.TrezorConnect.ethereumGetAddress({path: _path})
             if (address.success) {
-              let hdNode = bitcoin.HDNode.fromBase58(rskResult.payload.xpub, this._network())
+              let hdNode = bip32.fromBase58(rskResult.payload.xpub, this._network())
               hdNode.ethAddress = address.payload.address
               hdNode.getAddress = () => {
                 switch(self._networkName) {
@@ -34,7 +35,7 @@ export function hdNodesManager (){
                   case 'rsk_testnet':
                     return hdNode.ethAddress
                   default:
-                    return hdNode.keyPair.getAddress()
+                    return window.bitcoin.payments.p2pkh({ pubkey: hdNode.publicKey, network: self._networkName }).address
                 }
               }
               this._hdNodes.push(hdNode)
@@ -59,7 +60,10 @@ export function hdNodesManager (){
     },
     _addHdNodeFromXpub(xpub) {
       let networkName = this._network()
-      let hdNode = bitcoin.HDNode.fromBase58(xpub, networkName)
+      let hdNode = bip32.fromBase58(xpub, networkName)
+      hdNode.getAddress = () => {
+        return window.bitcoin.payments.p2pkh({ pubkey: hdNode.publicKey, network: networkName }).address
+      }
       this._hdNodes.push(hdNode)
     },
     _hdNodeContainer(hdNode) {
@@ -149,7 +153,7 @@ export function hdNodesManager (){
                 switch(this._networkName) {
                   case 'rsk':
                   case 'rsk_testnet':
-                    let hdNode = bitcoin.HDNode.fromBase58(self._xpub, this._network())
+                    let hdNode = bip32.fromBase58(self._xpub, this._network())
                     let ethWallet = Wallet.fromExtendedPublicKey(self._xpub)
                     hdNode.ethAddress = ethWallet.getAddress().toString('hex')
                     hdNode.getAddress = () => {

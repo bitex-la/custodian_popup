@@ -76,11 +76,11 @@ function generateMultisig(hdNodes, required, multisig_path, network){
   }
 
   let pubKeys = derived.map((n) => n.getPublicKeyBuffer())
-  let redeemScript = bitcoin.script.multisig.output.encode(required, pubKeys)
-  let scriptPubKey = bitcoin.script.scriptHash.output.encode(
-    bitcoin.crypto.hash160(redeemScript)
+  let redeemScript = window.bitcoin.script.multisig.output.encode(required, pubKeys)
+  let scriptPubKey = window.bitcoin.script.scriptHash.output.encode(
+    window.bitcoin.crypto.hash160(redeemScript)
   )
-  let address = bitcoin.address.fromOutputScript(scriptPubKey, network)
+  let address = window.bitcoin.address.fromOutputScript(scriptPubKey, network)
 
   let path_array = _.compact(_.split(multisig_path, '/'))
   return {

@@ -6,8 +6,8 @@ import { walletService } from '../services/wallet_service.js'
 import networks from '../lib/networks.js'
 import { hdNodesManager } from './hd_nodes_manager.js'
 import { multisigManager } from './multisig_manager.js'
+import bip32 from 'bip32'
 
-var bip32 = require('bip32-path')
 var _ = require('lodash')
  
 export function multisigSetupHandler(){
@@ -21,7 +21,7 @@ export function multisigSetupHandler(){
       this._ethAddresses.push(data)
     },
     $update(){
-      _.each(this._hdNodes, (n) => n.keyPair.network = this._network())
+      _.each(this._hdNodes, (n) => n.network = this._network())
     },
     $components: [
       { $virus: selectGroupism('Network', _.keys(networks), 'bitcoin'),

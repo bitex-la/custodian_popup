@@ -6,6 +6,7 @@ import {passphraseHandler, blankPassphraseHandler} from './passphrase_handler.js
 import {showError, loading, notLoading} from './messages.js'
 import * as trezor from 'trezor.js';
 window.$trezor = trezor
+import bip32 from 'bip32'
 var semvercmp = require('semver-compare');
 var bip44 = require('bip44-constants')
 
@@ -94,7 +95,7 @@ class Device {
 
   getNode(path) {
     return this.session.getPublicKey(path)
-      .then(({message}) => bitcoin.HDNode.fromBase58(message.xpub));
+      .then(({message}) => bip32.fromBase58(message.xpub));
   }
 }
 
