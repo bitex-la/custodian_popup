@@ -30,6 +30,15 @@ window.app = {
   $tag: 'body.container',
   $virus: [hamlism, tabbism, updateEpidemic],
   _networkName: 'bitcoin',
+  _network() {
+    switch(this._networkName) {
+      case 'rsk':
+      case 'rsk_testnet':
+        return window.bitcoin.networks['bitcoin']
+      default:
+        return window.bitcoin.networks[this._networkName]
+    }
+  },
   $$: [
     signingHandler(),
     multisigSetupHandler(),

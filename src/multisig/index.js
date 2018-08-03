@@ -1,4 +1,3 @@
-import * as bitcoin from 'bitcoinjs-lib'
 import { showError, loading, notLoading } from '../messages.js'
 import { hamlism } from '../lib/hamlism.js'
 import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../lib/bootstrapism.js'
@@ -11,8 +10,6 @@ import { multisigManager } from './multisig_manager.js'
 var bip32 = require('bip32-path')
 var _ = require('lodash')
  
-window.bitcoin = bitcoin
-
 export function multisigSetupHandler(){
   let id = 'multisig_setup'
   return {
@@ -20,15 +17,6 @@ export function multisigSetupHandler(){
     $virus: updateEpidemic,
     _hdNodes: [],
     _ethAddresses: [],
-    _network(){
-        switch(this._networkName) {
-          case 'rsk':
-          case 'rsk_testnet':
-            return bitcoin.networks['bitcoin']
-          default:
-            return bitcoin.networks[this._networkName]
-        }
-    },
     _addEthAddress(data) {
       this._ethAddresses.push(data)
     },
@@ -39,6 +27,7 @@ export function multisigSetupHandler(){
       { $virus: selectGroupism('Network', _.keys(networks), 'bitcoin'),
         id: 'multisig_setup_network',
         name: 'network',
+        $update(){ this.value = this._networkName },
         onchange(e){ this._networkName = e.target.value }
       },
       hdNodesManager(),
