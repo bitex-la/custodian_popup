@@ -16,15 +16,15 @@ module.exports = {
           presets: ['es2015']
         },
         exclude: /(node_modules)/
+      },
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
       }
     ]
   },
-  devServer: {
-    compress: true,
-    port: 9966
-  },
-  stats: {
-    colors: true
-  },
-  devtool: 'source-map'
- };
+  resolve: {
+    extensions: [ '.tsx', '.ts', '.js' ]
+  }
+};
