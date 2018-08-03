@@ -2,11 +2,18 @@ import {baseService} from './base_service.js'
 
 export function blockdozerService() {
   return {
-    satoshisPerByte (network, success_callback, error_callback) {
-      return jQuery.ajax({
-        method: 'GET',
-        url: `${this.chooseRootUrl(network)}/api/utils/estimatefee`
-      })
+    satoshisPerByte (network, defaultUrl) {
+      if (defaultUrl) {
+        return jQuery.ajax({
+          method: 'GET',
+          url: 'https://blockdozer.com/api/utils/estimatefee'
+        })
+      } else {
+        return jQuery.ajax({
+          method: 'GET',
+          url: `${this.chooseRootUrl(network)}/api/utils/estimatefee`
+        })
+      }
     },
     chooseRootUrl (network) {
       switch (network) {

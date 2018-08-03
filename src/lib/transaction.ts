@@ -75,16 +75,29 @@ interface HandleParent {
   _outputs: Array<object>;
 }
 
+interface signedResponse {
+  json: any;
+  done: boolean;
+  rawtx: string;
+}
+
 export class Transaction {
 
   transaction: InTransaction = { outputs: [], inputs: [], transactions: [] };
 
-  calculateFee (_networkName: string, outputLength: number, callback: Function) {
-    blockdozerService().satoshisPerByte(_networkName).done((data: {2: string}) => {
-      let satoshis = parseFloat(data[2]) * 100000000;
+  async calculateFee (_networkName: string, outputLength: number, callback: Function) {
+    let calculateFee = (response: {2: string}, callback: Function) => {
+      let satoshis = parseFloat(response[2]) * 100000000;
       let fee = (10 + (149 * this.transaction.inputs.length) + (35 * outputLength)) * satoshis;
       callback(fee);
-    })
+    }
+    try {
+      let response = await blockdozerService().satoshisPerByte(_networkName, false);
+      calculateFee(response, callback);
+    } catch {
+      let response = await blockdozerService().satoshisPerByte(_networkName, true);
+      calculateFee(response, callback);
+    }
   }
 
   createTx (_this: HandleParent, _networkName: string, callback: Function) {
@@ -141,7 +154,7 @@ export class Transaction {
     });
   }
  
-  async signTransaction (original_json: InTransaction, coin: string): Promise<any> {
+  async signTransaction (original_json: InTransaction, coin: string): Promise<signedResponse> {
     let json = _.cloneDeep(original_json);
     loading();
     json.outputs = _.map(json.outputs, (output: Output) => { output['amount'] = output.amount.toString(); return output});
@@ -166,22 +179,18 @@ export class Transaction {
           })
 
           notLoading();
-          return new Promise(resolve => {
-            resolve({json: json, done: done, rawtx: signed})
-          });
+          return new Promise<signedResponse>((resolve, reject) => resolve({json, done, rawtx: signed}) );
 
         } else {
-          return new Promise((resolve, reject) => {
+          return new Promise<signedResponse>((resolve, reject) => {
             reject({json: resultPk.payload.error, done: false, rawtx: null})
           });
         }
       }else{
-        return new Promise(resolve => {
-          resolve({json: json, done: true, rawtx: signed})
-        });
+        return new Promise<signedResponse>(resolve => resolve({json: json, done: true, rawtx: signed}));
       }
     } else {
-      return new Promise((resolve, reject) => {
+      return new Promise<signedResponse>((resolve, reject) => {
         reject({json: result.payload.error, done: false, rawtx: null})
       });
     }
@@ -268,10 +277,11 @@ export class Transaction {
 
     var FedContract = new web3.eth.Contract(abi, address);
 
-    return new Promise(resolve => {
-      FedContract.methods.getFederationAddress().call().then(function(result: string) {
-        return resolve(result);
-      })
+    return new Promise((resolve, reject) => {
+      FedContract.methods.getFederationAddress()
+        .call()
+        .then((result: string) => resolve(result))
+        .catch((result: any) => reject(result))
     });
   }
 

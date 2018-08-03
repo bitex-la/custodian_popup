@@ -1,4 +1,5 @@
 import {hamlism} from '../lib/hamlism.js'
+import {showError} from '../messages.js'
 import {buttonism, buttonismWithSize, selectObjectGroupism} from '../lib/bootstrapism.js'
 import {Transaction} from '../lib/transaction'
 import {updateEpidemic} from '../lib/update_epidemic.js'
@@ -50,6 +51,9 @@ export function modalTx() {
               {
                 class: 'modal-body',
                 $$: [
+                  {
+                    class: 'messages'
+                  },
                   { $virus: selectObjectGroupism('Script Type', [
                     {id: '', text: 'Select a script type'},
                     {id: 'PAYTOADDRESS', text: 'PAYTOADDRESS'},
@@ -86,8 +90,12 @@ export function modalTx() {
                           {
                             $virus: buttonism('RSK'),
                             async onclick() {
-                              let transaction = new Transaction()
-                              this._address = await transaction.getFederationAdress(this._networkName)
+                              try {
+                                let transaction = new Transaction()
+                                this._address = await transaction.getFederationAdress(this._networkName)
+                              } catch (error) {
+                                showError(error)
+                              }
                             }
                           }
                         ]

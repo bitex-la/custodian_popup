@@ -67,12 +67,15 @@ export function signingHandler(){
             showSuccess("All signed, try to propagate rawtx")
           }
         },
-        onclick () {
+        async onclick () {
           let transaction = new Transaction()
           let transactionJson = typeof(this._transactionJson) === "string" ? JSON.parse(this._transactionJson) : this._transactionJson
-          transaction.signTransaction(transactionJson, this._networkName).then((result) => {
-              this._handleSigningResult(result)
-            })
+          try {
+            let result = await transaction.signTransaction(transactionJson, this._networkName);
+            this._handleSigningResult(result);
+          } catch (error) {
+            showError(error.json)
+          }
         }
       }
     ]

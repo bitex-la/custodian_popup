@@ -1,10 +1,10 @@
 function message(type, text, extra, hide){
   if($("body > #messages").length == 0){
-    $("body").prepend("<div id='messages' class='mt-2'/>")
+    $("body").prepend("<div class='messages mt-2'/>")
   }
   
   let el = $(`<div class="alert alert-${type} ${extra}">${text}</div>`)
-  $("#messages").append(el)
+  $(".messages").append(el)
   if(hide){
     setTimeout(() => { el.hide() }, 5000)
   }
