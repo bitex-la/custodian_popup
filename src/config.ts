@@ -2,7 +2,7 @@ class Config {
   btcNodeUrl: string = 'http://localhost:9100';
   bchNodeUrl: string = 'http://localhost:9200';
   ltcNodeUrl: string = 'http://localhost:9300';
-  rskNodeUrl: string = 'http://localhost:4444';
+  rskNodeUrl: string = 'http://mycrypto.testnet.rsk.co/';
   nodeSelected: string = 'btcNodeUrl';
   rskMainNetPath: number[] = [44, 137, 0, 0, 0];
   rskTestNetPath: number[] = [44, 37310, 0, 0, 0];
