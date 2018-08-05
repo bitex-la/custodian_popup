@@ -1,7 +1,7 @@
 class Config {
-  btcNodeUrl: string = 'http://localhost:9100';
-  bchNodeUrl: string = 'http://localhost:9200';
-  ltcNodeUrl: string = 'http://localhost:9300';
+  btcNodeUrl: string = '/api/btc';
+  bchNodeUrl: string = '/api/bch';
+  ltcNodeUrl: string = '/api/ltc';
   rskNodeUrl: string = 'http://mycrypto.testnet.rsk.co/';
   nodeSelected: string = 'btcNodeUrl';
   rskMainNetPath: number[] = [44, 137, 0, 0, 0];
@@ -37,11 +37,9 @@ class Config {
       case 'litecoin':
       case 'litecoin_testnet':
         return 'ltcNodeUrl'
-        break
       case 'bitcoin_cash':
       case 'bitcoin_cash_testnet':
         return 'bchNodeUrl'
-        break
     }
   }
 
