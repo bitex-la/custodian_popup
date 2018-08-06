@@ -1,13 +1,14 @@
-import {Transaction} from '../lib/transaction'
-import {updateEpidemic} from '../lib/update_epidemic.js'
-import {buttonismWithSize} from '../lib/bootstrapism.js'
+import { hamlism } from '../lib/hamlism.js'
+import { Transaction } from '../lib/transaction'
+import { updateEpidemic } from '../lib/update_epidemic.js'
+import { buttonismWithSize, buttonism } from '../lib/bootstrapism.js'
 
 export function rskModal(networkName) {
   return {
     id: 'modalDialogRsk',
     class: 'modal fade',
     role: 'dialog',
-    $virus: updateEpidemic,
+    $virus: [updateEpidemic, hamlism],
     _rskAmount: 0,
     $$: [
       {
@@ -83,6 +84,18 @@ export function rskModal(networkName) {
                         onchange(e) {
                           this._toRskAddress = e.target.value
                         }
+                      },
+                      {
+                        class: 'input-group-btn add-node-group',
+                        $$: [
+                          {
+                            $virus: buttonism('Bridge'),
+                            onclick() {
+                              this._toRskAddress = '0x0000000000000000000000000000000001000006'
+                              document.querySelector('#to-address-rsk').$update()
+                            }
+                          }
+                        ]
                       }
                     ]
                   },
