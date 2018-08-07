@@ -3,6 +3,7 @@ import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../l
 import { hamlism } from '../lib/hamlism.js'
 import { showError, loading, notLoading } from '../messages.js'
 import { CustodianManager } from '../services/custodian_manager.js'
+import { Transaction } from '../lib/transaction'
 import config from '../config'
 import Wallet from 'ethereumjs-wallet'
 import bip32 from 'bip32'
@@ -15,6 +16,7 @@ export function hdNodesManager (){
       this._path = string ? bip32.fromString(string).toPathArray() : []
     },
     _xpub: '',
+    _balance: ' Balance: 0',
     async _hdNodeFromTrezor() {
       let self = this
       let networkName = this._networkName
@@ -38,6 +40,10 @@ export function hdNodesManager (){
                     return window.bitcoin.payments.p2pkh({ pubkey: hdNode.publicKey, network: self._networkName }).address
                 }
               }
+              hdNode.getBalance = async () => {
+                let transaction = new Transaction()
+                return await transaction.getRskBalance(hdNode.getAddress())
+              }
               this._hdNodes.push(hdNode)
               notLoading()
             } else {
@@ -59,15 +65,24 @@ export function hdNodesManager (){
       }
     },
     _addHdNodeFromXpub(xpub) {
+      let self = this
       let networkName = this._network()
       let hdNode = bip32.fromBase58(xpub, networkName)
       hdNode.getAddress = () => {
         return window.bitcoin.payments.p2pkh({ pubkey: hdNode.publicKey, network: networkName }).address
       }
+      hdNode.getBalance = async () => {
+        let transaction = new Transaction()
+        return await transaction.getBalanceFromOutside(self._networkName, hdNode.getAddress())
+      }
       this._hdNodes.push(hdNode)
     },
     _hdNodeContainer(hdNode) {
       let self = this
+      hdNode.getBalance().then((balance) => {
+        self._balance = ` Balance: ${balance}`
+        document.querySelector('#balance').$update()
+      })
       return {
         $virus: hamlism,
         _toRskAddress: '',
@@ -78,7 +93,22 @@ export function hdNodesManager (){
             $text: '×',
             onclick(e){ self._hdNodes = _.without(self._hdNodes, hdNode) }
           },
-          { $tag: 'p span', $text: hdNode.getAddress() },
+          { 
+            $tag: 'p span',
+            $$: [
+              {
+                $tag: 'span',
+                $text: hdNode.getAddress()
+              },
+              {
+                $tag: 'span',
+                id: 'balance',
+                $update() {
+                  this.$text = self._balance
+                }
+              }
+            ]
+          },
           { $tag: 'input.form-control.form-control-sm',
             value: hdNode.neutered().toBase58(),
             readonly: true
@@ -164,6 +194,10 @@ export function hdNodesManager (){
                         default:
                           return hdNode.keyPair.getAddress()
                       }
+                    }
+                    hdNode.getBalance = async () => {
+                      let transaction = new Transaction()
+                      return await transaction.getRskBalance(hdNode.getAddress())
                     }
                     this._hdNodes.push(hdNode)
                     break

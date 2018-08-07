@@ -6,7 +6,6 @@ export function baseService(config) {
         url: config[config.nodeSelected] + url,
         contentType: 'application/json; charset=utf-8',
         data: JSON.stringify(data),
-        crossDomain: true,
         success: success_callback,
         error: error_callback
       })
@@ -19,7 +18,6 @@ export function baseService(config) {
         method: 'GET',
         url: url,
         contentType: 'application/json; charset=utf-8',
-        crossDomain: true,
         success: success_callback,
         error: error_callback
       })

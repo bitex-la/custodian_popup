@@ -1,7 +1,8 @@
 import * as _  from 'lodash';
 
-import {showError, showSuccess, loading, notLoading} from '../messages';
-import {blockdozerService} from '../services/blockdozer_service.js';
+import { showError, showSuccess, loading, notLoading } from '../messages';
+import { blockdozerService } from '../services/blockdozer_service.js';
+import { blockcypherService } from '../services/blockcypher_service.js';
 import config from '../config';
 
 const rskUtils = require('bitcoin-to-rsk-key-utils/rsk-conversion-utils.js');
@@ -196,6 +197,11 @@ export class Transaction {
     }
   }
 
+  async getBalanceFromOutside(network: string, address: string): Promise<string> {
+    let balance = await blockcypherService().balance(network, address);
+    return balance.final_balance;
+  }
+
   async signRskTransaction(path: Array<number>, to: string, _from: string, gasPriceGwei: number, gasLimitFromParam: string, value: string, data?: string) {
     let self = this;
     loading();
@@ -256,12 +262,12 @@ export class Transaction {
   }
 
   getGasLimit(data: string) {
-    let dataSizeInBytes = data === null ? 1 : (new TextEncoder().encode(data)).length
+    let dataSizeInBytes = data === null ? 1 : (new TextEncoder().encode(data)).length;
     return 21000 + 68 * dataSizeInBytes
   }
 
   getNonce(address: string): Promise<string> {
-    let web3 = this.getWeb3()
+    let web3 = this.getWeb3();
     return new Promise((resolve, reject) => {
       web3.eth.getTransactionCount(address.toLowerCase(), 'pending', function (error: any, result: string) {
         resolve(`0${result}`)
@@ -283,6 +289,13 @@ export class Transaction {
         .then((result: string) => resolve(result))
         .catch((result: any) => reject(result))
     });
+  }
+
+  getRskBalance(address: string): Promise<string> {
+    let web3 = this.getWeb3();
+    return new Promise((resolve, reject) => {
+      web3.eth.getBalance(address.toLowerCase()).then((balance: string) => resolve(balance)).catch((error: string) => reject(error));
+    })
   }
 
   getRskPrivateKeyFromBtc(privKey: string) {
