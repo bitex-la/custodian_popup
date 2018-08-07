@@ -5,8 +5,8 @@ function message(type, text, extra, hide){
   
   let el = $(`<div class='alert alert-${type} ${extra}'>${text}</div>`)
   $('.messages').append(el)
-  if(hide){
-    setTimeout(() => { el.hide() }, 5000)
+  if (hide) {
+    setTimeout(() => { $('.alert').remove() }, 5000)
   }
 }
 
