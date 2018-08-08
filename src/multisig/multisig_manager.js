@@ -24,7 +24,7 @@ export function multisigManager(){
         type: 'text',
         onkeyup(e){ this._path = _.trim(e.target.value, '/') }
       },
-      { $virus: buttonism('Submit', 'success'),
+      { $virus: buttonism('Create Multisig Wallet', 'success'),
         onclick(){ custodianManager()._sendMultisigToCustodian(this) }
       },
       { $update(){
