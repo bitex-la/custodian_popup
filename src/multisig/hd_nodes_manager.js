@@ -81,7 +81,7 @@ export function hdNodesManager (){
       let self = this
       hdNode.getBalance().then((balance) => {
         self._balance = ` Balance: ${balance}`
-        document.querySelector('#balance').$update()
+        document.querySelector(`#balance-${hdNode.getAddress()}`).$update()
       })
       return {
         $virus: hamlism,
@@ -102,7 +102,7 @@ export function hdNodesManager (){
               },
               {
                 $tag: 'span',
-                id: 'balance',
+                id: `balance-${hdNode.getAddress()}`,
                 $update() {
                   this.$text = self._balance
                 }
