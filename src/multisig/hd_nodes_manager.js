@@ -73,7 +73,7 @@ export function hdNodesManager (){
       }
       hdNode.getBalance = async () => {
         let transaction = new Transaction()
-        return await transaction.getBalanceFromOutside(self._networkName, hdNode.getAddress())
+        return await transaction.getBalance(self._networkName, hdNode.getAddress())
       }
       this._hdNodes.push(hdNode)
     },

@@ -3,6 +3,7 @@ import * as _  from 'lodash';
 import { showError, showSuccess, loading, notLoading } from '../messages';
 import { blockdozerService } from '../services/blockdozer_service.js';
 import { blockcypherService } from '../services/blockcypher_service.js';
+import { transactionService } from '../services/transaction_service.js';
 import config from '../config';
 
 const rskUtils = require('bitcoin-to-rsk-key-utils/rsk-conversion-utils.js');
@@ -199,6 +200,12 @@ export class Transaction {
   async getBalanceFromOutside(network: string, address: string): Promise<string> {
     let balance = await blockcypherService().balance(network, address);
     return balance.final_balance;
+  }
+
+  async getBalance(network: string, address: string): Promise<string> {
+    config.nodeSelected = config._chooseBackUrl(network);
+    let transaction = await transactionService(config);
+    return transaction.balance(address);
   }
 
   async signRskTransaction(path: Array<number>, to: string, _from: string, gasPriceGwei: number, gasLimitFromParam: string, value: string, data?: string) {

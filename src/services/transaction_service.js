@@ -12,6 +12,13 @@ export function transactionService(config) {
         success: successCallback,
         error: errorCallback
       })
+    },
+    balance (address) {
+      return jQuery.ajax({
+        method: 'GET',
+        url: `${config[config.nodeSelected]}/plain_wallets/relationships/addresses/${address}/balance?since=0&limit=10000`,
+        contentType: 'application/json; charset=utf-8'
+      })
     }
   }
 }
