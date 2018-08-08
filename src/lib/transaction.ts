@@ -103,7 +103,6 @@ export class Transaction {
 
   createTx (_this: HandleParent, _networkName: string, callback: Function) {
     let self = this
-    console.log(callback);
     _.forEach(_this._rawTransaction, function (rawTx: RawTx) {
       if (_this._walletType == '/hd_wallets') {
         self.transaction.inputs.push({
