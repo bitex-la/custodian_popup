@@ -28,6 +28,8 @@ test
         return ajaxResponse({2: '0.00001000'})
       } else if (params.method === 'POST' && /transactions\/broadcast/.test(params.url)) {
         return ajaxResponse(null)
+      } else if (params.method === 'GET' && /balance\?since/.test(params.url)) {
+        return ajaxResponse('10000')
       }
     })
 
@@ -44,6 +46,7 @@ test
       .click('button[data-id="add-node-from-trezor"]')
       .expect(nodeList.exists).ok()
       .expect(nodeList.textContent).contains('mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn')
+      .expect(Selector('#balance-mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn').textContent).contains('10000')
       .click('button[data-id="hd-wallet-creation"]')
       .click('a[href="#tab_wallets"]')
       .click(selectNetworkWallet)
