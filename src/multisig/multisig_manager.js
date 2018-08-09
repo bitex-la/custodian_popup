@@ -1,7 +1,8 @@
 import { updateEpidemic } from '../lib/update_epidemic.js'
-import { custodianManager } from '../services/custodian_manager.js'
+import { CustodianManager } from '../services/custodian_manager.js'
 import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../lib/bootstrapism.js'
 import { hamlism } from '../lib/hamlism.js'
+import config from '../config'
 
 export function multisigManager(){
   return {
@@ -9,7 +10,6 @@ export function multisigManager(){
     $virus: updateEpidemic,
     _path: null,
     _required: null,
-    custodianManager,
     $$: [
       { $type: 'h4', $text: '2. Create a multisig address' },
       { $virus: formGroupism('Required signers'),
@@ -25,7 +25,10 @@ export function multisigManager(){
         onkeyup(e){ this._path = _.trim(e.target.value, '/') }
       },
       { $virus: buttonism('Create Multisig Wallet', 'success'),
-        onclick(){ custodianManager()._sendMultisigToCustodian(this) }
+        onclick(){
+          config.nodeSelected = config._chooseBackUrl(this._networkName)
+          CustodianManager(config)._sendMultisigToCustodian(this)
+        }
       },
       { $update(){
           let json = generateMultisig(this._hdNodes, this._required,
