@@ -23,7 +23,7 @@ interface ABIDefinition {
 type ABIDataTypes = "uint256" | "boolean" | "string" | "bytes" | string;
 
 interface Input {
-  address_n: string; 
+  address_n: Array<number>; 
   prev_hash: string; 
   prev_index: string; 
   sequence?: string;
@@ -107,13 +107,13 @@ export class Transaction {
     _.forEach(_this._rawTransaction, function (rawTx: RawTx) {
       if (_this._walletType === '/hd_wallets') {
         self.transaction.inputs.push({
-          address_n: rawTx.attributes.address.path.length === 0 ? config._chooseDerivationPath(_networkName).toString() : rawTx.attributes.address.path,
+          address_n: JSON.parse(rawTx.attributes.address.path.length === 0 ? config._chooseDerivationPath(_networkName).toString() : rawTx.attributes.address.path),
           prev_hash: rawTx.attributes.transaction.transaction_hash,
           prev_index: rawTx.attributes.transaction.position
         });
       } else if (_this._walletType === '/multisig_wallets') {
         self.transaction.inputs.push({
-          address_n: rawTx.attributes.address.path.length === 0 ? config._chooseDerivationPath(_networkName).toString() : rawTx.attributes.address.path,
+          address_n: JSON.parse(rawTx.attributes.address.path.length === 0 ? config._chooseDerivationPath(_networkName).toString() : rawTx.attributes.address.path),
           prev_hash: rawTx.attributes.transaction.transaction_hash,
           prev_index: rawTx.attributes.transaction.position,
           script_type: 'SPENDMULTISIG',

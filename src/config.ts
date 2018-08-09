@@ -46,8 +46,14 @@ class Config {
   _getUrlRskNode(_networkName: string) {
     switch(_networkName) {
       case 'rsk':
+      case 'bitcoin':
+      case 'litecoin':
+      case 'bitcoin_cash':
         return 'https://public-node.rsk.co/'
       case 'rsk_testnet':
+      case 'testnet':
+      case 'litecoin_testnet':
+      case 'bitcoin_cash_testnet':
         return 'http://mycrypto.testnet.rsk.co/'
     }
   }
