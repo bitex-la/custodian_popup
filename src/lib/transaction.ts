@@ -105,15 +105,15 @@ export class Transaction {
   createTx (_this: HandleParent, _networkName: string, callback: Function) {
     let self = this
     _.forEach(_this._rawTransaction, function (rawTx: RawTx) {
-      if (_this._walletType == '/hd_wallets') {
+      if (_this._walletType === '/hd_wallets') {
         self.transaction.inputs.push({
-          address_n: rawTx.attributes.address.path === '[]' ? config._chooseDerivationPath(_networkName).toString() : rawTx.attributes.address.path,
+          address_n: rawTx.attributes.address.path.length === 0 ? config._chooseDerivationPath(_networkName).toString() : rawTx.attributes.address.path,
           prev_hash: rawTx.attributes.transaction.transaction_hash,
           prev_index: rawTx.attributes.transaction.position
         });
-      } else if (_this._walletType == '/multisig_wallets') {
+      } else if (_this._walletType === '/multisig_wallets') {
         self.transaction.inputs.push({
-          address_n: rawTx.attributes.address.path === '[]' ? config._chooseDerivationPath(_networkName).toString() : rawTx.attributes.address.path,
+          address_n: rawTx.attributes.address.path.length === 0 ? config._chooseDerivationPath(_networkName).toString() : rawTx.attributes.address.path,
           prev_hash: rawTx.attributes.transaction.transaction_hash,
           prev_index: rawTx.attributes.transaction.position,
           script_type: 'SPENDMULTISIG',
