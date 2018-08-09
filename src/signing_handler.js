@@ -24,7 +24,7 @@ export function signingHandler(){
       let self = this
       if (self._rawtx){
         self.$build({
-          class: 'alert alert-secondary serialized-hex-tx',
+          class: 'jumbotron serialized-hex-tx',
           $type: 'textarea',
           cols: 100,
           $text: this._rawtx
