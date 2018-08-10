@@ -10,7 +10,12 @@ export function addressesList() {
     $$: [
       {
         $tag: 'thead',
-        $$: [ { $tag: 'tr', $$: [ { $tag: 'th', $text: 'Address' } ] } ]
+        $$: [
+          { $tag: 'tr', $$: [
+            { $tag: 'th', $text: 'Address' },
+            { $tag: 'th', $text: 'Balance' }
+          ]},
+        ]
       },
       {
         $tag: 'tbody',
@@ -19,7 +24,10 @@ export function addressesList() {
           return {
             $tag: 'tr',
             $virus: hamlism,
-            $$: [ { $tag: 'td', $text: address } ]
+            $$: [
+              { $tag: 'td', $text: Object.keys(address)[0] },
+              { $tag: 'td', $text: Object.values(address)[0] }
+            ]
           }
         },
         $update() {

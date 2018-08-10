@@ -1,6 +1,7 @@
 import {hamlism} from './lib/hamlism.js'
 import {updateEpidemic} from './lib/update_epidemic.js'
 import {selectGroupism, selectObjectGroupism, buttonism, buttonismWithSize} from './lib/bootstrapism.js'
+import {showError} from './messages.js'
 import {modal} from './components/utxos_modal.js'
 import {modalTx} from './components/output_tx_modal.js'
 import {addressesList} from './components/addresses_list.js'
@@ -44,7 +45,6 @@ export function walletHandler() {
       switch(this._walletType) {
         case '/plain_wallets':
           return address.id
-          break
         default:
           return address.attributes.address
       }
@@ -65,7 +65,7 @@ export function walletHandler() {
       modal(function (walletType, walletId, since, limit) {
         let self = this
         let url = `${self._walletType}/${self._walletId}/get_utxos?since=${since}&limit=${limit}`
-        walletService(config).list(url, function(successData) {
+        walletService(config).list(url, (successData) => {
           self._since = ''
           self._limit = ''
           self._displayUtxos = 'block'
@@ -133,9 +133,28 @@ export function walletHandler() {
                     onclick() { 
                       self._displayUtxos = 'none'
                       self._displayAddresses = 'block'
+                      self._walletId = wallet.id
+
+                      let addresses = {}
                       walletService(config).list(`${self._walletType}/${wallet.id}/relationships/addresses`,
-                        (successData) => self._addAddresses(_.map(successData.data, (address) => { return self._getStrAddress(address) })),
-                        (errorData) => console.log(errorData)) 
+                        (successData) => {
+
+                          _.forEach(successData.data, (address) => {
+                            addresses[self._getStrAddress(address)] = 0
+                          })
+
+                          let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=10000`
+                          walletService(config).list(url, (successData) => {
+
+                            _.forEach(successData.data, (utxo) => {
+                              let addressStr = self._walletType === '/plain_wallets' ? utxo.attributes.address.id : utxo.attributes.address.address
+                              addresses[addressStr] += utxo.attributes.transaction.satoshis
+                            })
+                            self._addAddresses(_.map(_.toPairs(addresses), d => _.fromPairs([d])))
+                          })
+
+                        },
+                        (errorData) => showError(errorData))
                     }
                   }
                   let utxosButton = {
