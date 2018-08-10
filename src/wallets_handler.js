@@ -152,7 +152,7 @@ export function walletHandler() {
                               addresses[addressStr] += utxo.attributes.transaction.satoshis
                             })
                             self._addAddresses(_.map(_.toPairs(addresses), d => _.fromPairs([d])))
-                          })
+                          }, (errorData) => showError(errorData))
 
                         },
                         (errorData) => showError(errorData))
@@ -168,6 +168,22 @@ export function walletHandler() {
                       self._displayAddresses = 'none'
                     }
                   }
+                  let createTransactionButton = {
+                    $virus: buttonismWithSize('Create Transaction', 'primary', 'block'),
+                    'data-id': 'create-transaction',
+                    'data-toggle': 'modal',
+                    'data-target': '#modalDialogTx',
+                    onclick() {
+                      self._walletId = wallet.id
+                      let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=10000`
+                      walletService(config).list(url, (successData) => {
+                        self._rawTransaction = successData.data
+                        let totalAmount = _.sum(_.map(successData.data, (utxo) => utxo.attributes.transaction.satoshis))
+                        document.querySelector('#modalDialogTx')._totalAmount = totalAmount
+                        document.querySelector('#modalDialogTx')._updateAmount()
+                      }, (errorData) => showError(errorData))
+                    }
+                  }
                   switch(self._walletType) {
                     case '/plain_wallets':
                       return { $tag: 'tr',
@@ -175,7 +191,7 @@ export function walletHandler() {
                                $$: [{ $tag: 'td', $text: wallet.id },
                                     { $tag: 'td', $text: wallet.attributes.version },
                                     { $tag: 'td', $$: [ addressesButton ] },
-                                    { $tag: 'td', $$: [ utxosButton ] }] }
+                                    { $tag: 'td', $$: [ createTransactionButton ] }] }
                     case '/hd_wallets':
                       return { $tag: 'tr',
                                $virus: hamlism,
@@ -183,7 +199,7 @@ export function walletHandler() {
                                     { $tag: 'td', $text: wallet.attributes.version },
                                     { $tag: 'td', $text: wallet.attributes.xpub.substring(0, 10), title: wallet.attributes.xpub },
                                     { $tag: 'td', $$: [ addressesButton ] },
-                                    { $tag: 'td', $$: [ utxosButton ] }] }
+                                    { $tag: 'td', $$: [ createTransactionButton ] }] }
                     case '/multisig_wallets':
                       return { $tag: 'tr', 
                                $virus: hamlism,
@@ -194,7 +210,7 @@ export function walletHandler() {
                                       title: wallet.attributes.xpubs.join(', ') },
                                     { $tag: 'td', $text: wallet.attributes.signers }, 
                                     { $tag: 'td', $$: [ addressesButton ] },
-                                    { $tag: 'td', $$: [ utxosButton ] }] }
+                                    { $tag: 'td', $$: [ createTransactionButton ] }] }
                     default:
                       return []
                   }
