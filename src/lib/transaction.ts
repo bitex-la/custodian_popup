@@ -208,11 +208,12 @@ export class Transaction {
     return transaction.balance(address);
   }
 
-  async signRskTransaction(path: Array<number>, to: string, _from: string, gasPriceGwei: number, gasLimitFromParam: string, value: string, data?: string) {
+  async signRskTransaction(network: string, to: string, _from: string, gasPriceGwei: number, gasLimitFromParam: string, value: string, data?: string) {
     let self = this;
     loading();
     let web3 = self.getWeb3();
     let count = null;
+    let path = config._chooseDerivationRskPath(network);
     let gasValue: number = await self.getGasPrice();
     let gasPrice = gasPriceGwei === null ? `0${gasValue}` : gasPriceGwei * 1e9;
     let gasLimit = gasLimitFromParam  === null ? self.getGasLimit(data) : gasLimitFromParam;
@@ -225,7 +226,7 @@ export class Transaction {
         to,
         value: `0x${value}`,
         data: "",
-        chainId: 33,
+        chainId: config._getRskChainId(network),
         nonce: `0x${nonce}`,
         gasLimit: `0x${gasLimit}`,
         gasPrice: `0x${gasPrice}`
@@ -240,7 +241,7 @@ export class Transaction {
         to: to,
         value: `0x${value}`,
         data,
-        chainId: 33,
+        chainId: config._getRskChainId(network),
         from: _from.toLowerCase(),
         v: 0,
         r: '',
@@ -258,13 +259,11 @@ export class Transaction {
     }
   }
 
-  getGasPrice(): Promise<number> {
-    let web3 = this.getWeb3()
-    return new Promise(resolve => {
-      web3.eth.getGasPrice().then((response: string) => {
-        resolve(response === '0' ? 1 : parseFloat(response))
-      })
-    })
+  async getGasPrice(): Promise<number> {
+    let web3 = this.getWeb3();
+    let rawGas = await web3.eth.getBlock('latest');
+    let gas = parseFloat(rawGas.minimumGasPrice);
+    return gas <= 1 ? 1 : gas * 1.0001;
   }
 
   getGasLimit(data: string) {
@@ -272,13 +271,10 @@ export class Transaction {
     return 21000 + 68 * dataSizeInBytes
   }
 
-  getNonce(address: string): Promise<string> {
+  async getNonce(address: string): Promise<string> {
     let web3 = this.getWeb3();
-    return new Promise((resolve, reject) => {
-      web3.eth.getTransactionCount(address.toLowerCase(), 'pending', function (error: any, result: string) {
-        resolve(`0${result}`)
-      });
-    });
+    let rawNonce = await web3.eth.getTransactionCount(address);
+    return `0${rawNonce}`;
   }
 
   getFederationAdress(network: string): Promise<string> {

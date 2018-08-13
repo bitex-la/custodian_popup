@@ -24,6 +24,15 @@ class Config {
     }
   }
 
+  _chooseDerivationRskPath(_networkName: string) {
+    switch(_networkName) {
+      case 'rsk':
+        return this.rskMainNetPath
+      case 'rsk_testnet':
+        return this.rskTestNetPath
+    }
+  }
+
   _chooseBackUrl(_networkName: string) {
     switch(_networkName) {
       case 'rsk':
@@ -53,6 +62,15 @@ class Config {
       case 'litecoin_testnet':
       case 'bitcoin_cash_testnet':
         return 'http://mycrypto.testnet.rsk.co/'
+    }
+  }
+
+  _getRskChainId(_networkName: string) {
+    switch(_networkName) {
+      case 'rsk':
+        return 30
+      case 'rsk_testnet':
+        return 31
     }
   }
 }

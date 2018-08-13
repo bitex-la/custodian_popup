@@ -137,14 +137,7 @@ export function rskModal(networkName) {
                     'data-id': 'create-rsk-tx',
                     onclick() {
                       let transaction = new Transaction()
-                      switch(networkName) {
-                        case 'rsk':
-                          transaction.signRskTransaction([44, 137, 0, 0, 0], this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
-                          break
-                        case 'rsk_testnet':
-                          transaction.signRskTransaction([44, 37310, 0, 0, 0], this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
-                          break
-                      }
+                      transaction.signRskTransaction(networkName, this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
                     }
                   }
                 ]
