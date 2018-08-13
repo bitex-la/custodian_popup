@@ -22,46 +22,12 @@ export function hdNodesManager (){
       let networkName = this._networkName
       loading()
       let _path = this._path.length === 0 ? config._chooseDerivationPath(networkName) : this._path
-      switch(networkName) {
-        case 'rsk':
-        case 'rsk_testnet':
-          const rskResult = await window.TrezorConnect.getPublicKey({path: _path})
-          if (rskResult.success) {
-            const address = await window.TrezorConnect.ethereumGetAddress({path: _path})
-            if (address.success) {
-              let hdNode = bip32.fromBase58(rskResult.payload.xpub, this._network())
-              hdNode.ethAddress = address.payload.address
-              hdNode.getAddress = () => {
-                switch(self._networkName) {
-                  case 'rsk':
-                  case 'rsk_testnet':
-                    return hdNode.ethAddress
-                  default:
-                    return window.bitcoin.payments.p2pkh({ pubkey: hdNode.publicKey, network: self._networkName }).address
-                }
-              }
-              hdNode.getBalance = async () => {
-                let transaction = new Transaction()
-                return await transaction.getRskBalance(hdNode.getAddress())
-              }
-              this._hdNodes.push(hdNode)
-              notLoading()
-            } else {
-              showError(address.payload.error)
-            }
-          } else {
-            showError(rskResult.payload.error)
-          }
-          break
-        default:
-          const result = await window.TrezorConnect.getPublicKey({path: _path, coin: networkName})
-          if (result.success) {
-            this._addHdNodeFromXpub(result.payload.xpub)
-            notLoading()
-          } else {
-            showError(result.payload.error)
-          }
-          break
+      const result = await window.TrezorConnect.getPublicKey({path: _path, coin: networkName})
+      if (result.success) {
+        this._addHdNodeFromXpub(result.payload.xpub)
+        notLoading()
+      } else {
+        showError(result.payload.error)
       }
     },
     _addHdNodeFromXpub(xpub) {
@@ -118,23 +84,6 @@ export function hdNodesManager (){
             $tag: '.float-sm-right ',
             class: 'wallet-creation',
             $$: [
-              rskModal(self._networkName),
-              { $virus: buttonismWithSize('Create Transaction', 'success', 'small'),
-                'data-id': 'rsk-tx-creation',
-                'data-toggle': 'modal',
-                'data-target': '#modalDialogRsk',
-                $update() {
-                  if (self._networkName === 'rsk' || self._networkName === 'rsk_testnet') {
-                    this.classList.add('visible')
-                  } else {
-                    this.classList.add('invisible')
-                  }
-                },
-                onclick(e) {
-                  this._fromRskAddress = hdNode.getAddress()
-                  document.querySelector('#modalDialogRsk').$update()
-                }
-              },
               { $tag: 'span', $text: ' ' },
               { $virus: buttonismWithSize('Create Hd Wallet', 'success', 'small'),
                 'data-id': 'hd-wallet-creation',
@@ -220,12 +169,6 @@ export function hdNodesManager (){
         $update() {
           this.innerHTML = ''
           _.each(this._hdNodes, (n) => this.$build(this._hdNodeContainer(n)))
-        }
-      },
-      { $tag: 'ul.list-group.hd-nodes.mt-3',
-        $update() {
-          this.innerHTML = ''
-          _.each(this._ethAddresses, (n) => this.$build(this._hdNodeEthContainer(n)))
         }
       }
     ]

@@ -74,7 +74,5 @@ module.exports = {
       public: 0x6f,
       scripthash: 0xc4
     }
-  },
-  rsk: { },
-  rsk_testnet: { }
+  }
 }
