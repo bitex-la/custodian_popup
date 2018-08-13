@@ -216,7 +216,7 @@ export class Transaction {
     let gasValue: number = await self.getGasPrice();
     let gasPrice = gasPriceGwei === null ? `0${gasValue}` : gasPriceGwei * 1e9;
     let gasLimit = gasLimitFromParam  === null ? self.getGasLimit(data) : gasLimitFromParam;
-    let nonce: string = await self.getNonce(_from);
+    let nonce: string = await self.getNonce(_from.toLowerCase());
     let gasLimitForTrezor: string = gasLimit.toString().length % 2 === 0 ? gasLimit.toString() : `0${gasLimit}`;
 
     const result = await (<any>window).TrezorConnect.ethereumSignTransaction({
@@ -241,7 +241,7 @@ export class Transaction {
         value: `0x${value}`,
         data,
         chainId: 33,
-        from: _from,
+        from: _from.toLowerCase(),
         v: 0,
         r: '',
         s: ''
