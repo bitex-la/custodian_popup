@@ -11,17 +11,15 @@ class Config {
 
   _chooseDerivationPath(_networkName: string) {
     switch(_networkName) {
-      case 'rsk':
-        return this.rskMainNetPath
-      case 'rsk_testnet':
-        return this.rskTestNetPath
       case 'bitcoin':
       case 'litecoin':
       case 'bitcoin_cash':
+      case 'rsk':
         return this.defaultPath
       case 'testnet':
       case 'litecoin_testnet':
       case 'bitcoin_cash_testnet':
+      case 'rsk_testnet':
         return this.defaultTestnetPath
     }
   }
