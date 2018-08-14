@@ -127,7 +127,7 @@ export function rskModal (networkName) {
                     'data-id': 'create-rsk-tx',
                     onclick () {
                       let transaction = new Transaction()
-                      transaction.signRskTransaction(networkName, this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
+                      transaction.signRskTransaction(networkName, this._toRskAddress, this._fromRskAddress, null, null, parseInt(this._rskAmount), null)
                     }
                   }
                 ]

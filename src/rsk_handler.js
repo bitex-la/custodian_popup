@@ -77,6 +77,7 @@ export function rskHandler () {
                     onclick (e) {
                       let modalRsk = document.querySelector('#modalDialogRsk')
                       modalRsk._fromRskAddress = address.toString()
+                      modalRsk._rskAmount = parseInt(address.balance)
                     }
                   },
                   {
@@ -91,6 +92,7 @@ export function rskHandler () {
                       let modalRsk = document.querySelector('#modalDialogRsk')
                       modalRsk._fromRskAddress = address.toString()
                       modalRsk._toRskAddress = '0x0000000000000000000000000000000001000006'
+                      modalRsk._rskAmount = parseInt(address.balance)
                     }
                   }
                 ]
@@ -104,12 +106,13 @@ export function rskHandler () {
       {
         $virus: selectGroupism('Network', ['rsk', 'rsk_testnet'], 'rsk'),
         name: 'network',
+        id: 'setup_network',
         $update () { this.value = this._networkName },
         onchange (e) { this._networkName = e.target.value }
       },
       {
         $virus: buttonism('Add address from Trezor'),
-        'data-id': 'add-node-from-trezor',
+        'data-id': 'add-rsk-address-from-trezor',
         onclick () { this._addAddress() }
       },
       { $tag: 'ul.list-group.hd-nodes.mt-3',
