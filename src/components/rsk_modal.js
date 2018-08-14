@@ -1,9 +1,9 @@
 import { hamlism } from '../lib/hamlism.js'
 import { Transaction } from '../lib/transaction'
 import { updateEpidemic } from '../lib/update_epidemic.js'
-import { buttonismWithSize, buttonism } from '../lib/bootstrapism.js'
+import { buttonismWithSize } from '../lib/bootstrapism.js'
 
-export function rskModal(networkName) {
+export function rskModal (networkName) {
   return {
     id: 'modalDialogRsk',
     class: 'modal fade',
@@ -50,7 +50,7 @@ export function rskModal(networkName) {
                     $$: [
                       {
                         $tag: 'span.input-group-addon',
-                        $text: 'Address (From)' 
+                        $text: 'Address (From)'
                       },
                       {
                         $tag: 'input',
@@ -58,10 +58,10 @@ export function rskModal(networkName) {
                         id: 'from-address-rsk',
                         class: 'form-control',
                         type: 'text',
-                        $update() {
+                        $update () {
                           this.value = this._fromRskAddress
                         },
-                        onchange(e) {
+                        onchange (e) {
                           this._fromRskAddress = e.target.value
                         }
                       }
@@ -72,7 +72,7 @@ export function rskModal(networkName) {
                     $$: [
                       {
                         $tag: 'span.input-group-addon',
-                        $text: 'Address (To)' 
+                        $text: 'Address (To)'
                       },
                       {
                         $tag: 'input',
@@ -80,10 +80,10 @@ export function rskModal(networkName) {
                         id: 'to-address-rsk',
                         class: 'form-control',
                         type: 'text',
-                        $update() {
+                        $update () {
                           this.value = this._toRskAddress
                         },
-                        onchange(e) {
+                        onchange (e) {
                           this._toRskAddress = e.target.value
                         }
                       }
@@ -102,10 +102,10 @@ export function rskModal(networkName) {
                         id: 'amount-rsk',
                         class: 'form-control',
                         type: 'number',
-                        $update() {
+                        $update () {
                           this.value = this._rskAmount
                         },
-                        onchange(e) {
+                        onchange (e) {
                           this._rskAmount = e.target.value
                         }
                       }
@@ -125,7 +125,7 @@ export function rskModal(networkName) {
                     $virus: buttonismWithSize('Submit', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     'data-id': 'create-rsk-tx',
-                    onclick() {
+                    onclick () {
                       let transaction = new Transaction()
                       transaction.signRskTransaction(networkName, this._toRskAddress, this._fromRskAddress, null, null, this._rskAmount, null)
                     }
