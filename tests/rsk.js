@@ -7,7 +7,7 @@ test('Creates and test a rsk transaction', async t => {
   mockTrezor(t)
 
   const selectNetwork = Selector('#setup_network')
-  const nodeList = Selector('.hd-nodes')
+  const nodeList = Selector('.rsk-addresses')
 
   await t
     .click('a[href="#tab_rsk"]')

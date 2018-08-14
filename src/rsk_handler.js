@@ -115,7 +115,7 @@ export function rskHandler () {
         'data-id': 'add-rsk-address-from-trezor',
         onclick () { this._addAddress() }
       },
-      { $tag: 'ul.list-group.hd-nodes.mt-3',
+      { $tag: 'ul.list-group.rsk-addresses.mt-3',
         $update () {
           this.innerHTML = ''
           _.each(this._rskAddresses, (n) => this.$build(this._addRskAddress(n)))

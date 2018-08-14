@@ -251,7 +251,7 @@ export class Transaction {
       let ethtx = new EthereumTx(tx);
       const serializedTx = ethtx.serialize();
       const rawTx = '0x' + serializedTx.toString('hex');
-      web3.eth.sendSignedTransaction(rawTx).on('receipt', console.log).on('error', console.log);
+      web3.eth.sendSignedTransaction(rawTx).on('receipt', showSuccess).on('error', showError);
     } else {
       showError(result.payload.error);
     }
@@ -260,7 +260,7 @@ export class Transaction {
   async getGasPrice(): Promise<string> {
     let web3 = this.getWeb3();
     let rawGas = await web3.eth.getBlock('latest');
-    return parseInt(rawGas.minimumGasPrice).toString(16);
+    return (parseInt(rawGas.minimumGasPrice) * 10000).toString(16);
   }
 
   getGasLimit(data: string): string {
