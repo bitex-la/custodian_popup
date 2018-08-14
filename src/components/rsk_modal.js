@@ -10,6 +10,8 @@ export function rskModal(networkName) {
     role: 'dialog',
     $virus: [updateEpidemic, hamlism],
     _rskAmount: 0,
+    _fromRskAddress: '',
+    _toRskAddress: '',
     $$: [
       {
         class: 'modal-dialog modal-lg',
@@ -84,18 +86,6 @@ export function rskModal(networkName) {
                         onchange(e) {
                           this._toRskAddress = e.target.value
                         }
-                      },
-                      {
-                        class: 'input-group-btn add-node-group',
-                        $$: [
-                          {
-                            $virus: buttonism('Bridge'),
-                            onclick() {
-                              this._toRskAddress = '0x0000000000000000000000000000000001000006'
-                              document.querySelector('#to-address-rsk').$update()
-                            }
-                          }
-                        ]
                       }
                     ]
                   },
@@ -132,7 +122,7 @@ export function rskModal(networkName) {
                     $text: 'Close'
                   },
                   {
-                    $virus: buttonismWithSize('Create Transaction', 'primary', 'small'),
+                    $virus: buttonismWithSize('Submit', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     'data-id': 'create-rsk-tx',
                     onclick() {
