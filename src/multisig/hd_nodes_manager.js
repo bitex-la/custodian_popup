@@ -1,5 +1,4 @@
-import { rskModal } from '../components/rsk_modal.js'
-import { buttonism, buttonismWithSize, selectGroupism, formGroupism } from '../lib/bootstrapism.js'
+import { buttonism, buttonismWithSize, formGroupism } from '../lib/bootstrapism.js'
 import { hamlism } from '../lib/hamlism.js'
 import { showError, loading, notLoading } from '../messages.js'
 import { CustodianManager } from '../services/custodian_manager.js'
@@ -8,17 +7,16 @@ import config from '../config'
 import Wallet from 'ethereumjs-wallet'
 import bip32 from 'bip32'
 
-export function hdNodesManager (){
+export function hdNodesManager () {
   return {
-    class: "well well-sm",
+    class: 'well well-sm',
     _path: [],
-    _setPath: function(string){
+    _setPath: function (string) {
       this._path = string ? bip32.fromString(string).toPathArray() : []
     },
     _xpub: '',
     _balance: ' Balance: 0',
-    async _hdNodeFromTrezor() {
-      let self = this
+    async _hdNodeFromTrezor () {
       let networkName = this._networkName
       loading()
       let _path = this._path.length === 0 ? config._chooseDerivationPath(networkName) : this._path
@@ -30,7 +28,7 @@ export function hdNodesManager (){
         showError(result.payload.error)
       }
     },
-    _addHdNodeFromXpub(xpub) {
+    _addHdNodeFromXpub (xpub) {
       let self = this
       let networkName = this._network()
       let hdNode = bip32.fromBase58(xpub, networkName)
@@ -39,11 +37,11 @@ export function hdNodesManager (){
       }
       hdNode.getBalance = async () => {
         let transaction = new Transaction()
-        return await transaction.getBalance(self._networkName, hdNode.getAddress())
+        return transaction.getBalance(self._networkName, hdNode.getAddress())
       }
       this._hdNodes.push(hdNode)
     },
-    _hdNodeContainer(hdNode) {
+    _hdNodeContainer (hdNode) {
       let self = this
       hdNode.getBalance().then((balance) => {
         self._balance = ` Balance: ${balance}`
@@ -57,9 +55,9 @@ export function hdNodesManager (){
         $$: [
           { $tag: 'button.close',
             $text: '×',
-            onclick(e){ self._hdNodes = _.without(self._hdNodes, hdNode) }
+            onclick (e) { self._hdNodes = _.without(self._hdNodes, hdNode) }
           },
-          { 
+          {
             $tag: 'p span',
             $$: [
               {
@@ -69,7 +67,7 @@ export function hdNodesManager (){
               {
                 $tag: 'span',
                 id: `balance-${hdNode.getAddress()}`,
-                $update() {
+                $update () {
                   this.$text = self._balance
                 }
               }
@@ -87,14 +85,14 @@ export function hdNodesManager (){
               { $tag: 'span', $text: ' ' },
               { $virus: buttonismWithSize('Create Hd Wallet', 'success', 'small'),
                 'data-id': 'hd-wallet-creation',
-                onclick(){ 
+                onclick () {
                   config.nodeSelected = config._chooseBackUrl(self._networkName)
                   CustodianManager(config)._sendHdToCustodian(hdNode) 
                 }
               },
               { $tag: 'span', $text: ' ' },
               { $virus: buttonismWithSize('Create Plain Wallet', 'success', 'small'),
-                onclick(){
+                onclick () {
                   config.nodeSelected = config._chooseBackUrl(self._networkName)
                   CustodianManager(config)._sendPlainToCustodian(hdNode) 
                 }
@@ -114,29 +112,29 @@ export function hdNodesManager (){
         name: 'path',
         placeholder: "You'll likely won't need this",
         type: 'text',
-        onchange(e){ this._setPath(e.target.value) }
+        onchange (e) { this._setPath(e.target.value) }
       },
       { class: 'form-group input-group', $$: [
         { $tag: 'span.input-group-addon', $text: 'Existing Xpub' },
         { $tag: 'input#multisig_setup_xpub.form-control',
           name: 'xpub',
           type: 'text',
-          $update() { this.value = this._xpub  },
-          onchange(e){ this._xpub = e.target.value }
+          $update () { this.value = this._xpub  },
+          onchange (e) { this._xpub = e.target.value }
         },
         { class: 'input-group-btn add-node-group', $$: [
           { $virus: buttonism('Add node'),
-            onclick(){
+            onclick () {
               try {
                 let self = this
-                switch(this._networkName) {
+                switch (this._networkName) {
                   case 'rsk':
                   case 'rsk_testnet':
                     let hdNode = bip32.fromBase58(self._xpub, this._network())
                     let ethWallet = Wallet.fromExtendedPublicKey(self._xpub)
                     hdNode.ethAddress = ethWallet.getAddress().toString('hex')
                     hdNode.getAddress = () => {
-                      switch(self._networkName) {
+                      switch (self._networkName) {
                         case 'rsk':
                         case 'rsk_testnet':
                           return hdNode.ethAddress
@@ -146,7 +144,7 @@ export function hdNodesManager (){
                     }
                     hdNode.getBalance = async () => {
                       let transaction = new Transaction()
-                      return await transaction.getRskBalance(hdNode.getAddress())
+                      return transaction.getRskBalance(hdNode.getAddress())
                     }
                     this._hdNodes.push(hdNode)
                     break
@@ -163,10 +161,10 @@ export function hdNodesManager (){
       ]},
       { $virus: buttonism('Add node from Trezor'),
         'data-id': 'add-node-from-trezor',
-        onclick(){ this._hdNodeFromTrezor() }
+        onclick () { this._hdNodeFromTrezor() }
       },
       { $tag: 'ul.list-group.hd-nodes.mt-3',
-        $update() {
+        $update () {
           this.innerHTML = ''
           _.each(this._hdNodes, (n) => this.$build(this._hdNodeContainer(n)))
         }
