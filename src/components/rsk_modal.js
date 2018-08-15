@@ -9,6 +9,7 @@ export function rskModal (networkName, path) {
     class: 'modal fade',
     role: 'dialog',
     $virus: [updateEpidemic, hamlism],
+    _title: 'Send Smart Bitcoins',
     _rskAmount: 0,
     _fromRskAddress: '',
     _toRskAddress: '',
@@ -26,7 +27,10 @@ export function rskModal (networkName, path) {
                   {
                     $tag: 'h5',
                     class: 'modal-title',
-                    $text: 'Send Smart Bitcoins'
+                    $text: 'Send Smart Bitcoins',
+                    $update () {
+                      this.$text = this._title
+                    }
                   },
                   {
                     $tag: 'button.close',

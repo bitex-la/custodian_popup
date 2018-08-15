@@ -54,6 +54,7 @@ export function rskHandler () {
       })
     },
     _addActionButtons (address) {
+      let self = this
       if (address.type === 'rsk') {
         return [{
           $virus: buttonismWithSize('Send SBTC', 'success', 'small'),
@@ -86,11 +87,21 @@ export function rskHandler () {
           'data-id': 'btc-tx-creation',
           'data-toggle': 'modal',
           'data-target': '#modalDialogRsk',
-          onclick (e) {
+          async onclick (e) {
+            let fedAddress
+            try {
+              let transaction = new Transaction()
+              fedAddress = await transaction.getFederationAdress(self._networkName)
+            } catch (error) {
+              showError(error)
+            }
+
             let modalRsk = document.querySelector('#modalDialogRsk')
             modalRsk._fromRskAddress = address.toString()
-            modalRsk._toRskAddress = '0x0000000000000000000000000000000001000006'
             modalRsk._rskAmount = parseInt(address.balance)
+            modalRsk._title = 'Convert BTC to SBTC'
+            modalRsk._toRskAddress = fedAddress
+            modalRsk.$update()
           }
         }]
       } else {

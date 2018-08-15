@@ -93,22 +93,6 @@ export function modalTx () {
                         onchange (e) {
                           this._address = e.target.value
                         }
-                      },
-                      {
-                        class: 'input-group-btn add-node-group',
-                        $$: [
-                          {
-                            $virus: buttonism('RSK'),
-                            async onclick () {
-                              try {
-                                let transaction = new Transaction()
-                                this._address = await transaction.getFederationAdress(this._networkName)
-                              } catch (error) {
-                                showError(error)
-                              }
-                            }
-                          }
-                        ]
                       }
                     ]
                   },
