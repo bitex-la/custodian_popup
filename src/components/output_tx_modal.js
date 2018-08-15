@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import $ from 'jquery'
 import {hamlism} from '../lib/hamlism.js'
 import {showError} from '../messages.js'
@@ -172,7 +173,7 @@ export function modalTx () {
                               }
                             ],
                             onclick () {
-                              _.remove(self._outputs, (_output) => { return  _output == output })
+                              _.remove(self._outputs, (_output) => { return _output === output })
                               self._updateAmount()
                             }
                           }]
