@@ -208,11 +208,10 @@ export class Transaction {
     return transaction.balance(address);
   }
 
-  async signRskTransaction(network: string, to: string, _from: string, gasPriceGwei: number, gasLimitFromParam: string, value: number, data?: string) {
+  async signRskTransaction(network: string, path: number[], to: string, _from: string, gasPriceGwei: number, gasLimitFromParam: string, value: number, data?: string) {
     let self = this;
     loading();
     let web3 = self.getWeb3();
-    let path = config._chooseDerivationRskPath(network);
     let gasValue: string = await self.getGasPrice();
     let gasPrice = gasPriceGwei === null ? gasValue : gasPriceGwei * 1e9;
     let gasLimit = gasLimitFromParam  === null ? self.getGasLimit(data) : gasLimitFromParam;
@@ -251,7 +250,7 @@ export class Transaction {
       let ethtx = new EthereumTx(tx);
       const serializedTx = ethtx.serialize();
       const rawTx = '0x' + serializedTx.toString('hex');
-      web3.eth.sendSignedTransaction(rawTx).on('receipt', showSuccess).on('error', showError);
+      web3.eth.sendSignedTransaction(rawTx).on('receipt', showSuccess('Successful Broadcast')).on('error', showError);
     } else {
       showError(result.payload.error);
     }

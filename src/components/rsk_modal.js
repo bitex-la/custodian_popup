@@ -3,7 +3,7 @@ import { Transaction } from '../lib/transaction'
 import { updateEpidemic } from '../lib/update_epidemic.js'
 import { buttonismWithSize } from '../lib/bootstrapism.js'
 
-export function rskModal (networkName) {
+export function rskModal (networkName, path) {
   return {
     id: 'modalDialogRsk',
     class: 'modal fade',
@@ -127,7 +127,7 @@ export function rskModal (networkName) {
                     'data-id': 'create-rsk-tx',
                     onclick () {
                       let transaction = new Transaction()
-                      transaction.signRskTransaction(networkName, this._toRskAddress, this._fromRskAddress, null, null, parseInt(this._rskAmount), null)
+                      transaction.signRskTransaction(networkName, JSON.parse(path), this._toRskAddress, this._fromRskAddress, null, null, parseInt(this._rskAmount), null)
                     }
                   }
                 ]

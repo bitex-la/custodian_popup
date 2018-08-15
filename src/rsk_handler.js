@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { Transaction } from './lib/transaction'
 import { rskModal } from './components/rsk_modal.js'
 import { updateEpidemic } from './lib/update_epidemic.js'
-import { buttonism, buttonismWithSize, selectGroupism } from './lib/bootstrapism.js'
+import { buttonism, buttonismWithSize, selectGroupism, selectObjectGroupism } from './lib/bootstrapism.js'
 import { hamlism } from './lib/hamlism.js'
 import { showError, loading, notLoading } from './messages.js'
 import config from './config'
@@ -15,11 +15,10 @@ export function rskHandler () {
     _networkName: 'rsk',
     _rskAddresses: [],
     _fromRskAddress: '',
+    _derivationPath: '',
     async _addAddressFromTrezor () {
-      let networkName = this._networkName
       loading()
-      let _path = config._chooseDerivationPath(networkName)
-      const address = await window.TrezorConnect.ethereumGetAddress({path: _path})
+      const address = await window.TrezorConnect.ethereumGetAddress({path: JSON.parse(this._derivationPath)})
       if (address.success) {
         let transaction = new Transaction()
         let balance = await transaction.getRskBalance(address.payload.address.toLowerCase())
@@ -69,7 +68,7 @@ export function rskHandler () {
                     $virus: hamlism,
                     class: 'wallet-creation'
                   },
-                  rskModal(self._networkName),
+                  rskModal(self._networkName, self._derivationPath),
                   { $virus: buttonismWithSize('Send SBTC', 'success', 'small'),
                     'data-id': 'rsk-tx-creation',
                     'data-toggle': 'modal',
@@ -109,6 +108,13 @@ export function rskHandler () {
         id: 'setup_network',
         $update () { this.value = this._networkName },
         onchange (e) { this._networkName = e.target.value }
+      },
+      {
+        $virus: selectObjectGroupism('Derivation Path', config._derivationPaths(), 'Rsk'),
+        name: 'Derivation Path',
+        id: 'derivation_path',
+        $update () { this.value = this._derivationPath },
+        onchange (e) { this._derivationPath = e.target.value }
       },
       {
         $virus: buttonism('Add address from Trezor'),
