@@ -1,6 +1,7 @@
+import _ from 'lodash'
 import {hamlism} from './lib/hamlism.js'
 import {updateEpidemic} from './lib/update_epidemic.js'
-import {selectGroupism, selectObjectGroupism, buttonism, buttonismWithSize} from './lib/bootstrapism.js'
+import {selectGroupism, selectObjectGroupism, buttonismWithSize} from './lib/bootstrapism.js'
 import {showError} from './messages.js'
 import {modal} from './components/utxos_modal.js'
 import {modalTx} from './components/output_tx_modal.js'
@@ -12,7 +13,7 @@ import {walletService} from './services/wallet_service.js'
 import networks from './lib/networks.js'
 import config from './config'
 
-export function walletHandler() {
+export function walletHandler () {
   return {
     id: 'wallets',
     $virus: updateEpidemic,
@@ -31,26 +32,26 @@ export function walletHandler() {
       inputs: [],
       transactions: []
     },
-    _addWallets(wallets) {
+    _addWallets (wallets) {
       this._wallets = wallets
       this._addresses = []
     },
-    _addAddresses(addresses) {
+    _addAddresses (addresses) {
       this._addresses = addresses
     },
-    _addUtxos(utxos) {
+    _addUtxos (utxos) {
       this._utxos = utxos
     },
-    _getStrAddress(address) {
-      switch(this._walletType) {
+    _getStrAddress (address) {
+      switch (this._walletType) {
         case '/plain_wallets':
           return address.id
         default:
           return address.attributes.address
       }
     },
-    _buildWalletsTable() {
-      switch(this._walletType) {
+    _buildWalletsTable () {
+      switch (this._walletType) {
         case '/plain_wallets':
           return ['Id', 'Version', '', '']
         case '/hd_wallets':
@@ -82,16 +83,28 @@ export function walletHandler() {
       }),
       { $virus: selectGroupism('Network', _.keys(networks), 'bitcoin'),
         name: 'network',
-        $update(){ this.value = this._networkName },
-        onchange(e){ this._networkName = e.target.value }
+        $update () { this.value = this._networkName },
+        onchange (e) { this._networkName = e.target.value }
       },
-      { $virus: selectObjectGroupism('Wallet Type', [
-          {id: '', text: 'Select a type wallet'},
-          {id: '/plain_wallets', text: 'Plain'},
-          {id: '/hd_wallets', text: 'Hd'},
-          {id: '/multisig_wallets', text: 'Multisig'}], 'plain_wallet'),
+      {
+        $virus: selectObjectGroupism('Wallet Type', [{
+          id: '',
+          text: 'Select a type wallet'
+        },
+        {
+          id: '/plain_wallets',
+          text: 'Plain'
+        },
+        {
+          id: '/hd_wallets',
+          text: 'Hd'
+        },
+        {
+          id: '/multisig_wallets',
+          text: 'Multisig'
+        }], 'plain_wallet'),
         name: 'wallet_type',
-        onchange(e) {
+        onchange (e) {
           let self = this
           this._walletType = e.target.value
           this._wallets = []
@@ -113,10 +126,10 @@ export function walletHandler() {
                 $$: [
                   {
                     $tag: 'tr',
-                    _buildWalletHeaders(header) {
+                    _buildWalletHeaders (header) {
                       return { $tag: 'th', $virus: hamlism, $text: header }
                     },
-                    $update() {
+                    $update () {
                       this.innerHTML = ''
                       _.each(this._buildWalletsTable(), (h) => this.$build(this._buildWalletHeaders(h)))
                     }
@@ -125,12 +138,12 @@ export function walletHandler() {
               },
               {
                 $tag: 'tbody',
-                _fillWallet(wallet) {
+                _fillWallet (wallet) {
                   let self = this
                   let addressesButton = {
                     $virus: buttonismWithSize('Show Addresses', 'info', 'small'),
                     'data-id': 'show-addresses',
-                    onclick() { 
+                    onclick () {
                       self._displayUtxos = 'none'
                       self._displayAddresses = 'block'
                       self._walletId = wallet.id
@@ -138,14 +151,12 @@ export function walletHandler() {
                       let addresses = {}
                       walletService(config).list(`${self._walletType}/${wallet.id}/relationships/addresses`,
                         (successData) => {
-
                           _.forEach(successData.data, (address) => {
                             addresses[self._getStrAddress(address)] = 0
                           })
 
                           let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=10000`
                           walletService(config).list(url, (successData) => {
-
                             self._rawTransaction = successData.data
                             _.forEach(successData.data, (utxo) => {
                               let addressStr = self._walletType === '/plain_wallets' ? utxo.attributes.address.id : utxo.attributes.address.address
@@ -153,19 +164,8 @@ export function walletHandler() {
                             })
                             self._addAddresses(_.map(_.toPairs(addresses), d => _.fromPairs([d])))
                           }, (errorData) => showError(errorData))
-
                         },
                         (errorData) => showError(errorData))
-                    }
-                  }
-                  let utxosButton = {
-                    $virus: buttonismWithSize('Show Utxos', 'info', 'small'),
-                    'data-id': 'show-utxos',
-                    'data-toggle': 'modal',
-                    'data-target': '#modalDialog',
-                    onclick() { 
-                      self._walletId = wallet.id
-                      self._displayAddresses = 'none'
                     }
                   }
                   let createTransactionButton = {
@@ -173,7 +173,7 @@ export function walletHandler() {
                     'data-id': 'create-transaction',
                     'data-toggle': 'modal',
                     'data-target': '#modalDialogTx',
-                    onclick() {
+                    onclick () {
                       self._walletId = wallet.id
                       let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=10000`
                       walletService(config).list(url, (successData) => {
@@ -184,38 +184,95 @@ export function walletHandler() {
                       }, (errorData) => showError(errorData))
                     }
                   }
-                  switch(self._walletType) {
+                  switch (self._walletType) {
                     case '/plain_wallets':
-                      return { $tag: 'tr',
-                               $virus: hamlism,
-                               $$: [{ $tag: 'td', $text: wallet.id },
-                                    { $tag: 'td', $text: wallet.attributes.version },
-                                    { $tag: 'td', $$: [ addressesButton ] },
-                                    { $tag: 'td', $$: [ createTransactionButton ] }] }
+                      return {
+                        $tag: 'tr',
+                        $virus: hamlism,
+                        $$: [
+                          {
+                            $tag: 'td',
+                            $text: wallet.id
+                          },
+                          {
+                            $tag: 'td',
+                            $text: wallet.attributes.version
+                          },
+                          {
+                            $tag: 'td',
+                            $$: [addressesButton]
+                          },
+                          {
+                            $tag: 'td',
+                            $$: [createTransactionButton]
+                          }
+                        ]
+                      }
                     case '/hd_wallets':
-                      return { $tag: 'tr',
-                               $virus: hamlism,
-                               $$: [{ $tag: 'td', $text: wallet.id },
-                                    { $tag: 'td', $text: wallet.attributes.version },
-                                    { $tag: 'td', $text: wallet.attributes.xpub.substring(0, 10), title: wallet.attributes.xpub },
-                                    { $tag: 'td', $$: [ addressesButton ] },
-                                    { $tag: 'td', $$: [ createTransactionButton ] }] }
+                      return {
+                        $tag: 'tr',
+                        $virus: hamlism,
+                        $$: [
+                          {
+                            $tag: 'td',
+                            $text: wallet.id
+                          },
+                          {
+                            $tag: 'td',
+                            $text: wallet.attributes.version
+                          },
+                          {
+                            $tag: 'td',
+                            $text: wallet.attributes.xpub.substring(0, 10),
+                            title: wallet.attributes.xpub
+                          },
+                          {
+                            $tag: 'td',
+                            $$: [addressesButton]
+                          },
+                          {
+                            $tag: 'td',
+                            $$: [createTransactionButton]
+                          }
+                        ]
+                      }
                     case '/multisig_wallets':
-                      return { $tag: 'tr', 
-                               $virus: hamlism,
-                               $$: [{ $tag: 'td', $text: wallet.id },
-                                    { $tag: 'td', $text: wallet.attributes.version },
-                                    { $tag: 'td',
-                                      $text: _.map(wallet.attributes.xpubs, (xpub) => xpub.substring(0, 10)).join(', '),
-                                      title: wallet.attributes.xpubs.join(', ') },
-                                    { $tag: 'td', $text: wallet.attributes.signers }, 
-                                    { $tag: 'td', $$: [ addressesButton ] },
-                                    { $tag: 'td', $$: [ createTransactionButton ] }] }
+                      return {
+                        $tag: 'tr',
+                        $virus: hamlism,
+                        $$: [
+                          {
+                            $tag: 'td',
+                            $text: wallet.id
+                          },
+                          {
+                            $tag: 'td',
+                            $text: wallet.attributes.version
+                          },
+                          {
+                            $tag: 'td',
+                            $text: _.map(wallet.attributes.xpubs, (xpub) => xpub.substring(0, 10)).join(', '),
+                            title: wallet.attributes.xpubs.join(', ')
+                          },
+                          {
+                            $tag: 'td',
+                            $text: wallet.attributes.signers
+                          },
+                          {
+                            $tag: 'td',
+                            $$: [addressesButton]
+                          },
+                          {
+                            $tag: 'td',
+                            $$: [createTransactionButton]
+                          }
+                        ]
+                      }
                     default:
                       return []
                   }
                 },
-                $update() {
+                $update () {
                   this.innerHTML = ''
                   _.each(this._wallets, (w) => this.$build(this._fillWallet(w)))
                 }

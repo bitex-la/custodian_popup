@@ -78,7 +78,7 @@ export function selectObjectGroupism (label, options, selected) {
       $type: 'select',
       class: 'form-control',
       $components: _.map(options, (obj) => {
-        let option = {$type: 'option', $text: obj.text, value: JSON.stringify(obj.id)}
+        let option = {$type: 'option', $text: obj.text, value: typeof (obj.id) === 'string' ? obj.id : JSON.stringify(obj.id)}
         if (obj.text === selected) {
           option['selected'] = ''
         }
