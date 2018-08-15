@@ -13,28 +13,91 @@ export function rskHandler () {
     $virus: [ updateEpidemic, hamlism ],
     class: 'form',
     _networkName: 'rsk',
+    _networkFromPath: 'Bitcoin',
     _rskAddresses: [],
     _fromRskAddress: '',
-    _derivationPath: '',
-    async _addAddressFromTrezor () {
+    _derivationPath: '[44, 0, 0, 0, 0]',
+    async _addRskAddressFromTrezor () {
       loading()
       const address = await window.TrezorConnect.ethereumGetAddress({path: JSON.parse(this._derivationPath)})
       if (address.success) {
         let transaction = new Transaction()
         let balance = await transaction.getRskBalance(address.payload.address.toLowerCase())
         notLoading()
-        return new Promise(resolve => resolve({ toString: () => address.payload.address.toLowerCase(), balance }))
+        return new Promise(resolve => resolve({ toString: () => address.payload.address.toLowerCase(), balance, type: 'rsk' }))
       } else {
         showError(address.payload.error)
       }
     },
-    _addAddress () {
-      this._addAddressFromTrezor().then(address => {
+    async _addBtcAddressFromTrezor () {
+      loading()
+      const address = await window.TrezorConnect.getAddress({path: JSON.parse(this._derivationPath), coin: this._networkFromPath})
+      if (address.success) {
+        let transaction = new Transaction()
+        let balance = await transaction.getBalance('bitcoin', address.payload.address)
+        notLoading()
+        return new Promise(resolve => resolve({ toString: () => address.payload.address, balance, type: 'btc' }))
+      } else {
+        showError(address.payload.error)
+      }
+    },
+    _addRskAddress () {
+      this._addRskAddressFromTrezor().then(address => {
         this._rskAddresses.push(address)
         this.$update()
       })
     },
-    _addRskAddress (address) {
+    _addBtcAddress () {
+      this._addBtcAddressFromTrezor().then(address => {
+        this._rskAddresses.push(address)
+        this.$update()
+      })
+    },
+    _addActionButtons (address) {
+      if (address.type === 'rsk') {
+        return [{
+          $virus: buttonismWithSize('Send SBTC', 'success', 'small'),
+          'data-id': 'rsk-tx-creation',
+          'data-toggle': 'modal',
+          'data-target': '#modalDialogRsk',
+          onclick (e) {
+            let modalRsk = document.querySelector('#modalDialogRsk')
+            modalRsk._fromRskAddress = address.toString()
+            modalRsk._rskAmount = parseInt(address.balance)
+          }
+        }, {
+          $tag: 'span',
+          $text: ' '
+        }, {
+          $virus: buttonismWithSize('Convert SBTC to BTC', 'success', 'small'),
+          'data-id': 'rsk-tx-creation',
+          'data-toggle': 'modal',
+          'data-target': '#modalDialogRsk',
+          onclick (e) {
+            let modalRsk = document.querySelector('#modalDialogRsk')
+            modalRsk._fromRskAddress = address.toString()
+            modalRsk._toRskAddress = '0x0000000000000000000000000000000001000006'
+            modalRsk._rskAmount = parseInt(address.balance)
+          }
+        }]
+      } else if (address.type === 'btc') {
+        return [{
+          $virus: buttonismWithSize('Convert BTC to SBTC', 'success', 'small'),
+          'data-id': 'btc-tx-creation',
+          'data-toggle': 'modal',
+          'data-target': '#modalDialogRsk',
+          onclick (e) {
+            let modalRsk = document.querySelector('#modalDialogRsk')
+            modalRsk._fromRskAddress = address.toString()
+            modalRsk._toRskAddress = '0x0000000000000000000000000000000001000006'
+            modalRsk._rskAmount = parseInt(address.balance)
+          }
+        }]
+      } else {
+        return []
+      }
+    },
+    _addRskAddressToList (address) {
       let self = this
       return {
         $virus: hamlism,
@@ -68,33 +131,8 @@ export function rskHandler () {
                     $virus: hamlism,
                     class: 'wallet-creation'
                   },
-                  rskModal(self._networkName, self._derivationPath),
-                  { $virus: buttonismWithSize('Send SBTC', 'success', 'small'),
-                    'data-id': 'rsk-tx-creation',
-                    'data-toggle': 'modal',
-                    'data-target': '#modalDialogRsk',
-                    onclick (e) {
-                      let modalRsk = document.querySelector('#modalDialogRsk')
-                      modalRsk._fromRskAddress = address.toString()
-                      modalRsk._rskAmount = parseInt(address.balance)
-                    }
-                  },
-                  {
-                    $tag: 'span',
-                    $text: ' '
-                  },
-                  { $virus: buttonismWithSize('Convert SBTC to BTC', 'success', 'small'),
-                    'data-id': 'rsk-tx-creation',
-                    'data-toggle': 'modal',
-                    'data-target': '#modalDialogRsk',
-                    onclick (e) {
-                      let modalRsk = document.querySelector('#modalDialogRsk')
-                      modalRsk._fromRskAddress = address.toString()
-                      modalRsk._toRskAddress = '0x0000000000000000000000000000000001000006'
-                      modalRsk._rskAmount = parseInt(address.balance)
-                    }
-                  }
-                ]
+                  rskModal(self._networkName, self._derivationPath)
+                ].concat(self._addActionButtons(address))
               }
             ]
           }
@@ -110,21 +148,29 @@ export function rskHandler () {
         onchange (e) { this._networkName = e.target.value }
       },
       {
-        $virus: selectObjectGroupism('Derivation Path', config._derivationPaths(), 'Rsk'),
+        $virus: selectObjectGroupism('Derivation Path', config._derivationPaths()),
         name: 'Derivation Path',
         id: 'derivation_path',
         $update () { this.value = this._derivationPath },
-        onchange (e) { this._derivationPath = e.target.value }
+        onchange (e) {
+          this._networkFromPath = this.options[this.selectedIndex].text
+          this._derivationPath = e.target.value
+        }
       },
       {
-        $virus: buttonism('Add address from Trezor'),
+        $virus: buttonism('Add Rsk address from Trezor'),
         'data-id': 'add-rsk-address-from-trezor',
-        onclick () { this._addAddress() }
+        onclick () { this._addRskAddress() }
+      },
+      {
+        $virus: buttonism('Add BTC address from Trezor'),
+        'data-id': 'add-btc-address-from-trezor',
+        onclick () { this._addBtcAddress() }
       },
       { $tag: 'ul.list-group.rsk-addresses.mt-3',
         $update () {
           this.innerHTML = ''
-          _.each(this._rskAddresses, (n) => this.$build(this._addRskAddress(n)))
+          _.each(this._rskAddresses, (n) => this.$build(this._addRskAddressToList(n)))
         }
       }
     ]

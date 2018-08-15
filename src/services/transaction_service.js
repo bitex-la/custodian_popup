@@ -1,6 +1,6 @@
-import {baseService} from './base_service.js'
+import jQuery from 'jquery'
 
-export function transactionService(config) {
+export function transactionService (config) {
   return {
     broadcast (hash, successCallback, errorCallback) {
       return jQuery.ajax({

@@ -1,10 +1,11 @@
+import $ from 'jquery'
 import {hamlism} from '../lib/hamlism.js'
 import {showError} from '../messages.js'
 import {buttonism, buttonismWithSize, selectObjectGroupism} from '../lib/bootstrapism.js'
 import {Transaction} from '../lib/transaction'
 import {updateEpidemic} from '../lib/update_epidemic.js'
 
-export function modalTx() {
+export function modalTx () {
   return {
     id: 'modalDialogTx',
     class: 'modal fade',
@@ -15,7 +16,7 @@ export function modalTx() {
     _amount: 0,
     _outputs: [],
     _totalAmount: 0,
-    _updateAmount() {
+    _updateAmount () {
       this._amount = this._totalAmount - _.sum(_.map(this._outputs, (tx) => parseFloat(tx.amount)))
     },
     $$: [
@@ -54,16 +55,24 @@ export function modalTx() {
                   {
                     class: 'messages'
                   },
-                  { $virus: selectObjectGroupism('Script Type', [
-                    {id: '', text: 'Select a script type'},
-                    {id: 'PAYTOADDRESS', text: 'PAYTOADDRESS'},
-                    {id: 'PAYTOSCRIPTHASH', text: 'PAYTOSCRIPTHASH'}], 'script_type'),
+                  {
+                    $virus: selectObjectGroupism('Script Type', [
+                      {
+                        id: '',
+                        text: 'Select a script type'
+                      }, {
+                        id: 'PAYTOADDRESS',
+                        text: 'PAYTOADDRESS'
+                      }, {
+                        id: 'PAYTOSCRIPTHASH',
+                        text: 'PAYTOSCRIPTHASH'
+                      }
+                    ], 'script_type'),
                     name: 'script_type',
-                    $update() {
+                    $update () {
                       this.value = this._scriptType
                     },
-                    onchange(e) {
-                      let self = this
+                    onchange (e) {
                       this._scriptType = e.target.value
                     }
                   },
@@ -77,10 +86,10 @@ export function modalTx() {
                         class: 'form-control',
                         placeholder: 'Address',
                         type: 'text',
-                        $update() {
+                        $update () {
                           this.value = this._address
                         },
-                        onchange(e) {
+                        onchange (e) {
                           this._address = e.target.value
                         }
                       },
@@ -89,7 +98,7 @@ export function modalTx() {
                         $$: [
                           {
                             $virus: buttonism('RSK'),
-                            async onclick() {
+                            async onclick () {
                               try {
                                 let transaction = new Transaction()
                                 this._address = await transaction.getFederationAdress(this._networkName)
@@ -109,10 +118,10 @@ export function modalTx() {
                     class: 'form-control',
                     placeholder: 'Amount',
                     type: 'number',
-                    $update() {
+                    $update () {
                       this.value = this._amount
                     },
-                    onchange(e) {
+                    onchange (e) {
                       this._amount = e.target.value
                     }
                   },
@@ -138,7 +147,7 @@ export function modalTx() {
                       }]
                     }, {
                       $tag: 'tbody',
-                      _fillOutputs(output) {
+                      _fillOutputs (output) {
                         let self = this
                         return {
                           $tag: 'tr',
@@ -162,14 +171,14 @@ export function modalTx() {
                                 $text: 'x'
                               }
                             ],
-                            onclick() {
+                            onclick () {
                               _.remove(self._outputs, (_output) => { return  _output == output })
                               self._updateAmount()
                             }
                           }]
                         }
                       },
-                      $update() {
+                      $update () {
                         this.innerHTML = ''
                         _.each(this._outputs, (output) => this.$build(this._fillOutputs(output)))
                       }
@@ -189,7 +198,7 @@ export function modalTx() {
                     $tag: 'button.btn.btn-success',
                     'data-id': 'add-output-tx',
                     $text: 'Add',
-                    onclick() {
+                    onclick () {
                       this._outputs.push({ script_type: this._scriptType, address: this._address, amount: this._amount })
                       this._updateAmount()
                     }
@@ -198,7 +207,7 @@ export function modalTx() {
                     $virus: buttonismWithSize('Create', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     'data-id': 'create-tx',
-                    onclick() {
+                    onclick () {
                       let self = this
                       let transaction = new Transaction()
                       transaction.createTx(self, this._networkName, (tx) => {

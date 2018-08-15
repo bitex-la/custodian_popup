@@ -1,6 +1,7 @@
-import {buttonism, buttonismWithSize} from '../lib/bootstrapism.js'
+import $ from 'jquery'
+import { buttonismWithSize } from '../lib/bootstrapism.js'
 
-export function modal(addUtxos) {
+export function modal (addUtxos) {
   return {
     id: 'modalDialog',
     class: 'modal fade',
@@ -51,10 +52,10 @@ export function modal(addUtxos) {
                         class: 'form-control',
                         placeholder: 'since',
                         type: 'number',
-                        $update() {
+                        $update () {
                           this.value = this._since
                         },
-                        onchange(e) {
+                        onchange (e) {
                           this._since = e.target.value
                         }
                       }]
@@ -68,14 +69,14 @@ export function modal(addUtxos) {
                         class: 'form-control',
                         placeholder: 'limit',
                         type: 'number',
-                        $update() {
+                        $update () {
                           this.value = this._limit
                         },
-                        onchange(e) {
+                        onchange (e) {
                           this._limit = e.target.value
                         },
-                        onkeyup(e) {
-                          if (e.keyCode == 13) {
+                        onkeyup (e) {
+                          if (e.keyCode === 13) {
                             addUtxos.call(this, this._walletType, this._walletId, this._since, this._limit)
                             $('#modalDialog').modal('hide')
                           }
@@ -96,7 +97,7 @@ export function modal(addUtxos) {
                   {
                     $virus: buttonismWithSize('Send', 'primary', 'small'),
                     'data-dismiss': 'modal',
-                    onclick() {
+                    onclick () {
                       addUtxos.call(this, this._walletType, this._walletId, this._since, this._limit)
                     }
                   }

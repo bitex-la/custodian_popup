@@ -157,7 +157,7 @@ export function hdNodesManager () {
               }
             }
           }
-        ]},
+        ]}
       ]},
       { $virus: buttonism('Add node from Trezor'),
         'data-id': 'add-node-from-trezor',
