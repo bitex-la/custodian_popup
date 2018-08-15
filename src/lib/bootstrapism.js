@@ -1,7 +1,9 @@
-import {hamlism} from './hamlism.js'
+import { hamlism } from './hamlism.js'
+import $ from 'jquery'
+import _ from 'lodash'
 
-export function formGroupism(label){
-  return function(component){
+export function formGroupism (label) {
+  return function (component) {
     delete component.$virus
     component.class = 'form-control'
 
@@ -10,11 +12,11 @@ export function formGroupism(label){
       component
     ]
 
-    if(component.$help){
+    if (component.$help) {
       $$.push({
-        $init(){ $(this).popover({ trigger: 'focus' }) },
-        $tag: "span.input-group-btn a.btn.btn-secondary",
-        $text: "?",
+        $init () { $(this).popover({ trigger: 'focus' }) },
+        $tag: 'span.input-group-btn a.btn.btn-secondary',
+        $text: '?',
         role: 'button',
         tabindex: 0,
         'data-toggle': 'popover',
@@ -28,8 +30,8 @@ export function formGroupism(label){
   }
 }
 
-export function formCheckism(label){
-  return function(component){
+export function formCheckism (label) {
+  return function (component) {
     delete component.$virus
     Object.assign(component, {
       $type: 'input',
@@ -50,8 +52,8 @@ export function formCheckism(label){
   }
 }
 
-export function selectGroupism(label, options, selected){
-  return function(component){
+export function selectGroupism (label, options, selected) {
+  return function (component) {
     let select = Object.assign(component, {
       $type: 'select',
       class: 'form-control',
@@ -60,32 +62,43 @@ export function selectGroupism(label, options, selected){
       })
     })
 
-    return hamlism({ class: 'form-group input-group', $$: [
-      { $tag: 'span.input-group-addon', $text: label },
-      select
-    ]})
+    return hamlism({
+      class: 'form-group input-group',
+      $$: [{
+        $tag: 'span.input-group-addon',
+        $text: label
+      }, select]
+    })
   }
 }
 
-export function selectObjectGroupism(label, options, selected){
-  return function(component){
+export function selectObjectGroupism (label, options, selected) {
+  return function (component) {
     let select = Object.assign(component, {
       $type: 'select',
       class: 'form-control',
       $components: _.map(options, (obj) => {
-        return {$type: 'option', $text: obj.text, value: obj.id}
+        let option = {$type: 'option', $text: obj.text, value: JSON.stringify(obj.id)}
+        if (obj.text === selected) {
+          option['selected'] = ''
+        }
+        return option
       })
     })
 
-    return hamlism({ class: 'form-group input-group', $$: [
-      { $tag: 'span.input-group-addon', $text: label },
-      select
-    ]})
+    return hamlism({
+      class: 'form-group input-group',
+      $$: [{
+        $tag: 'span.input-group-addon',
+        $text: label
+      },
+      select]
+    })
   }
 }
 
-export function buttonism(label, kind = 'primary'){
-  return function(component){
+export function buttonism (label, kind = 'primary') {
+  return function (component) {
     return hamlism(_.merge(component, {
       $tag: `button.btn.btn-block.btn-${kind}`,
       $text: label
@@ -93,8 +106,8 @@ export function buttonism(label, kind = 'primary'){
   }
 }
 
-export function buttonismWithSize(label, kind = 'primary', size = 'block'){
-  return function(component){
+export function buttonismWithSize (label, kind = 'primary', size = 'block') {
+  return function (component) {
     return hamlism(_.merge(component, {
       $tag: `button.btn.btn-${size}.btn-${kind}`,
       $text: label
@@ -102,8 +115,8 @@ export function buttonismWithSize(label, kind = 'primary', size = 'block'){
   }
 }
 
-export function cardism(header){
-  return function(component){
+export function cardism (header) {
+  return function (component) {
     return hamlism({
       $tag: '.card.my-3',
       $$: [
@@ -114,18 +127,18 @@ export function cardism(header){
   }
 }
 
-export function tabbism(component){
+export function tabbism (component) {
   let navs = _.map(component.$components, (tab) => {
     return hamlism({
       $tag: 'li.nav-item',
-      $init(){
+      $init () {
         $(this).on('shown.bs.tab', function (e) {
-          $(`#tab_${tab.id}`).find("input:first").focus() 
+          $(`#tab_${tab.id}`).find('input:first').focus()
         })
       },
       $$: [{
         $tag: 'a.nav-link',
-        "data-toggle": 'tab',
+        'data-toggle': 'tab',
         href: `#tab_${tab.id}`,
         role: 'tab',
         $text: _.upperFirst(_.lowerCase(tab.id))
@@ -134,7 +147,7 @@ export function tabbism(component){
   })
 
   let tabs = _.map(component.$components, (tab) => {
-    return { 
+    return {
       class: 'tab-pane',
       id: `tab_${tab.id}`,
       role: 'tabpanel',
@@ -143,14 +156,13 @@ export function tabbism(component){
   })
 
   let initial = component.$components[0].id
-  component.$init = function(){
+  component.$init = function () {
     $(`.nav-pills a[href="#tab_${initial}"]`).tab('show')
   }
   component.$components = [
     { $type: 'ul', class: 'nav nav-pills', role: 'tablist', $components: navs },
-    { class: 'tab-content', $components: tabs },
+    { class: 'tab-content', $components: tabs }
   ]
 
-  return component;
+  return component
 }
-
