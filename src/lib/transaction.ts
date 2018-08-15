@@ -208,35 +208,36 @@ export class Transaction {
     return transaction.balance(address);
   }
 
-  async signRskTransaction(network: string, path: number[], to: string, _from: string, gasPriceGwei: number, gasLimitFromParam: string, value: number, data?: string) {
+  async signRskTransaction(network: string, path: number[], to: string, _from: string, gasPriceGwei: number, value: number, data?: string) {
     let self = this;
     loading();
     let web3 = self.getWeb3();
-    let gasValue: string = await self.getGasPrice();
-    let gasPrice = gasPriceGwei === null ? gasValue : gasPriceGwei * 1e9;
-    let gasLimit = gasLimitFromParam  === null ? self.getGasLimit(data) : gasLimitFromParam;
+    let gasValue: number = await self.getGasPrice();
+    let gasPrice: number = gasPriceGwei === null ? gasValue : gasPriceGwei * 1e9;
+    let gasEstimated: number = await self.estimateGas(data, to);
     let nonce: string = await self.getNonce(_from);
+    let finalValue = value - (gasPrice * gasEstimated);
 
     const result = await (<any>window).TrezorConnect.ethereumSignTransaction({
       path,
       transaction: {
         to,
-        value: `0x${value.toString(16)}`,
+        value: `0x${finalValue.toString(16)}`,
         data: "",
         chainId: config._getRskChainId(network),
         nonce: `0x${nonce}`,
-        gasLimit: `0x${gasLimit}`,
-        gasPrice: `0x${gasPrice}`
+        gasLimit: `0x${gasEstimated.toString(16)}`,
+        gasPrice: `0x${gasPrice.toString(16)}`
       }
     });
 
     if (result.success) {
       let tx = {
         nonce: `0x${nonce}`,
-        gasPrice: `0x${gasPrice}`,
-        gasLimit: `0x${gasLimit}`,
+        gasPrice: `0x${gasPrice.toString(16)}`,
+        gasLimit: `0x${gasEstimated.toString(16)}`,
         to: to,
-        value: `0x${value.toString(16)}`,
+        value: `0x${finalValue.toString(16)}`,
         data,
         chainId: config._getRskChainId(network),
         from: _from,
@@ -256,16 +257,21 @@ export class Transaction {
     }
   }
 
-  async getGasPrice(): Promise<string> {
+  async getGasPrice(): Promise<number> {
     let web3 = this.getWeb3();
     let rawGas = await web3.eth.getBlock('latest');
-    return (parseInt(rawGas.minimumGasPrice) * 10000).toString(16);
+    return (parseInt(rawGas.minimumGasPrice) * 10000);
   }
 
-  getGasLimit(data: string): string {
+  getGasLimit(data: string): number {
     let dataSizeInBytes = data === null ? 1 : (new TextEncoder().encode(data)).length;
     let rawGasLimit: number = 21000 + 68 * dataSizeInBytes;
-    return rawGasLimit.toString(16);
+    return rawGasLimit;
+  }
+
+  async estimateGas(data: string, to: string): Promise<number> {
+    let web3 = this.getWeb3();
+    return await web3.eth.estimateGas({to, data});
   }
 
   async getNonce(address: string): Promise<string> {
