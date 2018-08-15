@@ -9,6 +9,22 @@ class Config {
   defaultPath: number[] = [44, 0, 0, 0, 0];
   defaultTestnetPath: number[] = [44, 1, 0, 0, 0];
 
+  _derivationPaths() {
+    return [{
+      text: 'Bitcoin',
+      id: this.defaultPath
+    }, {
+      text: 'Testnet',
+      id: this.defaultTestnetPath
+    }, {
+      text: 'Rsk',
+      id: this.rskMainNetPath
+    }, {
+      text: 'Rsk Testnet',
+      id: this.rskTestNetPath
+    }];
+  }
+
   _chooseDerivationPath(_networkName: string) {
     switch(_networkName) {
       case 'bitcoin':
