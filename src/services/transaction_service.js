@@ -1,6 +1,6 @@
 import jQuery from 'jquery'
 
-export function transactionService (config) {
+export function TransactionService (config) {
   return {
     broadcast (hash, successCallback, errorCallback) {
       return jQuery.ajax({

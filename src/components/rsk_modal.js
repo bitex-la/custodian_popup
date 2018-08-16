@@ -2,6 +2,7 @@ import { hamlism } from '../lib/hamlism.js'
 import { Transaction } from '../lib/transaction'
 import { updateEpidemic } from '../lib/update_epidemic.js'
 import { buttonismWithSize } from '../lib/bootstrapism.js'
+import { showError, showSuccess } from '../messages.js';
 
 export function rskModal (networkName, path) {
   return {
@@ -131,7 +132,21 @@ export function rskModal (networkName, path) {
                     'data-id': 'create-rsk-tx',
                     onclick () {
                       let transaction = new Transaction()
-                      transaction.signRskTransaction(networkName, JSON.parse(path), this._toRskAddress, this._fromRskAddress, null, parseInt(this._rskAmount), null)
+                      try {
+                        switch (networkName) {
+                          case 'bitcoin':
+                          case 'testnet':
+                            transaction.sendBtcTransaction(networkName, JSON.parse(path), this._toRskAddress, this._fromRskAddress, parseInt(this._rskAmount))
+                            break
+                          case 'rsk':
+                          case 'rsk_testnet':
+                            transaction.sendRskTransaction(networkName, JSON.parse(path), this._toRskAddress, this._fromRskAddress, null, parseInt(this._rskAmount), null)
+                            break
+                        }
+                        showSuccess('Transaction broadcasted')
+                      } catch (e) {
+                        showError(e)
+                      }
                     }
                   }
                 ]

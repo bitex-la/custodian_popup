@@ -1,13 +1,13 @@
 import * as _  from 'lodash';
+import * as Web3 from 'web3';
 
-import { showError, showSuccess, loading, notLoading } from '../messages';
+import { loading, notLoading } from '../messages';
 import { blockdozerService } from '../services/blockdozer_service.js';
 import { blockcypherService } from '../services/blockcypher_service.js';
-import { transactionService } from '../services/transaction_service.js';
+import { TransactionService } from '../services/transaction_service.js';
 import config from '../config';
 
 const rskUtils = require('bitcoin-to-rsk-key-utils/rsk-conversion-utils.js');
-const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
 
 interface ABIDefinition {
@@ -164,18 +164,18 @@ export class Transaction {
       let signed = result.payload.serializedTx;
       let signatures = result.payload.signatures;
 
-      if(_.some(json.inputs, (i) => i.multisig )) {
+      if(_.some(json.inputs, (i: Input) => i.multisig )) {
         const resultPk = await (<any>window).TrezorConnect.getPublicKey({path: []});
         if (resultPk.success) {
 
           let publicKey = result.payload.node.public_key;
-          _.each(json.inputs, (input, inputIndex) => {
+          _.each(json.inputs, (input: Input, inputIndex: string) => {
             let signatureIndex = _.findIndex(input.multisig.pubkeys,
               (p: { node: { public_key: string } }) => p.node.public_key == publicKey);
             input.multisig.signatures[signatureIndex] = signatures[inputIndex];
           })
 
-          let done = _.every(json.inputs, (i) => {
+          let done = _.every(json.inputs, (i: Input) => {
             return _.compact(i.multisig.signatures).length >= i.multisig.m;
           })
 
@@ -204,11 +204,11 @@ export class Transaction {
 
   async getBalance(network: string, address: string): Promise<string> {
     config.nodeSelected = config._chooseBackUrl(network);
-    let transaction = await transactionService(config);
+    let transaction = await TransactionService(config);
     return transaction.balance(address);
   }
 
-  async signRskTransaction(network: string, path: number[], to: string, _from: string, gasPriceGwei: number, value: number, data?: string) {
+  async sendRskTransaction(network: string, path: number[], to: string, _from: string, gasPriceGwei: number, value: number, data?: string) {
     let self = this;
     loading();
     let web3 = self.getWeb3();
@@ -251,15 +251,37 @@ export class Transaction {
       let ethtx = new EthereumTx(tx);
       const serializedTx = ethtx.serialize();
       const rawTx = '0x' + serializedTx.toString('hex');
-      web3.eth.sendSignedTransaction(rawTx).on('receipt', showSuccess('Successful Broadcast')).on('error', showError);
+      return web3.eth.sendRawTransaction(rawTx);
     } else {
-      showError(result.payload.error);
+      throw new Error(result.payload.error);
+    }
+  }
+
+  async sendBtcTransaction(network: string, path: number[], to: string, _from: string, value: number) {
+    let params = {
+      outputs: [
+        {
+           amount: value,
+           address: to
+         }
+      ],
+      coin: network,
+      push: true
+    };
+    let result = await (<any> window).TrezorConnect.composeTransaction(params);
+    if (result.success) {
+      let signed = result.payload.serializedTx;
+
+      config.nodeSelected = config._chooseBackUrl(network);
+      return TransactionService(config).broadcast(signed);
+    } else {
+      throw new Error(result.payload.error);
     }
   }
 
   async getGasPrice(): Promise<number> {
     let web3 = this.getWeb3();
-    let rawGas = await web3.eth.getBlock('latest');
+    let rawGas: any = await web3.eth.getBlock('latest');
     return (parseInt(rawGas.minimumGasPrice) * 10000);
   }
 
@@ -283,10 +305,20 @@ export class Transaction {
   getFederationAdress(network: string): Promise<string> {
     var web3 = new Web3(config._getUrlRskNode(network));
 
-    var abi: Array<ABIDefinition> = [{ "name": "getFederationAddress", "type": "function", "constant": true, "inputs": [], "outputs": [{ "name": "", "type": "string" }] }];
+    var abi: Array<Web3.AbiDefinition> = [
+      {
+        "name": "getFederationAddress",
+        "type": Web3.AbiType.Function,
+        "constant": true,
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "string", "components": [] }],
+        "stateMutability": "payable",
+        "payable": true
+      }
+    ];
     var address = "0x0000000000000000000000000000000001000006";
 
-    var FedContract = new web3.eth.Contract(abi, address);
+    var FedContract = web3.eth.contract(abi).at(address);
 
     return new Promise((resolve, reject) => {
       FedContract.methods.getFederationAddress()

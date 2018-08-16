@@ -152,7 +152,7 @@ export function rskHandler () {
     },
     $$: [
       {
-        $virus: selectGroupism('Network', ['rsk', 'rsk_testnet'], 'rsk'),
+        $virus: selectGroupism('Network', ['bitcoin', 'testnet', 'rsk', 'rsk_testnet'], 'rsk'),
         name: 'network',
         id: 'setup_network',
         $update () { this.value = this._networkName },

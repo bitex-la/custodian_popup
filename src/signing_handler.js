@@ -4,7 +4,7 @@ import * as bitcoin from 'bitcoinjs-lib'
 import { showError, showSuccess } from './messages.js'
 import { selectGroupism } from './lib/bootstrapism.js'
 import { updateEpidemic } from './lib/update_epidemic.js'
-import { transactionService } from './services/transaction_service.js'
+import { TransactionService } from './services/transaction_service.js'
 import networks from './lib/networks.js'
 import config from './config'
 
@@ -34,7 +34,7 @@ export function signingHandler () {
           $text: 'Broadcast Transaction',
           onclick () {
             config.nodeSelected = config._chooseBackUrl(self._networkName)
-            transactionService(config).broadcast(self._rawtx).then((result) => {
+            TransactionService(config).broadcast(self._rawtx).then((result) => {
               showSuccess('Transaction Broadcasted')
             })
           }

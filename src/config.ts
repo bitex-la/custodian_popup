@@ -1,3 +1,24 @@
+import * as Web3 from 'web3';
+import * as net from 'net';
+
+class Web3Provider implements Web3.Provider {
+  path: string
+  connection: net.Socket
+
+  constructor(path: string) {
+    this.path = path;
+  }
+
+  sendAsync(payload: Web3.JSONRPCRequestPayload, callback: (err: Error, result: Web3.JSONRPCResponsePayload) => void): void {
+    // try reconnect, when connection is gone
+    if(!this.connection.writable) {
+      this.connection.connect({path: this.path});
+    }
+
+    this.connection.write(JSON.stringify(payload));
+  }
+}
+
 class Config {
   btcNodeUrl: string = '/api/btc';
   bchNodeUrl: string = '/api/bch';
@@ -66,18 +87,18 @@ class Config {
     }
   }
 
-  _getUrlRskNode(_networkName: string) {
+  _getUrlRskNode(_networkName: string): Web3.Provider {
     switch(_networkName) {
       case 'rsk':
       case 'bitcoin':
       case 'litecoin':
       case 'bitcoin_cash':
-        return 'https://public-node.rsk.co/'
+        return new Web3Provider('https://public-node.rsk.co/')
       case 'rsk_testnet':
       case 'testnet':
       case 'litecoin_testnet':
       case 'bitcoin_cash_testnet':
-        return 'http://mycrypto.testnet.rsk.co/'
+        return new Web3Provider('http://mycrypto.testnet.rsk.co/')
     }
   }
 

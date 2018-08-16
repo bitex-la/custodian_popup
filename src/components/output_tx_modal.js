@@ -1,10 +1,9 @@
 import _ from 'lodash'
 import $ from 'jquery'
-import {hamlism} from '../lib/hamlism.js'
-import {showError} from '../messages.js'
-import {buttonism, buttonismWithSize, selectObjectGroupism} from '../lib/bootstrapism.js'
-import {Transaction} from '../lib/transaction'
-import {updateEpidemic} from '../lib/update_epidemic.js'
+import { hamlism } from '../lib/hamlism.js'
+import { buttonismWithSize, selectObjectGroupism } from '../lib/bootstrapism.js'
+import { Transaction } from '../lib/transaction'
+import { updateEpidemic } from '../lib/update_epidemic.js'
 
 export function modalTx () {
   return {
