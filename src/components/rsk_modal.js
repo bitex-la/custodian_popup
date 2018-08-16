@@ -160,7 +160,7 @@ export function rskModal () {
                   {
                     $virus: buttonismWithSize('Submit', 'primary', 'small'),
                     'data-dismiss': 'modal',
-                    'data-id': 'create-rsk-tx',
+                    'data-id': 'create-rsk-modal-tx',
                     onclick () {
                       let self = this
                       let transaction = new Transaction()
