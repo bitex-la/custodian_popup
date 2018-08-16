@@ -1,5 +1,4 @@
 import * as _  from 'lodash';
-import * as Web3 from 'web3';
 
 import { loading, notLoading } from '../messages';
 import { blockdozerService } from '../services/blockdozer_service.js';
@@ -7,6 +6,7 @@ import { blockcypherService } from '../services/blockcypher_service.js';
 import { TransactionService } from '../services/transaction_service.js';
 import config from '../config';
 
+const Web3 = require('web3');
 const rskUtils = require('bitcoin-to-rsk-key-utils/rsk-conversion-utils.js');
 const EthereumTx = require('ethereumjs-tx');
 
@@ -77,15 +77,65 @@ interface HandleParent {
   _outputs: Array<object>;
 }
 
-interface signedResponse {
+interface SignedResponse {
   json: any;
   done: boolean;
   rawtx: string;
 }
 
+interface Address {
+  toString: () => string;
+  balance: string;
+  type: string;
+}
+
+type Bitcoin = "Bitcoin"
+type Rsk = "Rsk"
+
+type Network  = Bitcoin | Rsk
+
 export class Transaction {
 
   transaction: InTransaction = { outputs: [], inputs: [], transactions: [] };
+
+  async _addAddressFromTrezor (network: Network, _derivationPath: string, coin?: string): Promise<{}> {
+    switch(network) {
+      case "Rsk":
+        return this._addRskAddressFromTrezor(_derivationPath);
+      case "Bitcoin":
+        return this._addBtcAddressFromTrezor(_derivationPath, coin);
+    }
+  }
+
+  async _addBtcAddressFromTrezor (_derivationPath: string, coin: string): Promise<{}> {
+    const btcAddress = await (<any> window).TrezorConnect.getAddress({path: JSON.parse(_derivationPath), coin: coin})
+    if (btcAddress.success) {
+      let transaction = new Transaction()
+      let balance = await transaction.getBalance('bitcoin', btcAddress.payload.address)
+      return new Promise(resolve => resolve({ toString: () => btcAddress.payload.address, balance, type: 'btc' }))
+    } else {
+      throw new Error(btcAddress.payload.error);
+    }
+  }
+
+  async _addRskAddressFromTrezor (_derivationPath: string): Promise<{}> {
+    const ethAddress = await (<any> window).TrezorConnect.ethereumGetAddress({path: JSON.parse(_derivationPath)});
+    if (ethAddress.success) {
+      try {
+        let balance: string = await this.getRskBalance(ethAddress.payload.address.toLowerCase());
+        let address: Address = { 
+          toString: () => ethAddress.payload.address.toLowerCase(),
+          type: 'rsk',
+          balance
+        };
+        return new Promise((resolve) => resolve(address));
+      } catch (e) {
+        throw new Error(e);
+      }
+    } else {
+      throw new Error(ethAddress.payload.error);
+    }
+  }
 
   async calculateFee (_networkName: string, outputLength: number, callback: Function) {
     let calculateFee = (response: {2: string}, callback: Function) => {
@@ -155,7 +205,7 @@ export class Transaction {
     });
   }
  
-  async signTransaction (original_json: InTransaction, coin: string): Promise<signedResponse> {
+  async signTransaction (original_json: InTransaction, coin: string): Promise<SignedResponse> {
     let json = _.cloneDeep(original_json);
     loading();
     json.outputs = _.map(json.outputs, (output: Output) => { output['amount'] = output.amount.toString(); return output});
@@ -180,18 +230,18 @@ export class Transaction {
           })
 
           notLoading();
-          return new Promise<signedResponse>((resolve, reject) => resolve({json, done, rawtx: signed}) );
+          return new Promise<SignedResponse>((resolve, reject) => resolve({json, done, rawtx: signed}) );
 
         } else {
-          return new Promise<signedResponse>((resolve, reject) => {
+          return new Promise<SignedResponse>((resolve, reject) => {
             reject({json: resultPk.payload.error, done: false, rawtx: null})
           });
         }
       }else{
-        return new Promise<signedResponse>(resolve => resolve({json: json, done: true, rawtx: signed}));
+        return new Promise<SignedResponse>(resolve => resolve({json: json, done: true, rawtx: signed}));
       }
     } else {
-      return new Promise<signedResponse>((resolve, reject) => {
+      return new Promise<SignedResponse>((resolve, reject) => {
         reject({json: result.payload.error, done: false, rawtx: null})
       });
     }
@@ -251,7 +301,7 @@ export class Transaction {
       let ethtx = new EthereumTx(tx);
       const serializedTx = ethtx.serialize();
       const rawTx = '0x' + serializedTx.toString('hex');
-      return web3.eth.sendRawTransaction(rawTx);
+      return web3.eth.sendSignedTransaction(rawTx);
     } else {
       throw new Error(result.payload.error);
     }
@@ -261,7 +311,7 @@ export class Transaction {
     let params = {
       outputs: [
         {
-           amount: value,
+           amount: value.toString(),
            address: to
          }
       ],
@@ -303,25 +353,23 @@ export class Transaction {
   }
 
   getFederationAdress(network: string): Promise<string> {
-    var web3 = new Web3(config._getUrlRskNode(network));
+    var web3: any = new Web3(config._getUrlRskNode(network));
 
-    var abi: Array<Web3.AbiDefinition> = [
+    var abi: Array<ABIDefinition> = [
       {
         "name": "getFederationAddress",
-        "type": Web3.AbiType.Function,
+        "type": "function",
         "constant": true,
         "inputs": [],
-        "outputs": [{ "name": "", "type": "string", "components": [] }],
-        "stateMutability": "payable",
-        "payable": true
+        "outputs": [{ "name": "", "type": "string" }]
       }
     ];
     var address = "0x0000000000000000000000000000000001000006";
 
-    var FedContract = web3.eth.contract(abi).at(address);
+    var contract = new web3.eth.Contract(abi, address);
 
     return new Promise((resolve, reject) => {
-      FedContract.methods.getFederationAddress()
+      contract.methods.getFederationAddress()
         .call()
         .then((result: string) => resolve(result))
         .catch((result: any) => reject(result))

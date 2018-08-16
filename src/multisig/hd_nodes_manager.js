@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { buttonism, buttonismWithSize, formGroupism } from '../lib/bootstrapism.js'
 import { hamlism } from '../lib/hamlism.js'
 import { showError, loading, notLoading } from '../messages.js'
@@ -87,14 +88,14 @@ export function hdNodesManager () {
                 'data-id': 'hd-wallet-creation',
                 onclick () {
                   config.nodeSelected = config._chooseBackUrl(self._networkName)
-                  CustodianManager(config)._sendHdToCustodian(hdNode) 
+                  CustodianManager(config)._sendHdToCustodian(hdNode)
                 }
               },
               { $tag: 'span', $text: ' ' },
               { $virus: buttonismWithSize('Create Plain Wallet', 'success', 'small'),
                 onclick () {
                   config.nodeSelected = config._chooseBackUrl(self._networkName)
-                  CustodianManager(config)._sendPlainToCustodian(hdNode) 
+                  CustodianManager(config)._sendPlainToCustodian(hdNode)
                 }
               }
             ]
@@ -119,7 +120,7 @@ export function hdNodesManager () {
         { $tag: 'input#multisig_setup_xpub.form-control',
           name: 'xpub',
           type: 'text',
-          $update () { this.value = this._xpub  },
+          $update () { this.value = this._xpub },
           onchange (e) { this._xpub = e.target.value }
         },
         { class: 'input-group-btn add-node-group', $$: [
@@ -149,7 +150,7 @@ export function hdNodesManager () {
                     this._hdNodes.push(hdNode)
                     break
                   default:
-                    this._addHdNodeFromXpub(this._xpub) 
+                    this._addHdNodeFromXpub(this._xpub)
                     break
                 }
               } catch (error) {

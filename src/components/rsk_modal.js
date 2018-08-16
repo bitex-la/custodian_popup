@@ -1,10 +1,11 @@
 import { hamlism } from '../lib/hamlism.js'
 import { Transaction } from '../lib/transaction'
 import { updateEpidemic } from '../lib/update_epidemic.js'
-import { buttonismWithSize } from '../lib/bootstrapism.js'
-import { showError, showSuccess } from '../messages.js';
+import { buttonism, buttonismWithSize } from '../lib/bootstrapism.js'
+import { showError, showSuccess } from '../messages.js'
+import { DerivationPathModal } from './derivation_path_modal.js'
 
-export function rskModal (networkName, path) {
+export function rskModal () {
   return {
     id: 'modalDialogRsk',
     class: 'modal fade',
@@ -14,6 +15,15 @@ export function rskModal (networkName, path) {
     _rskAmount: 0,
     _fromRskAddress: '',
     _toRskAddress: '',
+    _networkName: '',
+    _path: '',
+    _disableToAddress: false,
+    _network: 'Bitcoin',
+    _clear () {
+      this._rskAmount = 0
+      this._fromRskAddress = ''
+      this._toRskAddress = ''
+    },
     $$: [
       {
         class: 'modal-dialog modal-lg',
@@ -69,6 +79,22 @@ export function rskModal (networkName, path) {
                         onchange (e) {
                           this._fromRskAddress = e.target.value
                         }
+                      },
+                      {
+                        class: 'input-group-btn add-node-group',
+                        $$: [
+                          DerivationPathModal(),
+                          {
+                            $virus: buttonism('Add address from Trezor'),
+                            'data-toggle': 'modal',
+                            'data-target': '#modalDerivation',
+                            'data-id': 'add-address-from-trezor',
+                            onclick () {
+                              let derivationPathModal = document.querySelector('#modalDerivation')
+                              derivationPathModal._network = this._network
+                            }
+                          }
+                        ]
                       }
                     ]
                   },
@@ -87,6 +113,11 @@ export function rskModal (networkName, path) {
                         type: 'text',
                         $update () {
                           this.value = this._toRskAddress
+                          if (this._disableToAddress) {
+                            this.disabled = this._disableToAddress
+                          } else {
+                            this.removeAttribute('disabled')
+                          }
                         },
                         onchange (e) {
                           this._toRskAddress = e.target.value
@@ -131,16 +162,15 @@ export function rskModal (networkName, path) {
                     'data-dismiss': 'modal',
                     'data-id': 'create-rsk-tx',
                     onclick () {
+                      let self = this
                       let transaction = new Transaction()
                       try {
-                        switch (networkName) {
-                          case 'bitcoin':
-                          case 'testnet':
-                            transaction.sendBtcTransaction(networkName, JSON.parse(path), this._toRskAddress, this._fromRskAddress, parseInt(this._rskAmount))
+                        switch (self._network) {
+                          case 'Bitcoin':
+                            transaction.sendBtcTransaction(self._networkName, JSON.parse(self._path), self._toRskAddress, self._fromRskAddress, parseInt(self._rskAmount))
                             break
-                          case 'rsk':
-                          case 'rsk_testnet':
-                            transaction.sendRskTransaction(networkName, JSON.parse(path), this._toRskAddress, this._fromRskAddress, null, parseInt(this._rskAmount), null)
+                          case 'Rsk':
+                            transaction.sendRskTransaction(self._networkName, JSON.parse(self._path), self._toRskAddress, self._fromRskAddress, null, parseInt(self._rskAmount), null)
                             break
                         }
                         showSuccess('Transaction broadcasted')

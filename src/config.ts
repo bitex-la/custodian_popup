@@ -1,23 +1,3 @@
-import * as Web3 from 'web3';
-import * as net from 'net';
-
-class Web3Provider implements Web3.Provider {
-  path: string
-  connection: net.Socket
-
-  constructor(path: string) {
-    this.path = path;
-  }
-
-  sendAsync(payload: Web3.JSONRPCRequestPayload, callback: (err: Error, result: Web3.JSONRPCResponsePayload) => void): void {
-    // try reconnect, when connection is gone
-    if(!this.connection.writable) {
-      this.connection.connect({path: this.path});
-    }
-
-    this.connection.write(JSON.stringify(payload));
-  }
-}
 
 class Config {
   btcNodeUrl: string = '/api/btc';
@@ -32,16 +12,16 @@ class Config {
 
   _derivationPaths() {
     return [{
-      text: 'Bitcoin',
+      text: "Bitcoin m/44'/0'/0'/0",
       id: this.defaultPath
     }, {
-      text: 'Testnet',
+      text: "Testnet m/44'/1'/0'/0",
       id: this.defaultTestnetPath
     }, {
-      text: 'Rsk',
+      text: "Rsk m/44'/137'/0'/0",
       id: this.rskMainNetPath
     }, {
-      text: 'Rsk Testnet',
+      text: "Rsk Testnet m/44'/37310'/0'/0",
       id: this.rskTestNetPath
     }];
   }
@@ -87,26 +67,20 @@ class Config {
     }
   }
 
-  _getUrlRskNode(_networkName: string): Web3.Provider {
+  _getUrlRskNode(_networkName: string): string {
     switch(_networkName) {
-      case 'rsk':
-      case 'bitcoin':
-      case 'litecoin':
-      case 'bitcoin_cash':
-        return new Web3Provider('https://public-node.rsk.co/')
-      case 'rsk_testnet':
-      case 'testnet':
-      case 'litecoin_testnet':
-      case 'bitcoin_cash_testnet':
-        return new Web3Provider('http://mycrypto.testnet.rsk.co/')
+      case 'Testnet':
+        return 'http://mycrypto.testnet.rsk.co/'
+      default:
+        return 'https://public-node.rsk.co/'
     }
   }
 
   _getRskChainId(_networkName: string) {
     switch(_networkName) {
-      case 'rsk':
+      case 'Mainnet':
         return 30
-      case 'rsk_testnet':
+      case 'Testnet':
         return 31
     }
   }
