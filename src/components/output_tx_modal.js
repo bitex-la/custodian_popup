@@ -1,9 +1,10 @@
 import _ from 'lodash'
 import $ from 'jquery'
 import { hamlism } from '../lib/hamlism.js'
-import { buttonismWithSize, selectObjectGroupism } from '../lib/bootstrapism.js'
+import { buttonism, buttonismWithSize, selectObjectGroupism } from '../lib/bootstrapism.js'
 import { Transaction } from '../lib/transaction'
 import { updateEpidemic } from '../lib/update_epidemic.js'
+import { showError } from '../messages.js'
 
 export function modalTx () {
   return {
@@ -92,8 +93,20 @@ export function modalTx () {
                         onchange (e) {
                           this._address = e.target.value
                         }
-                      }
-                    ]
+                      }, {
+                        class: 'input-group-btn add-node-group',
+                        $$: [{
+                          $virus: buttonism('RSK'),
+                          async onclick () {
+                            try {
+                              let transaction = new Transaction()
+                              this._address = await transaction.getFederationAdress(this._networkName.charAt(0).toUpperCase() + this._networkName.slice(1))
+                            } catch (error) {
+                              showError(error)
+                            }
+                          }
+                        }]
+                      }]
                   },
                   {
                     $tag: 'input',

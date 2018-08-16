@@ -1,9 +1,7 @@
-import { Transaction } from './lib/transaction'
 import { rskModal } from './components/rsk_modal.js'
 import { updateEpidemic } from './lib/update_epidemic.js'
 import { buttonismWithSize, selectGroupism } from './lib/bootstrapism.js'
 import { hamlism } from './lib/hamlism.js'
-import { showError } from './messages.js'
 
 export function rskHandler () {
   return {
@@ -52,33 +50,6 @@ export function rskHandler () {
           modalRsk._network = 'Rsk'
           modalRsk._disableToAddress = false
           modalRsk._networkName = this._networkName
-        }
-      }, {
-        $tag: 'span',
-        $text: ' '
-      }, {
-        $virus: buttonismWithSize('Convert BTC to SBTC', 'success', 'small'),
-        'data-id': 'btc-tx-creation',
-        'data-toggle': 'modal',
-        'data-target': '#modalDialogRsk',
-        async onclick (e) {
-          let fedAddress
-          let self = this
-          try {
-            let transaction = new Transaction()
-            fedAddress = await transaction.getFederationAdress(self._networkName)
-          } catch (error) {
-            showError(error)
-          }
-
-          let modalRsk = document.querySelector('#modalDialogRsk')
-          modalRsk._clear()
-          modalRsk._title = 'Convert BTC to SBTC'
-          modalRsk._toRskAddress = fedAddress
-          modalRsk._disableToAddress = true
-          modalRsk._network = 'Bitcoin'
-          modalRsk._networkName = this._networkName
-          modalRsk.$update()
         }
       }]
   }
