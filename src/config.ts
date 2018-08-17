@@ -12,17 +12,20 @@ class Config {
 
   _derivationPaths() {
     return [{
-      text: "Bitcoin m/44'/0'/0'/0",
+      text: "Bitcoin m/44'/0'/0'/0'/0",
       id: this.defaultPath
     }, {
-      text: "Testnet m/44'/1'/0'/0",
+      text: "Testnet m/44'/1'/0'/0'/0",
       id: this.defaultTestnetPath
     }, {
-      text: "Rsk m/44'/137'/0'/0",
+      text: "Rsk m/44'/137'/0'/0'/0",
       id: this.rskMainNetPath
     }, {
-      text: "Rsk Testnet m/44'/37310'/0'/0",
+      text: "Rsk Testnet m/44'/37310'/0'/0'/0",
       id: this.rskTestNetPath
+    }, {
+      text: "Custom",
+      id: []
     }];
   }
 

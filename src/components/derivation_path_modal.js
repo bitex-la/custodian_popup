@@ -13,7 +13,9 @@ export function DerivationPathModal () {
     role: 'dialog',
     $virus: [updateEpidemic, hamlism],
     _derivationPath: '[44, 0, 0, 0, 0]',
+    _customDerivationPath: [],
     _network: 'Bitcoin',
+    _displayCustomDerivationPath: false,
     $$: [
       {
         class: 'modal-dialog modal-lg',
@@ -52,7 +54,70 @@ export function DerivationPathModal () {
                     name: 'Derivation Path',
                     id: 'derivation_path',
                     $update () { this.value = this._derivationPath },
-                    onchange (e) { this._derivationPath = e.target.value }
+                    onchange (e) {
+                      this._derivationPath = e.target.value
+                      this._displayCustomDerivationPath = this._derivationPath === '[]'
+                      if (this._derivationPath !== '[]') {
+                        this._customDerivationPath = []
+                      }
+                    }
+                  }, {
+                    class: 'form-group input-group',
+                    $update () {
+                      if (this._displayCustomDerivationPath) {
+                        this.classList.remove('invisible')
+                        this.classList.add('visible')
+                      } else {
+                        this.classList.remove('visible')
+                        this.classList.add('invisible')
+                      }
+                    },
+                    $$: [
+                      {
+                        $tag: 'span.input-group-addon.col-sm-2',
+                        $text: 'Custom Path'
+                      },
+                      {
+                        $tag: 'input',
+                        name: 'purpose-path',
+                        id: 'purpose-path',
+                        class: 'form-control col-sm-2',
+                        type: 'number',
+                        onchange (e) { this._customDerivationPath[0] = e.target.value }
+                      },
+                      {
+                        $tag: 'input',
+                        name: 'coin-type-path',
+                        id: 'coin-type-path',
+                        class: 'form-control col-sm-2',
+                        type: 'number',
+                        onchange (e) { this._customDerivationPath[1] = e.target.value }
+                      },
+                      {
+                        $tag: 'input',
+                        name: 'account-path',
+                        id: 'account-path',
+                        class: 'form-control col-sm-2',
+                        type: 'number',
+                        onchange (e) { this._customDerivationPath[2] = e.target.value }
+                      },
+                      {
+                        $tag: 'input',
+                        name: 'change-path',
+                        id: 'change-path',
+                        class: 'form-control col-sm-2',
+                        type: 'number',
+                        onchange (e) { this._customDerivationPath[3] = e.target.value }
+                      },
+                      {
+                        $tag: 'input',
+                        name: 'address-index-path',
+                        id: 'address-index-path',
+                        class: 'form-control col-sm-2',
+                        type: 'number',
+                        onchange (e) { this._customDerivationPath[4] = e.target.value }
+                      }
+                    ]
                   }
                 ]
               },
@@ -72,7 +137,13 @@ export function DerivationPathModal () {
                         let transaction = new Transaction()
                         let rsk = document.querySelector('#rsk')
                         let coin = rsk._networkName === 'Mainnet' ? 'btc' : 'testnet'
-                        let address = await transaction._addAddressFromTrezor(this._network, this._derivationPath, coin)
+                        let path = ''
+                        if (this._customDerivationPath.length === 0) {
+                          path = this._derivationPath
+                        } else {
+                          path = JSON.stringify(this._customDerivationPath)
+                        }
+                        let address = await transaction._addAddressFromTrezor(this._network, path, coin)
                         let modalRsk = document.querySelector('#modalDialogRsk')
                         modalRsk._fromRskAddress = address.toString()
                         modalRsk._rskAmount = address.balance
