@@ -115,51 +115,55 @@ export function hdNodesManager () {
         type: 'text',
         onchange (e) { this._setPath(e.target.value) }
       },
-      { class: 'form-group input-group', $$: [
-        { $tag: 'span.input-group-addon', $text: 'Existing Xpub' },
-        { $tag: 'input#multisig_setup_xpub.form-control',
-          name: 'xpub',
-          type: 'text',
-          $update () { this.value = this._xpub },
-          onchange (e) { this._xpub = e.target.value }
-        },
-        { class: 'input-group-btn add-node-group', $$: [
-          { $virus: buttonism('Add node'),
-            onclick () {
-              try {
-                let self = this
-                switch (this._networkName) {
-                  case 'rsk':
-                  case 'rsk_testnet':
-                    let hdNode = bip32.fromBase58(self._xpub, this._network())
-                    let ethWallet = Wallet.fromExtendedPublicKey(self._xpub)
-                    hdNode.ethAddress = ethWallet.getAddress().toString('hex')
-                    hdNode.getAddress = () => {
-                      switch (self._networkName) {
-                        case 'rsk':
-                        case 'rsk_testnet':
-                          return hdNode.ethAddress
-                        default:
-                          return hdNode.keyPair.getAddress()
+      { class: 'form-group input-group',
+        $$: [
+          { $tag: 'span.input-group-addon', $text: 'Existing Xpub' },
+          { $tag: 'input#multisig_setup_xpub.form-control',
+            name: 'xpub',
+            type: 'text',
+            $update () { this.value = this._xpub },
+            onchange (e) { this._xpub = e.target.value }
+          },
+          {
+            class: 'input-group-btn add-node-group',
+            $$: [{
+              $virus: buttonism('Add node'),
+              onclick () {
+                try {
+                  let self = this
+                  switch (this._networkName) {
+                    case 'rsk':
+                    case 'rsk_testnet':
+                      let hdNode = bip32.fromBase58(self._xpub, this._network())
+                      let ethWallet = Wallet.fromExtendedPublicKey(self._xpub)
+                      hdNode.ethAddress = ethWallet.getAddress().toString('hex')
+                      hdNode.getAddress = () => {
+                        switch (self._networkName) {
+                          case 'rsk':
+                          case 'rsk_testnet':
+                            return hdNode.ethAddress
+                          default:
+                            return hdNode.keyPair.getAddress()
+                        }
                       }
-                    }
-                    hdNode.getBalance = async () => {
-                      let transaction = new Transaction()
-                      return transaction.getRskBalance(hdNode.getAddress())
-                    }
-                    this._hdNodes.push(hdNode)
-                    break
-                  default:
-                    this._addHdNodeFromXpub(this._xpub)
-                    break
+                      hdNode.getBalance = async () => {
+                        let transaction = new Transaction()
+                        return transaction.getRskBalance(hdNode.getAddress())
+                      }
+                      this._hdNodes.push(hdNode)
+                      break
+                    default:
+                      this._addHdNodeFromXpub(this._xpub)
+                      break
+                  }
+                } catch (error) {
+                  showError(error)
                 }
-              } catch (error) {
-                showError(error)
               }
-            }
+            }]
           }
-        ]}
-      ]},
+        ]
+      },
       { $virus: buttonism('Add node from Trezor'),
         'data-id': 'add-node-from-trezor',
         onclick () { this._hdNodeFromTrezor() }

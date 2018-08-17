@@ -54,7 +54,7 @@ test('Creates a Trezor Hd Node', async t => {
       return ajaxResponse({2: '0.00001000'})
     } else if (params.method === 'POST' && /transactions\/broadcast/.test(params.url)) {
       return ajaxResponse(null)
-    } else if (params.method === 'GET' && /balance\?since/.test(params.url)) {
+    } else if (params.method === 'GET' && /balance/.test(params.url)) {
       return ajaxResponse('10000')
     }
   })
