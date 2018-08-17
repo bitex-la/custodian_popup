@@ -1,4 +1,3 @@
-import $ from 'jquery'
 import { ClientFunction } from 'testcafe'
 import fs from 'fs'
 
@@ -8,7 +7,7 @@ export async function mockJQueryAjax (t, responseCallback) {
 
   var clientFunction = ClientFunction((responseCallback) => {
     function ajaxResponse (response) {
-      var deferred = $.Deferred().resolve(response)
+      var deferred = $.Deferred().resolve(response).reject(response).catch(response)
       return deferred.promise()
     }
     $.ajax = (params) => {
