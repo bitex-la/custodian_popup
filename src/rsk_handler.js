@@ -40,7 +40,7 @@ export function rskHandler () {
         $text: ' '
       }, {
         $virus: buttonismWithSize('Send SBTC', 'success', 'small'),
-        'data-id': 'rsk-tx-creation',
+        'data-id': 'rsk-tx-creation-sbtc',
         'data-toggle': 'modal',
         'data-target': '#modalDialogRsk',
         onclick (e) {
