@@ -31,7 +31,8 @@ test('Creates a Trezor Hd Node', async t => {
               position: 0
             },
             address: {
-              path: []
+              path: [],
+              address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
             }
           }
         },
@@ -43,7 +44,8 @@ test('Creates a Trezor Hd Node', async t => {
               position: 1
             },
             address: {
-              path: []
+              path: [],
+              address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
             }
           }
         }]

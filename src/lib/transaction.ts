@@ -255,6 +255,7 @@ export class Transaction {
   async getBalance(network: string, address: string): Promise<string> {
     config.nodeSelected = config._chooseBackUrl(network);
     let transaction = await TransactionService(config);
+    debugger
     return transaction.balance(address);
   }
 

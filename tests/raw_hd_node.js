@@ -26,7 +26,7 @@ test('Creates a Raw Hd Node', async t => {
       return ajaxResponse({data: hdWallet})
     } else if (params.method === 'GET' && /hd_wallets\/123\/relationships\/addresses/.test(params.url)) {
       return ajaxResponse({data: [{attributes: {address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'}}]})
-    } else if (params.method === 'GET' && /hd_wallets\/123\/get_utxos\?since=0&limit=1000/.test(params.url)) {
+    } else if (params.method === 'GET' && /hd_wallets\/123\/get_utxos\?since=0/.test(params.url)) {
       return ajaxResponse({
         data: [{
           attributes: {
@@ -36,7 +36,8 @@ test('Creates a Raw Hd Node', async t => {
               position: 0
             },
             address: {
-              path: []
+              path: [],
+              address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
             }
           }
         },
@@ -48,7 +49,8 @@ test('Creates a Raw Hd Node', async t => {
               position: 1
             },
             address: {
-              path: []
+              path: [],
+              address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
             }
           }
         }
