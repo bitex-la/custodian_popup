@@ -16,13 +16,14 @@ export function rskModal () {
     _fromRskAddress: '',
     _toRskAddress: '',
     _networkName: '',
-    _path: '',
+    _path: '[]',
     _disableToAddress: false,
     _network: 'Bitcoin',
     _clear () {
       this._rskAmount = 0
       this._fromRskAddress = ''
       this._toRskAddress = ''
+      this._path = '[]'
     },
     $$: [
       {
@@ -83,7 +84,6 @@ export function rskModal () {
                       {
                         class: 'input-group-btn add-node-group',
                         $$: [
-                          DerivationPathModal(),
                           {
                             $virus: buttonism('Add address from Trezor'),
                             'data-toggle': 'modal',
@@ -144,6 +144,22 @@ export function rskModal () {
                         onchange (e) {
                           this._rskAmount = e.target.value
                         }
+                      },
+                      {
+                        class: 'input-group-btn add-node-group',
+                        $$: [
+                          {
+                            $virus: buttonism('Get balance'),
+                            'data-id': 'add-balance',
+                            async onclick () {
+                              let self = document.querySelector('#modalDialogRsk')
+                              let transaction = new Transaction()
+                              let balance = await transaction.getRskBalance(this._fromRskAddress)
+                              this._rskAmount = balance
+                              self.$update()
+                            }
+                          }
+                        ]
                       }
                     ]
                   }
@@ -159,23 +175,30 @@ export function rskModal () {
                   },
                   {
                     $virus: buttonismWithSize('Submit', 'primary', 'small'),
-                    'data-dismiss': 'modal',
                     'data-id': 'create-rsk-modal-tx',
                     onclick () {
                       let self = this
                       let transaction = new Transaction()
-                      try {
-                        switch (self._network) {
-                          case 'Bitcoin':
-                            transaction.sendBtcTransaction(self._networkName, JSON.parse(self._path), self._toRskAddress, self._fromRskAddress, parseInt(self._rskAmount))
-                            break
-                          case 'Rsk':
-                            transaction.sendRskTransaction(self._networkName, JSON.parse(self._path), self._toRskAddress, self._fromRskAddress, null, parseInt(self._rskAmount), null)
-                            break
+                      let path = JSON.parse(self._path)
+                      if (path.length === 0) {
+                        let modalDerivation = document.querySelector('#modalDerivation')
+                        modalDerivation._fromTrezor = false
+                        window.$('#modalDerivation').modal('show')
+                      } else {
+                        try {
+                          switch (self._network) {
+                            case 'Bitcoin':
+                              transaction.sendBtcTransaction(self._networkName, path, self._toRskAddress, self._fromRskAddress, parseInt(self._rskAmount))
+                              break
+                            case 'Rsk':
+                              transaction.sendRskTransaction(self._networkName, path, self._toRskAddress, self._fromRskAddress, null, parseInt(self._rskAmount), null)
+                              break
+                          }
+                          showSuccess('Transaction broadcasted')
+                          window.$('#modalDialogRsk').modal('hide')
+                        } catch (e) {
+                          showError(e)
                         }
-                        showSuccess('Transaction broadcasted')
-                      } catch (e) {
-                        showError(e)
                       }
                     }
                   }
@@ -184,7 +207,8 @@ export function rskModal () {
             ]
           }
         ]
-      }
+      },
+      DerivationPathModal()
     ]
   }
 }

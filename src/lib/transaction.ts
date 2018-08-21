@@ -255,7 +255,6 @@ export class Transaction {
   async getBalance(network: string, address: string): Promise<string> {
     config.nodeSelected = config._chooseBackUrl(network);
     let transaction = await TransactionService(config);
-    debugger
     return transaction.balance(address);
   }
 
@@ -332,8 +331,10 @@ export class Transaction {
 
   async getGasPrice(): Promise<number> {
     let web3 = this.getWeb3();
-    let rawGas: any = await web3.eth.getBlock('latest');
-    return (parseInt(rawGas.minimumGasPrice) * 10000);
+    let getLatestBlock: any = await web3.eth.getBlock('latest');
+    let rawGas = parseFloat(getLatestBlock.minimumGasPrice);
+    let gasPrice = rawGas === 0 ? 0.001 : rawGas;
+    return (gasPrice * 10000);
   }
 
   getGasLimit(data: string): number {

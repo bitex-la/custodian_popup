@@ -16,6 +16,7 @@ export function DerivationPathModal () {
     _customDerivationPath: [],
     _network: 'Bitcoin',
     _displayCustomDerivationPath: false,
+    _fromTrezor: true,
     $$: [
       {
         class: 'modal-dialog modal-lg',
@@ -143,10 +144,13 @@ export function DerivationPathModal () {
                         } else {
                           path = JSON.stringify(this._customDerivationPath)
                         }
-                        let address = await transaction._addAddressFromTrezor(this._network, path, coin)
+
                         let modalRsk = document.querySelector('#modalDialogRsk')
-                        modalRsk._fromRskAddress = address.toString()
-                        modalRsk._rskAmount = address.balance
+                        if (this._fromTrezor) {
+                          let address = await transaction._addAddressFromTrezor(this._network, path, coin)
+                          modalRsk._fromRskAddress = address.toString()
+                          modalRsk._rskAmount = address.balance
+                        }
                         modalRsk._path = this._derivationPath
                         modalRsk.$update()
                         $('#modalDerivation').modal('hide')
