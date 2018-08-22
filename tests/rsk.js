@@ -1,10 +1,25 @@
 import { Selector } from 'testcafe'
 import { mockTrezor } from './trezor.js'
+import { mockXmlHttpRequest } from './xmlHttpRequest.js'
+
+// const mock = RequestMock().onRequestTo(request => {
+//   return /mycrypto/.test(request.url) &&
+//          request.method === 'POST' &&
+//          request.body === '{"jsonrpc":"2.0","id":7,"method":"eth_getBalance","params":["0xb5ae11144f988735aecf469b96b72f979736dbcc","latest"]}' &&
+//          request.headers['content-type'] === 'application/json'
+// }).respond('20000')
+
+// const mock = RequestMock().onRequestTo(/mycrypto/).respond((req, res) => {
+//   res.headers['Access-Control-Allow-Origin'] = '*'
+//   res.statusCode = '200'
+//   res.setBody("{'jsonrpc': '2.0', 'id': 2, 'result': '0x4E20'}")
+// })
 
 fixture(`Testing Rsk transactions`).page(`http://localhost:9966`)
 
 test('Creates and test a rsk transaction', async t => {
   mockTrezor(t)
+  mockXmlHttpRequest(t)
 
   const selectNetwork = Selector('#setup_network')
   const selectPath = Selector('#derivation_path')

@@ -38,9 +38,11 @@
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
     "mock-trezor": "^1.0.9",
+    "mock-xmlhttprequest": "^2.0.0",
     "trezor-connect": "^5.0.28",
     "trezor.js": "6.1.0",
-    "web3": "^1.0.0-beta.34"
+    "web3": "^1.0.0-beta.34",
+    "xhr-mock": "^2.4.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
