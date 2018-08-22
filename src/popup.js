@@ -6,10 +6,8 @@ import _ from 'lodash'
 import Popper from './lib/popper.min.js'
 import * as bitcoin from 'bitcoinjs-lib'
 
-import {loadDeviceHandler} from './load_device_handler.js'
 import {multisigSetupHandler} from './multisig'
 import {signingHandler} from './signing_handler.js'
-import {debuggerHandler} from './debugger_handler.js'
 import {walletHandler} from './wallets_handler.js'
 import {rskHandler} from './rsk_handler.js'
 import {hamlism} from './lib/hamlism.js'
@@ -40,8 +38,6 @@ window.app = {
   $$: [
     signingHandler(),
     multisigSetupHandler(),
-    loadDeviceHandler(),
-    debuggerHandler(),
     walletHandler(),
     rskHandler()
   ]
