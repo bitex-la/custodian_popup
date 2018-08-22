@@ -74,6 +74,7 @@ export function rskModal () {
                         id: 'from-address-rsk',
                         class: 'form-control',
                         type: 'text',
+                        disabled: true,
                         $update () {
                           this.value = this._fromRskAddress
                         },
