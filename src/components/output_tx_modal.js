@@ -101,6 +101,7 @@ export function modalTx () {
                             try {
                               let transaction = new Transaction()
                               this._address = await transaction.getFederationAdress(this._networkName.charAt(0).toUpperCase() + this._networkName.slice(1))
+                              document.querySelector('#modalDialogTx').$update()
                             } catch (error) {
                               showError(error)
                             }
