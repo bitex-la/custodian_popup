@@ -9,6 +9,8 @@ export class Config {
   rskTestNetPath: number[] = [44, 37310, 0, 0, 0];
   defaultPath: number[] = [44, 0, 0, 0, 0];
   defaultTestnetPath: number[] = [44, 1, 0, 0, 0];
+  defaultSegwitPath: number[] = [49, 0, 0, 0, 0];
+  defaultSegwitTestnetPath: number[] = [49, 1, 0, 0, 0];
 
   _derivationPaths() {
     return [{
@@ -17,6 +19,12 @@ export class Config {
     }, {
       text: "Testnet m/44'/1'/0'/0'/0",
       id: this.defaultTestnetPath
+    }, {
+      text: "Bitcoin Segwit m/49'/0'/0'/0'/0",
+      id: this.defaultSegwitPath
+    }, {
+      text: "Testnet Segwit m/49'/1'/0'/0'/0",
+      id: this.defaultSegwitTestnetPath
     }, {
       text: "Rsk m/44'/137'/0'/0'/0",
       id: this.rskMainNetPath
