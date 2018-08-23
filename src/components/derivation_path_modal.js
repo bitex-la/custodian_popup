@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import { hamlism } from '../lib/hamlism.js'
+import { hamlism } from '../lib/hamlism'
 import { updateEpidemic } from '../lib/update_epidemic.js'
 import { selectObjectGroupism, buttonismWithSize } from '../lib/bootstrapism.js'
 import { Transaction } from '../lib/transaction'

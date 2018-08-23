@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { hamlism } from '../lib/hamlism.js'
+import { hamlism } from '../lib/hamlism'
 
 export function addressesList () {
   return {

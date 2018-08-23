@@ -10,7 +10,7 @@ import {multisigSetupHandler} from './multisig'
 import {signingHandler} from './signing_handler.js'
 import {walletHandler} from './wallets_handler.js'
 import {rskHandler} from './rsk_handler.js'
-import {hamlism} from './lib/hamlism.js'
+import {hamlism} from './lib/hamlism'
 import {tabbism} from './lib/bootstrapism.js'
 import {updateEpidemic} from './lib/update_epidemic.js'
 

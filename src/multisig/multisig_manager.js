@@ -1,7 +1,7 @@
 import { updateEpidemic } from '../lib/update_epidemic.js'
 import { CustodianManager } from '../services/custodian_manager.js'
 import { buttonism, formGroupism } from '../lib/bootstrapism.js'
-import { hamlism } from '../lib/hamlism.js'
+import { hamlism } from '../lib/hamlism'
 import config from '../config'
 
 export function multisigManager () {

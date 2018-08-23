@@ -1,4 +1,4 @@
-import { hamlism } from '../lib/hamlism.js'
+import { hamlism } from '../lib/hamlism'
 import { Transaction } from '../lib/transaction'
 import { updateEpidemic } from '../lib/update_epidemic.js'
 import { buttonism, buttonismWithSize } from '../lib/bootstrapism.js'

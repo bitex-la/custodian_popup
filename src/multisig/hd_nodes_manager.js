@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { buttonism, buttonismWithSize, formGroupism } from '../lib/bootstrapism.js'
-import { hamlism } from '../lib/hamlism.js'
+import { hamlism } from '../lib/hamlism'
 import { showError, loading, notLoading } from '../messages'
 import { CustodianManager } from '../services/custodian_manager.js'
 import { Transaction } from '../lib/transaction'

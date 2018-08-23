@@ -1,4 +1,4 @@
-import { hamlism } from './hamlism.js'
+import { hamlism } from './hamlism'
 import $ from 'jquery'
 import _ from 'lodash'
 

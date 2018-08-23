@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { hamlism } from './lib/hamlism.js'
+import { hamlism } from './lib/hamlism'
 import { updateEpidemic } from './lib/update_epidemic.js'
 import { selectGroupism, selectObjectGroupism, buttonismWithSize } from './lib/bootstrapism.js'
 import { showError } from './messages'
