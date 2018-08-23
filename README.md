@@ -11,4 +11,3 @@
 
 - In order to send Smart Bitcoins, the Rsk Address has to be obtained through Trezor, the address can not be introduced manually.
 - Once an address is included in the whitelist, must be used once. The address should be included in the whitelist again for another use.
-- You have to send back the whole amount to get BTC back.
