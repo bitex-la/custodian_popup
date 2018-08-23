@@ -1,4 +1,4 @@
-import { baseService } from './base_service.js'
+import { baseService } from './base_service'
 
 export function walletService (config) {
   return {

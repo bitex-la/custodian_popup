@@ -1,5 +1,5 @@
 
-class Config {
+export class Config {
   btcNodeUrl: string = '/api/btc';
   bchNodeUrl: string = '/api/bch';
   ltcNodeUrl: string = '/api/ltc';
