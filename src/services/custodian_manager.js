@@ -1,32 +1,32 @@
 import { walletService } from '../services/wallet_service.js'
-import { showError, showInfo } from '../messages.js'
+import { showError, showInfo } from '../messages'
 
-export function CustodianManager(config) {
+export function CustodianManager (config) {
   return {
-    _createWallet(type, wallet, hdNodes, buildAddress) {
+    _createWallet (type, wallet, hdNodes, buildAddress) {
       walletService(config).create(`/${type}`,
         wallet,
         (walletResponse) => {
-          _.forEach(hdNodes, (node) => {
+          window._.forEach(hdNodes, (node) => {
             let address = buildAddress(node.getAddress())
             walletService(config).create(`/${type}/${walletResponse.data.id}/relationships/addresses`,
               address,
-              (address) => showInfo('Address saved'),
+              () => showInfo(`Address saved`),
               (error) => showError(error.statusText))
           })
           showInfo('Wallet saved')
         },
         (error) => showError(error.statusText))
     },
-    _sendMultisigToCustodian(wallet) {
-      let xpubs = _.map(wallet._hdNodes, (node) => node.neutered().toBase58())
+    _sendMultisigToCustodian (wallet) {
+      let xpubs = window._.map(wallet._hdNodes, (node) => node.neutered().toBase58())
 
       let multisigWallet = {
         data: {
           attributes: {
             version: wallet._hdNodes.length.toString(),
             xpubs: xpubs,
-            signers: parseInt(wallet._required),
+            signers: parseInt(wallet._required)
           },
           type: 'multisig_wallet'
         }
@@ -47,7 +47,7 @@ export function CustodianManager(config) {
           }
         })
     },
-    _sendHdToCustodian(node) {
+    _sendHdToCustodian (node) {
       let hdWallet = {
         data: {
           attributes: {
@@ -73,7 +73,7 @@ export function CustodianManager(config) {
           }
         })
     },
-    _sendPlainToCustodian(node) {
+    _sendPlainToCustodian (node) {
       let plainWallet = {
         data: {
           attributes: {

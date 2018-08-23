@@ -2,7 +2,7 @@ import { hamlism } from '../lib/hamlism.js'
 import { Transaction } from '../lib/transaction'
 import { updateEpidemic } from '../lib/update_epidemic.js'
 import { buttonism, buttonismWithSize } from '../lib/bootstrapism.js'
-import { showError, showSuccess } from '../messages.js'
+import { showError, showSuccess } from '../messages'
 import { DerivationPathModal } from './derivation_path_modal.js'
 
 export function rskModal () {

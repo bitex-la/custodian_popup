@@ -6,9 +6,8 @@ fixture(`Getting Started`).page(`http://localhost:9966`)
 test('Check navbar', async t => {
   await t.expect(Selector('.nav-item:first-child a').innerText).eql('Signing')
   await t.expect(Selector('.nav-item:nth-child(2) a').innerText).eql('Multisig setup')
-  await t.expect(Selector('.nav-item:nth-child(3) a').innerText).eql('Load device')
-  await t.expect(Selector('.nav-item:nth-child(4) a').innerText).eql('Debugger')
-  await t.expect(Selector('.nav-item:nth-child(5) a').innerText).eql('Wallets')
+  await t.expect(Selector('.nav-item:nth-child(3) a').innerText).eql('Wallets')
+  await t.expect(Selector('.nav-item:nth-child(4) a').innerText).eql('Rsk')
 })
 
 test('Creates a Raw Hd Node', async t => {

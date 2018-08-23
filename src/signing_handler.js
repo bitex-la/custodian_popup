@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { Transaction } from './lib/transaction'
 import * as bitcoin from 'bitcoinjs-lib'
-import { showError, showSuccess } from './messages.js'
+import { showError, showSuccess } from './messages'
 import { selectGroupism } from './lib/bootstrapism.js'
 import { updateEpidemic } from './lib/update_epidemic.js'
 import { TransactionService } from './services/transaction_service.js'

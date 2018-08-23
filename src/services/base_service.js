@@ -1,25 +1,25 @@
-export function baseService(config) {
+export function baseService (config) {
   return {
-    postToNode (url, data, success_callback, error_callback) {
-      return jQuery.ajax({
+    postToNode (url, data, successCallback, errorCallback) {
+      return window.jQuery.ajax({
         method: 'POST',
         url: config[config.nodeSelected] + url,
         contentType: 'application/json; charset=utf-8',
         data: JSON.stringify(data),
-        success: success_callback,
-        error: error_callback
+        success: successCallback,
+        error: errorCallback
       })
     },
-    listFromNode (url, success_callback, error_callback) {
-      return this.getMethod(config[config.nodeSelected] + url, success_callback, error_callback)
+    listFromNode (url, successCallback, errorCallback) {
+      return this.getMethod(config[config.nodeSelected] + url, successCallback, errorCallback)
     },
-    getMethod (url, success_callback, error_callback) {
-      return jQuery.ajax({
+    getMethod (url, successCallback, errorCallback) {
+      return window.jQuery.ajax({
         method: 'GET',
         url: url,
         contentType: 'application/json; charset=utf-8',
-        success: success_callback,
-        error: error_callback
+        success: successCallback,
+        error: errorCallback
       })
     }
   }

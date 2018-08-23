@@ -1,12 +1,12 @@
-import {baseService} from './base_service.js'
+import { baseService } from './base_service.js'
 
-export function walletService(config) {
+export function walletService (config) {
   return {
-    list (url, success_callback, error_callback) {
-      baseService(config).listFromNode(url).done(success_callback).fail(error_callback)
+    list (url, successCallback, errorCallback) {
+      baseService(config).listFromNode(url).done(successCallback).fail(errorCallback)
     },
-    create (url, data, success_callback, error_callback) {
-      baseService(config).postToNode(url, data).done(success_callback).fail(error_callback)
+    create (url, data, successCallback, errorCallback) {
+      baseService(config).postToNode(url, data).done(successCallback).fail(errorCallback)
     }
   }
 }

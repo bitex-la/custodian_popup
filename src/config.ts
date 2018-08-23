@@ -89,5 +89,5 @@ class Config {
   }
 }
 
-let config = new Config()
-export default config
+let config = new Config();
+export default config;

@@ -1,15 +1,13 @@
-import {baseService} from './base_service.js'
-
-export function blockdozerService() {
+export function blockdozerService () {
   return {
     satoshisPerByte (network, defaultUrl) {
       if (defaultUrl) {
-        return jQuery.ajax({
+        return window.jQuery.ajax({
           method: 'GET',
           url: 'https://blockdozer.com/api/utils/estimatefee'
         })
       } else {
-        return jQuery.ajax({
+        return window.jQuery.ajax({
           method: 'GET',
           url: `${this.chooseRootUrl(network)}/api/utils/estimatefee`
         })

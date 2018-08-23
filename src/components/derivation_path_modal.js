@@ -4,7 +4,7 @@ import { updateEpidemic } from '../lib/update_epidemic.js'
 import { selectObjectGroupism, buttonismWithSize } from '../lib/bootstrapism.js'
 import { Transaction } from '../lib/transaction'
 import config from '../config'
-import { showError } from '../messages.js'
+import { showError } from '../messages'
 
 export function DerivationPathModal () {
   return {

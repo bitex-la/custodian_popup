@@ -1,10 +1,7 @@
-import {baseService} from './base_service.js'
-
-export function blockcypherService(_networkName) {
-
+export function blockcypherService (_networkName) {
   return {
     _getExternalApi (_networkName) {
-      switch(_networkName) {
+      switch (_networkName) {
         case 'bitcoin':
           return 'https://api.blockcypher.com/v1/btc/main'
         case 'testnet':
@@ -18,7 +15,7 @@ export function blockcypherService(_networkName) {
       }
     },
     balance (_networkName, address) {
-      return jQuery.ajax({
+      return window.jQuery.ajax({
         method: 'GET',
         url: `${this._getExternalApi(_networkName)}/addrs/${address}/balance`
       })

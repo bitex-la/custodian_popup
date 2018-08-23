@@ -4,7 +4,7 @@ import { hamlism } from '../lib/hamlism.js'
 import { buttonism, buttonismWithSize, selectObjectGroupism } from '../lib/bootstrapism.js'
 import { Transaction } from '../lib/transaction'
 import { updateEpidemic } from '../lib/update_epidemic.js'
-import { showError } from '../messages.js'
+import { showError } from '../messages'
 
 export function modalTx () {
   return {
