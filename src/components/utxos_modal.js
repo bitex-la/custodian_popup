@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import { buttonismWithSize } from '../lib/bootstrapism.js'
+import { buttonismWithSize } from '../lib/bootstrapism'
 
 export function modal (addUtxos) {
   return {

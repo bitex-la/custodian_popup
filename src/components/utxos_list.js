@@ -1,5 +1,5 @@
 import { hamlism } from '../lib/hamlism'
-import { buttonismWithSize } from '../lib/bootstrapism.js'
+import { buttonismWithSize } from '../lib/bootstrapism'
 
 export function utxosList () {
   return {

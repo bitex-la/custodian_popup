@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { buttonism, buttonismWithSize, formGroupism } from '../lib/bootstrapism.js'
+import { buttonism, buttonismWithSize, formGroupism } from '../lib/bootstrapism'
 import { hamlism } from '../lib/hamlism'
 import { showError, loading, notLoading } from '../messages'
 import { CustodianManager } from '../services/custodian_manager.js'

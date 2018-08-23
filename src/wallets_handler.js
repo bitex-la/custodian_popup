@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { hamlism } from './lib/hamlism'
 import { updateEpidemic } from './lib/update_epidemic.js'
-import { selectGroupism, selectObjectGroupism, buttonismWithSize } from './lib/bootstrapism.js'
+import { selectGroupism, selectObjectGroupism, buttonismWithSize } from './lib/bootstrapism'
 import { showError } from './messages'
 import { modal } from './components/utxos_modal.js'
 import { modalTx } from './components/output_tx_modal.js'

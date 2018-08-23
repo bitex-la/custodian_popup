@@ -1,9 +1,8 @@
 import { hamlism } from './hamlism'
-import $ from 'jquery'
-import _ from 'lodash'
+import Cell from '../types/cell'
 
-export function formGroupism (label) {
-  return function (component) {
+export function formGroupism (label: string) {
+  return function (component: Cell) {
     delete component.$virus
     component.class = 'form-control'
 
@@ -14,14 +13,14 @@ export function formGroupism (label) {
 
     if (component.$help) {
       $$.push({
-        $init () { $(this).popover({ trigger: 'focus' }) },
+        $init () { (<any> window).$(this).popover({ trigger: 'focus' }) },
         $tag: 'span.input-group-btn a.btn.btn-secondary',
         $text: '?',
         role: 'button',
         tabindex: 0,
         'data-toggle': 'popover',
         'data-trigger': 'focus',
-        'title': component.$help_title || "What's this?",
+        'title': component.$helpTitle || "What's this?",
         'data-content': component.$help
       })
     }
@@ -30,8 +29,8 @@ export function formGroupism (label) {
   }
 }
 
-export function formCheckism (label) {
-  return function (component) {
+export function formCheckism (label: string) {
+  return function (component: Cell) {
     delete component.$virus
     Object.assign(component, {
       $type: 'input',
@@ -52,12 +51,12 @@ export function formCheckism (label) {
   }
 }
 
-export function selectGroupism (label, options, selected) {
-  return function (component) {
+export function selectGroupism (label: string, options: string[]) {
+  return function (component: Cell) {
     let select = Object.assign(component, {
       $type: 'select',
       class: 'form-control',
-      $components: _.map(options, (name) => {
+      $components: (<any> window)._.map(options, (name: string) => {
         return {$type: 'option', $text: name, value: name}
       })
     })
@@ -72,13 +71,19 @@ export function selectGroupism (label, options, selected) {
   }
 }
 
-export function selectObjectGroupism (label, options, selected) {
-  return function (component) {
+interface Option {
+  text: string;
+  id: string;
+  selected: string;
+}
+
+export function selectObjectGroupism (label: string, options: Option[], selected: string) {
+  return function (component: Cell) {
     let select = Object.assign(component, {
       $type: 'select',
       class: 'form-control',
-      $components: _.map(options, (obj) => {
-        let option = {$type: 'option', $text: obj.text, value: typeof (obj.id) === 'string' ? obj.id : JSON.stringify(obj.id)}
+      $components: (<any> window)._.map(options, (obj: Option) => {
+        let option: Cell = {$type: 'option', $text: obj.text, value: typeof (obj.id) === 'string' ? obj.id : JSON.stringify(obj.id)}
         if (obj.text === selected) {
           option['selected'] = ''
         }
@@ -97,26 +102,26 @@ export function selectObjectGroupism (label, options, selected) {
   }
 }
 
-export function buttonism (label, kind = 'primary') {
-  return function (component) {
-    return hamlism(_.merge(component, {
+export function buttonism (label: string, kind: string = 'primary') {
+  return function (component: Cell) {
+    return hamlism((<any> window)._.merge(component, {
       $tag: `button.btn.btn-block.btn-${kind}`,
       $text: label
     }))
   }
 }
 
-export function buttonismWithSize (label, kind = 'primary', size = 'block') {
-  return function (component) {
-    return hamlism(_.merge(component, {
+export function buttonismWithSize (label: string, kind: string = 'primary', size: string = 'block') {
+  return function (component: Cell) {
+    return hamlism((<any> window)._.merge(component, {
       $tag: `button.btn.btn-${size}.btn-${kind}`,
       $text: label
     }))
   }
 }
 
-export function cardism (header) {
-  return function (component) {
+export function cardism (header: string) {
+  return function (component: Cell) {
     return hamlism({
       $tag: '.card.my-3',
       $$: [
@@ -127,13 +132,13 @@ export function cardism (header) {
   }
 }
 
-export function tabbism (component) {
-  let navs = _.map(component.$components, (tab) => {
+export function tabbism (component: Cell) {
+  let navs = (<any> window)._.map(component.$components, (tab: {id: string}) => {
     return hamlism({
       $tag: 'li.nav-item',
       $init () {
-        $(this).on('shown.bs.tab', function (e) {
-          $(`#tab_${tab.id}`).find('input:first').focus()
+        (<any> window).$(this).on('shown.bs.tab', function (e: EventTarget) {
+          (<any> window).$(`#tab_${tab.id}`).find('input:first').focus()
         })
       },
       $$: [{
@@ -141,12 +146,12 @@ export function tabbism (component) {
         'data-toggle': 'tab',
         href: `#tab_${tab.id}`,
         role: 'tab',
-        $text: _.upperFirst(_.lowerCase(tab.id))
+        $text: (<any> window)._.upperFirst((<any> window)._.lowerCase(tab.id))
       }]
     })
   })
 
-  let tabs = _.map(component.$components, (tab) => {
+  let tabs = (<any> window)._.map(component.$components, (tab: {id: string}) => {
     return {
       class: 'tab-pane',
       id: `tab_${tab.id}`,
@@ -157,7 +162,7 @@ export function tabbism (component) {
 
   let initial = component.$components[0].id
   component.$init = function () {
-    $(`.nav-pills a[href="#tab_${initial}"]`).tab('show')
+    (<any> window).$(`.nav-pills a[href="#tab_${initial}"]`).tab('show')
   }
   component.$components = [
     { $type: 'ul', class: 'nav nav-pills', role: 'tablist', $components: navs },

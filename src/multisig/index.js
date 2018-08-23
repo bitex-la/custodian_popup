@@ -1,4 +1,4 @@
-import { selectGroupism } from '../lib/bootstrapism.js'
+import { selectGroupism } from '../lib/bootstrapism'
 import { updateEpidemic } from '../lib/update_epidemic.js'
 import networks from '../lib/networks.js'
 import { hdNodesManager } from './hd_nodes_manager.js'

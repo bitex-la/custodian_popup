@@ -1,7 +1,7 @@
 import { hamlism } from '../lib/hamlism'
 import { Transaction } from '../lib/transaction'
 import { updateEpidemic } from '../lib/update_epidemic.js'
-import { buttonism, buttonismWithSize } from '../lib/bootstrapism.js'
+import { buttonism, buttonismWithSize } from '../lib/bootstrapism'
 import { showError, showSuccess } from '../messages'
 import { DerivationPathModal } from './derivation_path_modal.js'
 
