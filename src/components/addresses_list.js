@@ -47,7 +47,7 @@ export function addressesList () {
                 $tag: 'td',
                 $$: [{
                   $virus: buttonismWithSize('Create Transaction', 'primary', 'block'),
-                  'data-id': 'create-transaction',
+                  'data-id': 'create-address-transaction',
                   'data-toggle': 'modal',
                   'data-target': '#modalDialogTx',
                   onclick () {

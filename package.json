@@ -43,6 +43,7 @@
     "web3": "^1.0.0-beta.35"
   },
   "devDependencies": {
+    "@types/jquery": "^3.3.6",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.4",
     "babel-plugin-add-module-exports": "^0.1.2",

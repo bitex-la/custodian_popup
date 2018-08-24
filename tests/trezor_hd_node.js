@@ -21,7 +21,7 @@ test('Creates a Trezor Hd Node', async t => {
       return ajaxResponse({data: hdWallet})
     } else if (params.method === 'GET' && /hd_wallets\/123\/relationships\/addresses/.test(params.url)) {
       return ajaxResponse({data: [{attributes: {address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'}}]})
-    } else if (params.method === 'GET' && /hd_wallets\/123\/get_utxos\?since=0&limit=1000/.test(params.url)) {
+    } else if (params.method === 'GET' && /hd_wallets\/123\/get_utxos\?since=0&limit=1000000/.test(params.url)) {
       return ajaxResponse({
         data: [{
           attributes: {
@@ -47,6 +47,23 @@ test('Creates a Trezor Hd Node', async t => {
               path: [],
               address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
             }
+          }
+        }]
+      })
+    } else if (params.method === 'GET' && /plain_wallets\/relationships\/addresses\/(.*)\/get_utxos\?since=0&limit=1000000/.test(params.url)) {
+      return ajaxResponse({
+        data: [{
+          attributes: {
+            satoshis: 123000,
+            transaction_hash: 'hash456',
+            position: 0
+          }
+        },
+        {
+          attributes: {
+            satoshis: 789000,
+            transaction_hash: 'hash456',
+            position: 0
           }
         }]
       })
@@ -89,6 +106,22 @@ test('Creates a Trezor Hd Node', async t => {
     .click(selectScriptType)
     .click(selectScriptType.find('option').withText('PAYTOADDRESS'))
     .typeText('input[name="address"]', 'mgYDL9xvE9bDAXQdWseNttP5V6iaRmBVZK')
+    .click('button[data-id="add-output-tx"]')
+    .expect(Selector('.table-outputs-tx').textContent).contains('912000')
+    .expect(Selector('input[name="amount"]').value).eql('0')
+    .click('button[data-id="create-tx"]')
+    .expect(Selector('#tansaction_json').textContent).contains('"script_type": "PAYTOADDRESS",\n      "address": "mgYDL9xvE9bDAXQdWseNttP5V6iaRmBVZK",\n      "amount": 569000')
+    .click('button#sign-transaction')
+    .expect(Selector('.serialized-hex-tx').textContent).contains('000serializedTx')
+    .click('button#broadcast-transaction')
+    .expect(Selector('.messages').textContent).contains('Transaction Broadcasted')
+    .typeText('textarea#tansaction_json', '""')
+    .click('a[href="#tab_wallets"]')
+    .click('button[data-id="create-address-transaction"]')
+    .click('button.del-utxo')
+    .expect(Selector('input[id="amount"]').value).eql('912000')
+    .click(selectScriptType)
+    .click(selectScriptType.find('option').withText('PAYTOADDRESS'))
     .click('button[data-id="add-output-tx"]')
     .expect(Selector('.table-outputs-tx').textContent).contains('912000')
     .expect(Selector('input[name="amount"]').value).eql('0')

@@ -199,7 +199,7 @@ export function walletHandler () {
                     onclick () {
                       self._walletId = wallet.id
                       self._resourceType = 'wallet'
-                      let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=10000`
+                      let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=1000000`
                       walletService(config).list(url, (successData) => {
                         self._rawTransaction = successData.data
                         let totalAmount = _.sum(_.map(successData.data, (utxo) => utxo.attributes.transaction.satoshis))

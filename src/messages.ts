@@ -6,10 +6,10 @@ class Message {
       (<any> window).$('body').prepend("<div class='messages mt-2'/>");
     }
     
-    let el = (<any> window).$(`<div class='alert alert-${type} ${extra}'>${text}</div>`);
+    let el: HTMLElement = (<any> window).$(`<div class='alert alert-${type} ${extra}'>${text}</div>`);
     (<any> window).$('.messages').append(el);
     if (hide) {
-      setTimeout(() => { (<any> window).$('.alert').remove() }, 5000)
+      setTimeout(() => { (<any> window).$('.alert').remove() }, 5000);
     }
   }
 

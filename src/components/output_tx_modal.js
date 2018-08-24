@@ -160,7 +160,7 @@ export function modalTx () {
                             $tag: 'td',
                             $text: output.amount
                           }, {
-                            $tag: 'button.close',
+                            $tag: 'button.close.del-utxo',
                             'aria-label': 'Close',
                             $$: [
                               {
