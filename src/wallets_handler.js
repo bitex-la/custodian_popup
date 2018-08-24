@@ -32,6 +32,7 @@ export function walletHandler () {
       inputs: [],
       transactions: []
     },
+    _resourceType: '',
     _addWallets (wallets) {
       this._wallets = wallets
       this._addresses = []
@@ -63,23 +64,45 @@ export function walletHandler () {
       }
     },
     $$: [
-      modal(function (walletType, walletId, since, limit) {
+      modal(function (since, limit) {
         let self = this
-        let url = `${self._walletType}/${self._walletId}/get_utxos?since=${since}&limit=${limit}`
-        walletService(config).list(url, (successData) => {
-          self._since = ''
-          self._limit = ''
-          self._displayUtxos = 'block'
-          self._rawTransaction = successData.data
-          self._addUtxos(_.map(successData.data, (utxo) => {
-            return {
-              amount: utxo.attributes.transaction.satoshis,
-              prev_hash: utxo.attributes.transaction.transaction_hash,
-              prev_index: utxo.attributes.transaction.position
-            }
-          }))
-        },
-        function (errorData) { console.log(errorData) })
+        let url = ''
+        switch (self.type) {
+          case 'wallet':
+            url = `${self._walletType}/${self._walletId}/get_utxos?since=${since}&limit=${limit}`
+            walletService(config).list(url, (successData) => {
+              self._since = ''
+              self._limit = ''
+              self._displayUtxos = 'block'
+              self._rawTransaction = successData.data
+              self._addUtxos(_.map(successData.data, (utxo) => {
+                return {
+                  amount: utxo.attributes.transaction.satoshis,
+                  prev_hash: utxo.attributes.transaction.transaction_hash,
+                  prev_index: utxo.attributes.transaction.position
+                }
+              }))
+            },
+            function (errorData) { console.log(errorData) })
+            break
+          case 'address':
+            url = `${self._walletType}/relationships/addresses/${self.address}/get_utxos?since=${since}&limit=${limit}`
+            walletService(config).list(url, (successData) => {
+              self._since = ''
+              self._limit = ''
+              self._displayUtxos = 'block'
+              self._rawTransaction = successData.data
+              self._addUtxos(_.map(successData.data, (utxo) => {
+                return {
+                  amount: utxo.attributes.satoshis,
+                  prev_hash: utxo.attributes.transaction_hash,
+                  prev_index: utxo.attributes.position
+                }
+              }))
+            },
+            function (errorData) { console.log(errorData) })
+            break
+        }
       }),
       { $virus: selectGroupism('Network', _.keys(networks), 'bitcoin'),
         name: 'network',
@@ -155,7 +178,7 @@ export function walletHandler () {
                             addresses[self._getStrAddress(address)] = 0
                           })
 
-                          let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=10000`
+                          let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=1000000`
                           walletService(config).list(url, (successData) => {
                             self._rawTransaction = successData.data
                             _.forEach(successData.data, (utxo) => {
@@ -175,6 +198,7 @@ export function walletHandler () {
                     'data-target': '#modalDialogTx',
                     onclick () {
                       self._walletId = wallet.id
+                      self._resourceType = 'wallet'
                       let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=10000`
                       walletService(config).list(url, (successData) => {
                         self._rawTransaction = successData.data

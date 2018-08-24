@@ -77,7 +77,7 @@ export function modal (addUtxos) {
                         },
                         onkeyup (e) {
                           if (e.keyCode === 13) {
-                            addUtxos.call(this, this._walletType, this._walletId, this._since, this._limit)
+                            addUtxos.call(this, this._since, this._limit)
                             $('#modalDialog').modal('hide')
                           }
                         }
@@ -98,7 +98,7 @@ export function modal (addUtxos) {
                     $virus: buttonismWithSize('Send', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     onclick () {
-                      addUtxos.call(this, this._walletType, this._walletId, this._since, this._limit)
+                      addUtxos.call(this, this._since, this._limit)
                     }
                   }
                 ]
