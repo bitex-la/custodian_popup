@@ -180,7 +180,6 @@ export function walletHandler () {
 
                           let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=1000000`
                           walletService(config).list(url, (successData) => {
-                            self._rawTransaction = successData.data
                             _.forEach(successData.data, (utxo) => {
                               let addressStr = self._walletType === '/plain_wallets' ? utxo.attributes.address.id : utxo.attributes.address.address
                               addresses[addressStr] += utxo.attributes.transaction.satoshis

@@ -22,13 +22,19 @@ interface ABIDefinition {
 
 type ABIDataTypes = "uint256" | "boolean" | "string" | "bytes" | string;
 
+interface MultiSig {
+  signatures: Array<string>;
+  m: number;
+  pubkeys: Array<{ node: { public_key: string } }>;
+}
+
 interface Input {
   address_n: Array<number>; 
   prev_hash: string; 
   prev_index: string; 
   sequence?: string;
   script_sig?: string;
-  multisig?: { pubkeys: Array<{ node: { public_key: string } }>, signatures: Array<string>, m: number }; 
+  multisig?: MultiSig; 
   script_type?: string;
 }
 
@@ -41,33 +47,39 @@ interface Output {
 
 interface InTransaction {
   outputs: Array<Output>;
-
   inputs: Array<Input>;
-    
   transactions: Array<object>;
 }
 
+interface SimpleTransaction {
+  transaction_hash: string;
+  position: string;
+  version: string;
+  locktime: number;
+  inputs: Array<{ prev_hash: string; prev_index: string; sequence: string; script_sig: string }>;
+  outputs: Array<{ amount: string; script_pubkey: string }>
+}
+
+interface AddressTransaction {
+  path: string;
+}
+
+interface CompleteTransaction {
+  address: AddressTransaction;
+  transaction: SimpleTransaction;
+  multisig: MultiSig;
+}
+
+function isCompleteTransaction(transaction: SimpleTransaction | CompleteTransaction): transaction is CompleteTransaction {
+  return (<CompleteTransaction>transaction).transaction !== undefined;
+}
+
+function isSimpleTransaction(transaction: SimpleTransaction | CompleteTransaction): transaction is SimpleTransaction {
+  return (<SimpleTransaction>transaction).transaction_hash !== undefined;
+}
+
 interface RawTx {
-  attributes: {
-    address: {
-      path: string;
-    };
-
-    transaction: {
-      transaction_hash: string;
-      position: string;
-      version: string;
-      locktime: number;
-      inputs: Array<{ prev_hash: string; prev_index: string; sequence: string; script_sig: string }>;
-      outputs: Array<{ amount: string; script_pubkey: string }>
-    };
-
-    multisig: {
-      signatures: Array<string>;
-      m: number;
-      pubkeys: Array<{ node: { public_key: string } }>;
-    }
-  }
+  attributes: CompleteTransaction | SimpleTransaction
 }
 
 interface HandleParent {
@@ -153,32 +165,54 @@ export class Transaction {
   }
 
   createTx (_this: HandleParent, _networkName: string, callback: Function) {
-    let self = this
+    let self = this;
     _.forEach(_this._rawTransaction, function (rawTx: RawTx) {
-      if (_this._walletType === '/hd_wallets') {
-        self.transaction.inputs.push({
-          address_n: rawTx.attributes.address.path.length === 0 ? config._chooseDerivationPath(_networkName) : JSON.parse(rawTx.attributes.address.path),
-          prev_hash: rawTx.attributes.transaction.transaction_hash,
-          prev_index: rawTx.attributes.transaction.position
-        });
-      } else if (_this._walletType === '/multisig_wallets') {
-        self.transaction.inputs.push({
-          address_n: rawTx.attributes.address.path.length === 0 ? config._chooseDerivationPath(_networkName) : JSON.parse(rawTx.attributes.address.path),
-          prev_hash: rawTx.attributes.transaction.transaction_hash,
-          prev_index: rawTx.attributes.transaction.position,
-          script_type: 'SPENDMULTISIG',
-          multisig: {
+      let path = [];
+      let transaction: SimpleTransaction = null;
+      let multisig: MultiSig = null;
+      if (rawTx.attributes === undefined) {
+        return;
+      }
+
+      if (isCompleteTransaction(rawTx.attributes)) {
+        if (rawTx.attributes.address.path && rawTx.attributes.address.path.length > 0) {
+          path = JSON.parse(rawTx.attributes.address.path);
+        } else {
+          path = config._chooseDerivationPath(_networkName);
+        }
+        transaction = rawTx.attributes.transaction;
+        if (rawTx.attributes.multisig) {
+          multisig = {
             signatures: rawTx.attributes.multisig.signatures,
             m: rawTx.attributes.multisig.m,
             pubkeys: rawTx.attributes.multisig.pubkeys
-          }
+          };
+        }
+      } else if (isSimpleTransaction(rawTx.attributes)) {
+        path = config._chooseDerivationPath(_networkName);
+        transaction = rawTx.attributes;
+      }
+
+      if (_this._walletType === '/hd_wallets') {
+        self.transaction.inputs.push({
+          address_n: path,
+          prev_hash: transaction.transaction_hash,
+          prev_index: transaction.position
+        });
+      } else if (_this._walletType === '/multisig_wallets') {
+        self.transaction.inputs.push({
+          address_n: path,
+          prev_hash: transaction.transaction_hash,
+          prev_index: transaction.position,
+          script_type: 'SPENDMULTISIG',
+          multisig: multisig
         });
       }
       self.transaction.transactions.push({
-        hash: rawTx.attributes.transaction.transaction_hash,
-        version: rawTx.attributes.transaction.version,
-        lock_time: rawTx.attributes.transaction.locktime,
-        inputs: _.map(rawTx.attributes.transaction.inputs, function(input: Input) {
+        hash: transaction.transaction_hash,
+        version: transaction.version,
+        lock_time: transaction.locktime,
+        inputs: _.map(transaction.inputs, function(input: Input) {
           return {
             prev_hash: input.prev_hash,
             prev_index: input.prev_index,
@@ -186,7 +220,7 @@ export class Transaction {
             script_sig: input.script_sig
           }
         }),
-        bin_outputs: _.map(rawTx.attributes.transaction.outputs, function(output: Output) {
+        bin_outputs: _.map(transaction.outputs, function(output: Output) {
           return {
             amount: output.amount.toString(),
             script_pubkey: output.script_pubkey

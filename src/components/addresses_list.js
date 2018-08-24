@@ -56,7 +56,7 @@ export function addressesList () {
 
                     let url = `/plain_wallets/relationships/addresses/${Object.keys(address)[0]}/get_utxos?since=0&limit=1000000`
                     walletService(config).list(url, (successData) => {
-                      self._rawTransaction = successData.data
+                      document.querySelector('#wallets')._rawTransaction = successData.data
                       let totalAmount = _.sum(_.map(successData.data, (utxo) => utxo.attributes.satoshis))
                       document.querySelector('#modalDialogTx')._totalAmount = totalAmount
                       document.querySelector('#modalDialogTx')._updateAmount()
