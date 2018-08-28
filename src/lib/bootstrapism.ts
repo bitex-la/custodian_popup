@@ -74,7 +74,7 @@ export function selectGroupism (label: string, options: string[]) {
 interface Option {
   text: string;
   id: string;
-  selected: string;
+  selected?: string;
 }
 
 export function selectObjectGroupism (label: string, options: Option[], selected: string) {

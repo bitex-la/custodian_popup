@@ -45,7 +45,7 @@ interface Output {
   script_pubkey?: string;
 }
 
-interface InTransaction {
+export interface InTransaction {
   outputs: Array<Output>;
   inputs: Array<Input>;
   transactions: Array<object>;

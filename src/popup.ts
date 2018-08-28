@@ -5,7 +5,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import { multisigSetupHandler } from './multisig/index.js';
 import { signingHandler } from './signing_handler';
-import { walletHandler } from './wallets_handler.js';
+import { walletHandler } from './wallets_handler';
 import { rskHandler } from './rsk_handler';
 import { hamlism } from './lib/hamlism';
 import { tabbism } from './lib/bootstrapism';

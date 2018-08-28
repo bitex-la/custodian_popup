@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import { hamlism } from './lib/hamlism'
 import { updateEpidemic } from './lib/update_epidemic.js'
 import { selectGroupism, selectObjectGroupism, buttonismWithSize } from './lib/bootstrapism'
@@ -7,13 +6,67 @@ import { modal } from './components/utxos_modal.js'
 import { modalTx } from './components/output_tx_modal.js'
 import { addressesList } from './components/addresses_list.js'
 import { utxosList } from './components/utxos_list.js'
+import { InTransaction } from './lib/transaction'
 
 import { walletService } from './services/wallet_service.js'
 
-import networks from './lib/networks.js'
+import * as networks from './lib/networks.js'
 import config from './config'
 
+type Address = { [index: string] : string };
+
+interface SingleAddress {
+  id: string;
+}
+
+interface CompleteAddress {
+  attributes: {
+    address: string
+  }
+}
+
+interface Wallet {
+  id: string;
+  attributes?: {
+    version: string;
+    xpub: string;
+    xpubs: string[];
+    signers: number[];
+  };
+}
+
+interface WalletUtxo {
+  attributes: {
+    transaction: {
+      satoshis: string;
+      transaction_hash: string;
+      position: string;
+    }
+  }
+}
+
+interface AddressUtxo {
+  attributes: {
+    satoshis: string;
+    transaction_hash: string;
+    position: string;
+    address?: {
+      id?: string;
+      address?: string;
+    };
+  }
+}
+
 export function walletHandler () {
+  let addresses: string[] = [];
+  let wallets: string[] = [];
+  let utxos: string[] = [];
+  let rawTransaction: InTransaction = {
+      outputs: [],
+      inputs: [],
+      transactions: []
+  };
+
   return {
     id: 'wallets',
     $virus: updateEpidemic,
@@ -21,34 +74,30 @@ export function walletHandler () {
     _walletType: '',
     _walletId: 0,
     _address: '',
-    _addresses: [],
+    _addresses: addresses,
     _wallet: {},
-    _wallets: [],
-    _utxos: [],
+    _wallets: wallets,
+    _utxos: utxos,
     _displayUtxos: 'none',
     _displayAddresses: 'none',
-    _rawTransaction: {
-      outputs: [],
-      inputs: [],
-      transactions: []
-    },
+    _rawTransaction: rawTransaction,
     _resourceType: '',
-    _addWallets (wallets) {
+    _addWallets (wallets: string[]) {
       this._wallets = wallets
       this._addresses = []
     },
-    _addAddresses (addresses) {
+    _addAddresses (addresses: string[]) {
       this._addresses = addresses
     },
-    _addUtxos (utxos) {
+    _addUtxos (utxos: string[]) {
       this._utxos = utxos
     },
-    _getStrAddress (address) {
+    _getStrAddress (address: SingleAddress | CompleteAddress) {
       switch (this._walletType) {
         case '/plain_wallets':
-          return address.id
+          return (<SingleAddress> address).id
         default:
-          return address.attributes.address
+          return (<CompleteAddress> address).attributes.address
       }
     },
     _buildWalletsTable () {
@@ -64,18 +113,18 @@ export function walletHandler () {
       }
     },
     $$: [
-      modal(function (since, limit) {
+      modal(function (since: string, limit: string) {
         let self = this
         let url = ''
         switch (self.type) {
           case 'wallet':
             url = `${self._walletType}/${self._walletId}/get_utxos?since=${since}&limit=${limit}`
-            walletService(config).list(url, (successData) => {
+            walletService(config).list(url, (successData: { data: WalletUtxo[] }) => {
               self._since = ''
               self._limit = ''
               self._displayUtxos = 'block'
               self._rawTransaction = successData.data
-              self._addUtxos(_.map(successData.data, (utxo) => {
+              self._addUtxos((<any> window)._.map(successData.data, (utxo: WalletUtxo) => {
                 return {
                   amount: utxo.attributes.transaction.satoshis,
                   prev_hash: utxo.attributes.transaction.transaction_hash,
@@ -83,16 +132,16 @@ export function walletHandler () {
                 }
               }))
             },
-            function (errorData) { console.log(errorData) })
+            function (errorData: string) { console.log(errorData) })
             break
           case 'address':
             url = `${self._walletType}/relationships/addresses/${self.address}/get_utxos?since=${since}&limit=${limit}`
-            walletService(config).list(url, (successData) => {
+            walletService(config).list(url, (successData: { data: AddressUtxo[] }) => {
               self._since = ''
               self._limit = ''
               self._displayUtxos = 'block'
               self._rawTransaction = successData.data
-              self._addUtxos(_.map(successData.data, (utxo) => {
+              self._addUtxos((<any> window)._.map(successData.data, (utxo: AddressUtxo) => {
                 return {
                   amount: utxo.attributes.satoshis,
                   prev_hash: utxo.attributes.transaction_hash,
@@ -100,17 +149,18 @@ export function walletHandler () {
                 }
               }))
             },
-            function (errorData) { console.log(errorData) })
+            function (errorData: string) { console.log(errorData) })
             break
         }
       }),
-      { $virus: selectGroupism('Network', _.keys(networks), 'bitcoin'),
+      { $virus: selectGroupism('Network', (<any> window)._.keys(networks)),
         name: 'network',
         $update () { this.value = this._networkName },
-        onchange (e) { this._networkName = e.target.value }
+        onchange (e: Event) { this._networkName = (<HTMLInputElement> e.target).value }
       },
       {
-        $virus: selectObjectGroupism('Wallet Type', [{
+        $virus: selectObjectGroupism('Wallet Type',
+        [{
           id: '',
           text: 'Select a type wallet'
         },
@@ -127,15 +177,15 @@ export function walletHandler () {
           text: 'Multisig'
         }], 'plain_wallet'),
         name: 'wallet_type',
-        onchange (e) {
+        onchange (e: Event) {
           let self = this
-          this._walletType = e.target.value
+          this._walletType = (<HTMLInputElement> e.target).value
           this._wallets = []
           document.getElementsByClassName('wallets-table')[0].classList.remove('d-none')
           config.nodeSelected = config._chooseBackUrl(self._networkName)
           walletService(config).list(self._walletType,
-            (successData) => self._addWallets(successData.data),
-            (errorData) => console.log(errorData))
+            (successData: { data: any }) => self._addWallets(successData.data),
+            (errorData: string) => console.log(errorData))
         }
       },
       {
@@ -149,19 +199,19 @@ export function walletHandler () {
                 $$: [
                   {
                     $tag: 'tr',
-                    _buildWalletHeaders (header) {
+                    _buildWalletHeaders (header: string) {
                       return { $tag: 'th', $virus: hamlism, $text: header }
                     },
                     $update () {
-                      this.innerHTML = ''
-                      _.each(this._buildWalletsTable(), (h) => this.$build(this._buildWalletHeaders(h)))
+                      this.innerHTML = '';
+                      (<any> window)._.each(this._buildWalletsTable(), (h: string) => this.$build(this._buildWalletHeaders(h)));
                     }
                   }
                 ]
               },
               {
                 $tag: 'tbody',
-                _fillWallet (wallet) {
+                _fillWallet (wallet: Wallet): any {
                   let self = this
                   let addressesButton = {
                     $virus: buttonismWithSize('Show Addresses', 'info', 'small'),
@@ -171,42 +221,45 @@ export function walletHandler () {
                       self._displayAddresses = 'block'
                       self._walletId = wallet.id
 
-                      let addresses = {}
+                      let addresses: Address = {};
                       walletService(config).list(`${self._walletType}/${wallet.id}/relationships/addresses`,
-                        (successData) => {
-                          _.forEach(successData.data, (address) => {
-                            addresses[self._getStrAddress(address)] = 0
+                        (successData: { data: any }) => {
+                          (<any> window)._.forEach(successData.data, (address: any) => {
+                            addresses[self._getStrAddress(address)] = '0'
                           })
 
                           let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=1000000`
-                          walletService(config).list(url, (successData) => {
-                            _.forEach(successData.data, (utxo) => {
+                          walletService(config).list(url, (successData: { data: AddressUtxo[] | WalletUtxo[] }) => {
+                            (<any> window)._.forEach(successData.data, (rawUtxo: AddressUtxo | WalletUtxo) => {
+                              let utxo = (<AddressUtxo> rawUtxo);
                               let addressStr = self._walletType === '/plain_wallets' ? utxo.attributes.address.id : utxo.attributes.address.address
-                              addresses[addressStr] += utxo.attributes.transaction.satoshis
+                              addresses[addressStr] += (<WalletUtxo> rawUtxo).attributes.transaction.satoshis
                             })
-                            self._addAddresses(_.map(_.toPairs(addresses), d => _.fromPairs([d])))
-                          }, (errorData) => showError(errorData))
+                            self._addAddresses((<any> window)._.map((<any> window)._.toPairs(addresses), (d: any[]) => (<any> window)._.fromPairs([d])))
+                          }, (errorData: string) => showError(errorData))
                         },
-                        (errorData) => showError(errorData))
+                        (errorData: string) => showError(errorData))
                     }
-                  }
+                  };
+
                   let createTransactionButton = {
                     $virus: buttonismWithSize('Create Transaction', 'primary', 'block'),
                     'data-id': 'create-transaction',
                     'data-toggle': 'modal',
                     'data-target': '#modalDialogTx',
                     onclick () {
-                      self._walletId = wallet.id
-                      self._resourceType = 'wallet'
-                      let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=1000000`
-                      walletService(config).list(url, (successData) => {
-                        self._rawTransaction = successData.data
-                        let totalAmount = _.sum(_.map(successData.data, (utxo) => utxo.attributes.transaction.satoshis))
-                        document.querySelector('#modalDialogTx')._totalAmount = totalAmount
-                        document.querySelector('#modalDialogTx')._updateAmount()
-                      }, (errorData) => showError(errorData))
+                      self._walletId = wallet.id;
+                      self._resourceType = 'wallet';
+                      let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=1000000`;
+                      walletService(config).list(url, (successData: { data: any }) => {
+                        self._rawTransaction = successData.data;
+                        let totalAmount: number = (<any> window)._.sum((<any> window)._.map(successData.data, (utxo: WalletUtxo) => utxo.attributes.transaction.satoshis));
+                        (<any> document.querySelector('#modalDialogTx'))._totalAmount = totalAmount;
+                        (<any> document.querySelector('#modalDialogTx'))._updateAmount();
+                      }, (errorData: string) => showError(errorData))
                     }
-                  }
+                  };
+
                   switch (self._walletType) {
                     case '/plain_wallets':
                       return {
@@ -274,7 +327,7 @@ export function walletHandler () {
                           },
                           {
                             $tag: 'td',
-                            $text: _.map(wallet.attributes.xpubs, (xpub) => xpub.substring(0, 10)).join(', '),
+                            $text: (<any> window)._.map(wallet.attributes.xpubs, (xpub: string) => xpub.substring(0, 10)).join(', '),
                             title: wallet.attributes.xpubs.join(', ')
                           },
                           {
@@ -296,8 +349,8 @@ export function walletHandler () {
                   }
                 },
                 $update () {
-                  this.innerHTML = ''
-                  _.each(this._wallets, (w) => this.$build(this._fillWallet(w)))
+                  this.innerHTML = '';
+                  (<any> window)._.each(this._wallets, (w: string) => this.$build(this._fillWallet(w)));
                 }
               }
             ]
