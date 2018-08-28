@@ -10,24 +10,23 @@ export function rskHandler () {
     class: 'form',
     _networkName: 'Mainnet',
     _networkFromPath: 'Bitcoin',
-    _rskAddresses: [],
     _fromRskAddress: '',
     $$: [
       rskModal(),
       {
-        $virus: selectGroupism('Network', ['Mainnet', 'Testnet'], 'Mainnet'),
+        $virus: selectGroupism('Network', ['Mainnet', 'Testnet']),
         name: 'network',
         id: 'setup_network',
         $update () { this.value = this._networkName },
-        onchange (e) { this._networkName = e.target.value }
+        onchange (e: Event) { this._networkName = (<HTMLInputElement> e.target).value }
       },
       {
         $virus: buttonismWithSize('Convert SBTC to BTC', 'success', 'small'),
         'data-id': 'rsk-tx-creation',
         'data-toggle': 'modal',
         'data-target': '#modalDialogRsk',
-        onclick (e) {
-          let modalRsk = document.querySelector('#modalDialogRsk')
+        onclick () {
+          let modalRsk: any = document.querySelector('#modalDialogRsk')
           modalRsk._clear()
           modalRsk._network = 'Rsk'
           modalRsk._title = 'Convert SBTC to BTC'
@@ -43,8 +42,8 @@ export function rskHandler () {
         'data-id': 'rsk-tx-creation-sbtc',
         'data-toggle': 'modal',
         'data-target': '#modalDialogRsk',
-        onclick (e) {
-          let modalRsk = document.querySelector('#modalDialogRsk')
+        onclick () {
+          let modalRsk: any = document.querySelector('#modalDialogRsk')
           modalRsk._clear()
           modalRsk._title = 'Send SBTC'
           modalRsk._network = 'Rsk'
