@@ -11,7 +11,7 @@ import { hamlism } from './lib/hamlism';
 import { tabbism } from './lib/bootstrapism';
 import { updateEpidemic } from './lib/update_epidemic.js';
 
-(<any> window).TrezorConnect = require('trezor-connect');
+(<any> window).TrezorConnect = require('trezor-connect').default;
 (<any> window).jQuery = (<any> window).$ = $;
 (<any> window)._ = _;
 (<any> window).Popper = Popper;
