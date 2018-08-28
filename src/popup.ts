@@ -4,7 +4,7 @@ import * as Popper from './lib/popper.min.js';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import { multisigSetupHandler } from './multisig/index.js';
-import { signingHandler } from './signing_handler.js';
+import { signingHandler } from './signing_handler';
 import { walletHandler } from './wallets_handler.js';
 import { rskHandler } from './rsk_handler';
 import { hamlism } from './lib/hamlism';

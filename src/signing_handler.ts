@@ -1,14 +1,13 @@
-import _ from 'lodash'
 import { Transaction } from './lib/transaction'
 import * as bitcoin from 'bitcoinjs-lib'
 import { showError, showSuccess } from './messages'
 import { selectGroupism } from './lib/bootstrapism'
 import { updateEpidemic } from './lib/update_epidemic.js'
 import { TransactionService } from './services/transaction_service.js'
-import networks from './lib/networks.js'
+import * as networks from './lib/networks.js'
 import config from './config'
 
-window.bitcoin = bitcoin
+(<any> window).bitcoin = bitcoin
 
 export function signingHandler () {
   return {
@@ -16,7 +15,7 @@ export function signingHandler () {
     $virus: updateEpidemic,
     _transactionJson: '',
     class: 'form',
-    _rawtx: null,
+    _rawtx: '',
     _rskAddress: '',
     $update () {
       let self = this
@@ -34,7 +33,7 @@ export function signingHandler () {
           $text: 'Broadcast Transaction',
           onclick () {
             config.nodeSelected = config._chooseBackUrl(self._networkName)
-            TransactionService(config).broadcast(self._rawtx).then((result) => {
+            TransactionService(config).broadcast(self._rawtx).then(() => {
               showSuccess('Transaction Broadcasted')
             })
           }
@@ -42,23 +41,23 @@ export function signingHandler () {
       }
     },
     $$: [
-      { $virus: selectGroupism('Network', _.keys(networks), 'bitcoin'),
+      { $virus: selectGroupism('Network', (<any> window)._.keys(networks)),
         name: 'network',
         $update () { this.value = this._networkName },
-        onchange (e) { this._networkName = e.target.value }
+        onchange (e: Event) { this._networkName = (<HTMLInputElement> e.target).value }
       },
       { $tag: '.form-group textarea#tansaction_json.form-control',
         name: 'transaction_json',
         rows: 15,
-        onchange (e) { this._transactionJson = e.target.value },
+        onchange (e: Event) { this._transactionJson = (<HTMLInputElement> e.target).value },
         $update () {
-          this.$text = JSON.stringify(this._transactionJson, true, '  ')
+          this.$text = JSON.stringify(this._transactionJson)
         }
       },
       { $tag: 'button.btn.btn-primary.btn-block.mt-1',
         id: 'sign-transaction',
         $text: 'Sign transaction',
-        _handleSigningResult (result) {
+        _handleSigningResult (result: {json: string, rawtx: string, done: boolean}) {
           this._transactionJson = result.json
           this._rawtx = result.rawtx
           if (result.done) {
