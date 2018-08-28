@@ -1,8 +1,8 @@
-var path = require('path');
-var webpack = require('webpack');
+var path = require('path')
+var webpack = require('webpack')
 module.exports = {
   mode: 'development',
-  entry: './src/popup.js',
+  entry: './src/popup',
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: 'popup.bundle.js'
@@ -35,4 +35,4 @@ module.exports = {
     colors: true
   },
   devtool: 'source-map'
- };
+}
