@@ -1,18 +1,18 @@
-import _ from 'lodash'
-import { buttonism, buttonismWithSize, formGroupism } from '../lib/bootstrapism'
-import { hamlism } from '../lib/hamlism'
-import { showError, loading, notLoading } from '../messages'
-import { CustodianManager } from '../services/custodian_manager.js'
-import { Transaction } from '../lib/transaction'
-import config from '../config'
-import Wallet from 'ethereumjs-wallet'
-import bip32 from 'bip32'
+import Cell from '../types/cell';
+import { buttonism, buttonismWithSize, formGroupism } from '../lib/bootstrapism';
+import { hamlism } from '../lib/hamlism';
+import { showError, loading, notLoading } from '../messages';
+import { CustodianManager } from '../services/custodian_manager.js';
+import { Transaction } from '../lib/transaction';
+import config from '../config';
+var Wallet = require('ethereumjs-wallet');
+var bip32 = require('bip32');
 
 export function hdNodesManager () {
   return {
     class: 'well well-sm',
-    _path: [],
-    _setPath: function (string) {
+    _path: '[]',
+    _setPath: function (string: string) {
       this._path = string ? bip32.fromString(string).toPathArray() : []
     },
     _xpub: '',
@@ -21,7 +21,7 @@ export function hdNodesManager () {
       let networkName = this._networkName
       loading()
       let _path = this._path.length === 0 ? config._chooseDerivationPath(networkName) : this._path
-      const result = await window.TrezorConnect.getPublicKey({path: _path, coin: networkName})
+      const result = await (<any> window).TrezorConnect.getPublicKey({path: _path, coin: networkName})
       if (result.success) {
         this._addHdNodeFromXpub(result.payload.xpub)
         notLoading()
@@ -29,12 +29,12 @@ export function hdNodesManager () {
         showError(result.payload.error)
       }
     },
-    _addHdNodeFromXpub (xpub) {
+    _addHdNodeFromXpub (xpub: string) {
       let self = this
       let networkName = this._network()
       let hdNode = bip32.fromBase58(xpub, networkName)
       hdNode.getAddress = () => {
-        return window.bitcoin.payments.p2pkh({ pubkey: hdNode.publicKey, network: networkName }).address
+        return (<any> window).bitcoin.payments.p2pkh({ pubkey: hdNode.publicKey, network: networkName }).address
       }
       hdNode.getBalance = async () => {
         let transaction = new Transaction()
@@ -42,11 +42,11 @@ export function hdNodesManager () {
       }
       this._hdNodes.push(hdNode)
     },
-    _hdNodeContainer (hdNode) {
+    _hdNodeContainer (hdNode: any) {
       let self = this
-      hdNode.getBalance().then((balance) => {
-        self._balance = ` Balance: ${balance}`
-        document.querySelector(`#balance-${hdNode.getAddress()}`).$update()
+      hdNode.getBalance().then((balance: string) => {
+        self._balance = ` Balance: ${balance}`;
+        (<Cell> document.querySelector(`#balance-${hdNode.getAddress()}`)).$update();
       })
       return {
         $virus: hamlism,
@@ -56,7 +56,7 @@ export function hdNodesManager () {
         $$: [
           { $tag: 'button.close',
             $text: '×',
-            onclick (e) { self._hdNodes = _.without(self._hdNodes, hdNode) }
+            onclick (e: Event) { self._hdNodes = (<any> window)._.without(self._hdNodes, hdNode) }
           },
           {
             $tag: 'p span',
@@ -113,7 +113,7 @@ export function hdNodesManager () {
         name: 'path',
         placeholder: "You'll likely won't need this",
         type: 'text',
-        onchange (e) { this._setPath(e.target.value) }
+        onchange (e: Event) { this._setPath((<HTMLInputElement> e.target).value) }
       },
       { class: 'form-group input-group',
         $$: [
@@ -122,7 +122,7 @@ export function hdNodesManager () {
             name: 'xpub',
             type: 'text',
             $update () { this.value = this._xpub },
-            onchange (e) { this._xpub = e.target.value }
+            onchange (e: Event) { this._xpub = (<HTMLInputElement> e.target).value }
           },
           {
             class: 'input-group-btn add-node-group',
@@ -170,8 +170,8 @@ export function hdNodesManager () {
       },
       { $tag: 'ul.list-group.hd-nodes.mt-3',
         $update () {
-          this.innerHTML = ''
-          _.each(this._hdNodes, (n) => this.$build(this._hdNodeContainer(n)))
+          this.innerHTML = '';
+          (<any> window)._.each(this._hdNodes, (n: any) => this.$build(this._hdNodeContainer(n)));
         }
       }
     ]

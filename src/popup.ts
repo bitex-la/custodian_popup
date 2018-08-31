@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import * as Popper from './lib/popper.min.js';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { multisigSetupHandler } from './multisig/index.js';
+import { multisigSetupHandler } from './multisig/index';
 import { signingHandler } from './signing_handler';
 import { walletHandler } from './wallets_handler';
 import { rskHandler } from './rsk_handler';
