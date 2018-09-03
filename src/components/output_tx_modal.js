@@ -3,7 +3,7 @@ import $ from 'jquery'
 import { hamlism } from '../lib/hamlism'
 import { buttonism, buttonismWithSize, selectObjectGroupism } from '../lib/bootstrapism'
 import { Transaction } from '../lib/transaction'
-import { updateEpidemic } from '../lib/update_epidemic.js'
+import { updateEpidemic } from '../lib/update_epidemic'
 import { showError } from '../messages'
 
 export function modalTx () {

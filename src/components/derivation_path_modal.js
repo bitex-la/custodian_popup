@@ -1,6 +1,6 @@
 import $ from 'jquery'
 import { hamlism } from '../lib/hamlism'
-import { updateEpidemic } from '../lib/update_epidemic.js'
+import { updateEpidemic } from '../lib/update_epidemic'
 import { selectObjectGroupism, buttonismWithSize } from '../lib/bootstrapism'
 import { Transaction } from '../lib/transaction'
 import config from '../config'

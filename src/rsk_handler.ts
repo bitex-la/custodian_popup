@@ -1,5 +1,5 @@
 import { rskModal } from './components/rsk_modal.js'
-import { updateEpidemic } from './lib/update_epidemic.js'
+import { updateEpidemic } from './lib/update_epidemic'
 import { buttonismWithSize, selectGroupism } from './lib/bootstrapism'
 import { hamlism } from './lib/hamlism'
 

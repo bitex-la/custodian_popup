@@ -1,5 +1,5 @@
 import { selectGroupism } from '../lib/bootstrapism';
-import { updateEpidemic } from '../lib/update_epidemic.js';
+import { updateEpidemic } from '../lib/update_epidemic';
 import * as networks from '../lib/networks.js';
 import { hdNodesManager } from './hd_nodes_manager';
 import { multisigManager } from './multisig_manager';

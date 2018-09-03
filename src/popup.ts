@@ -9,7 +9,7 @@ import { walletHandler } from './wallets_handler';
 import { rskHandler } from './rsk_handler';
 import { hamlism } from './lib/hamlism';
 import { tabbism } from './lib/bootstrapism';
-import { updateEpidemic } from './lib/update_epidemic.js';
+import { updateEpidemic } from './lib/update_epidemic';
 
 (<any> window).TrezorConnect = require('trezor-connect').default;
 (<any> window).jQuery = (<any> window).$ = $;
