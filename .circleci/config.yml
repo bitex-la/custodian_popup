@@ -15,6 +15,7 @@ jobs:
       # - image: circleci/mongo:3.4.4
 
     working_directory: ~/repo
+    parallelism: 2
 
     steps:
       - checkout
@@ -32,4 +33,5 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
         
       # run tests!
-      - run: node node_modules/testcafe/bin/testcafe.js chrome:headless tests/*
+      - run: npm run dev
+      - run: bash ./wait_localhost.sh && node node_modules/testcafe/bin/testcafe.js chrome:headless tests/*
