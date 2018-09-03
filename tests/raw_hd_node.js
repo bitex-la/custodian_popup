@@ -94,5 +94,5 @@ test('Creates a Raw Hd Node', async t => {
     .expect(Selector('.table-outputs-tx').textContent).contains('912000')
     .expect(Selector('input[name="amount"]').value).eql('0')
     .click('button[data-id="create-tx"]')
-    .expect(Selector('#tansaction_json').textContent).contains('"script_type": "PAYTOADDRESS",\n      "address": "mgYDL9xvE9bDAXQdWseNttP5V6iaRmBVZK",\n      "amount": 569000')
+    .expect(Selector('#tansaction_json').textContent).contains('"script_type":"PAYTOADDRESS","address":"mgYDL9xvE9bDAXQdWseNttP5V6iaRmBVZK","amount":569000')
 })
