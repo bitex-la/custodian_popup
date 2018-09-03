@@ -28,6 +28,7 @@ jobs:
 
       - run: wget -O firefox.tar.gz https://archive.mozilla.org/pub/firefox/releases/61.0.2/linux-x86_64/en-US/firefox-61.0.2.tar.bz2
       - run: tar -xvf firefox.tar.gz
+      - run: sudo ln -s firefox/firefox /usr/local/bin/
 
       - run: wget -O geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.18.0/geckodriver-v0.18.0-linux64.tar.gz
       - run: gunzip -c geckodriver.tar.gz | tar xopf -
@@ -40,6 +41,6 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
         
       # run tests!
-      - run: node node_modules/testcafe/bin/testcafe.js ~/firefox/firefox tests/*
+      - run: node node_modules/testcafe/bin/testcafe.js firefox tests/*
 
 
