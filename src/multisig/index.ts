@@ -13,7 +13,7 @@ export function multisigSetupHandler () {
     $virus: updateEpidemic,
     _hdNodes: hdNodes,
     $update() {
-      _.each(this._hdNodes, (n: { network: {}}) => { n.network = this._network() })
+      (<any> window)._.each(this._hdNodes, (n: { network: {}}) => { n.network = this._network() })
     },
     $components: [
       { $virus: selectGroupism('Network', _.keys(networks)),
