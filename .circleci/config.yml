@@ -40,6 +40,6 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
         
       # run tests!
-      - run: node node_modules/testcafe/bin/testcafe.js ~/:project/firefox/firefox tests/*
+      - run: node node_modules/testcafe/bin/testcafe.js ~/repo/firefox/firefox tests/*
 
 
