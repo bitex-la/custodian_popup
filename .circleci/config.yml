@@ -26,6 +26,8 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
+      - run: sudo apt-get install python
+      - run: sudo apt-get install pip
       - run: pip install mozdownload mozinstall
       - run: mozdownload --version latest --destination firefox.tar.bz2
       - run: mozinstall firefox.tar.bz2
