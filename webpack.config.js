@@ -1,5 +1,4 @@
 var path = require('path')
-var webpack = require('webpack')
 module.exports = {
   mode: 'development',
   entry: './src/popup',
@@ -29,7 +28,8 @@ module.exports = {
   },
   devServer: {
     compress: true,
-    port: 9966
+    port: 9966,
+    host: '0.0.0.0'
   },
   stats: {
     colors: true

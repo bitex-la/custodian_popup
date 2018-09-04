@@ -9,3 +9,4 @@ node_modules/*
 trezor-crypto/*
 build/*
 !build/.gitkeep
+*.log
