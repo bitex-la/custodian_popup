@@ -1,13 +1,20 @@
-# Development
+# Front End interface Custodian Server and interaction with Rsk BlockChain
 
-- Clone this repo
-- Install dependencies: `npm install`
-- Start the development server: `npm run dev` and visit http://localhost:9966
+[![CircleCI](https://circleci.com/gh/werner/custodian_popup.svg?style=svg)](https://circleci.com/gh/werner/custodian_popup)
 
-## Testing
-- To run the E2E tests: `npm run test`
+## Intro to docker
+- [Getting started](https://docs.docker.com/get-started/#recap-and-cheat-sheet)
+- [Docker cheat sheet](https://github.com/wsargent/docker-cheat-sheet)
 
-## Rsk Notes
+## System Requirements
+- Install [docker](https://www.docker.com/community-edition#/download)
+- Install [docker compose](https://docs.docker.com/compose/install/#install-compose)
 
-- In order to send Smart Bitcoins, the Rsk Address has to be obtained through Trezor, the address can not be introduced manually.
-- Once an address is included in the whitelist, must be used once. The address should be included in the whitelist again for another use.
+## How to install and run
+
+```
+$git clone git@github.com:bitex-la/custodian_popup.git
+$cd custodian_popup
+docker-compose build
+docker-compose up -d
+```
