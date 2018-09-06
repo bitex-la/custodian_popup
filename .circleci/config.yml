@@ -31,5 +31,7 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
         
       # run tests!
-      - run: npm run dev &
+      - run: 
+          command: npm run dev
+          background: true
       - run: bash ./wait_localhost.sh && node node_modules/testcafe/bin/testcafe.js chrome:headless tests/*
