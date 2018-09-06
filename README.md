@@ -1,4 +1,4 @@
-# Front End interface Custodian Server and interaction with Rsk BlockChain
+# Front End interface to Custodian Server and interaction with Rsk BlockChain
 
 [![CircleCI](https://circleci.com/gh/werner/custodian_popup.svg?style=svg)](https://circleci.com/gh/werner/custodian_popup)
 
