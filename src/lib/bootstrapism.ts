@@ -12,7 +12,7 @@ export function formGroupism (label: string) {
     ]
 
     if (component.$help) {
-      $$.push({
+      $$.push(<any>{
         $init () { (<any> window).$(this).popover({ trigger: 'focus' }) },
         $tag: 'span.input-group-btn a.btn.btn-secondary',
         $text: '?',

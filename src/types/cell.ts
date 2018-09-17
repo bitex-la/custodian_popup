@@ -1,5 +1,5 @@
 export default interface Cell {
-  $$?: Cell[];
+  $$?: any[];
   $components?: Cell[];
   $help?: boolean;
   $helpTitle?: string;
@@ -17,8 +17,4 @@ export default interface Cell {
   selected?: string;
   tabindex?: number;
   value?: string;
-  'data-toggle'?: string;
-  'data-trigger'?: string;
-  'title'?: string;
-  'data-content'?: boolean;
 }
