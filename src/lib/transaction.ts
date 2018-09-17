@@ -110,7 +110,7 @@ export class Transaction {
 
   transaction: InTransaction = { outputs: [], inputs: [], transactions: [] };
 
-  async _addAddressFromTrezor (network: Network, _derivationPath: string, coin?: string): Promise<{}> {
+  async _addAddressFromTrezor (network: Network, _derivationPath: number[], coin?: string): Promise<{}> {
     switch(network) {
       case "Rsk":
         return this._addRskAddressFromTrezor(_derivationPath);
@@ -119,8 +119,8 @@ export class Transaction {
     }
   }
 
-  async _addBtcAddressFromTrezor (_derivationPath: string, coin: string): Promise<{}> {
-    const btcAddress = await (<any> window).TrezorConnect.getAddress({path: JSON.parse(_derivationPath), coin: coin})
+  async _addBtcAddressFromTrezor (_derivationPath: number[], coin: string): Promise<{}> {
+    const btcAddress = await (<any> window).TrezorConnect.getAddress({path: _derivationPath, coin: coin})
     if (btcAddress.success) {
       let transaction = new Transaction()
       let balance = await transaction.getBalance('bitcoin', btcAddress.payload.address)
@@ -130,8 +130,8 @@ export class Transaction {
     }
   }
 
-  async _addRskAddressFromTrezor (_derivationPath: string): Promise<{}> {
-    const ethAddress = await (<any> window).TrezorConnect.ethereumGetAddress({path: JSON.parse(_derivationPath)});
+  async _addRskAddressFromTrezor (_derivationPath: number[]): Promise<{}> {
+    const ethAddress = await (<any> window).TrezorConnect.ethereumGetAddress({path: _derivationPath});
     if (ethAddress.success) {
       try {
         let balance: string = await this.getRskBalance(ethAddress.payload.address.toLowerCase());

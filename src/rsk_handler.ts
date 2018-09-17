@@ -1,7 +1,8 @@
-import { rskModal } from './components/rsk_modal.js'
-import { updateEpidemic } from './lib/update_epidemic'
-import { buttonismWithSize, selectGroupism } from './lib/bootstrapism'
-import { hamlism } from './lib/hamlism'
+import { updateEpidemic } from './lib/update_epidemic';
+import { buttonismWithSize, selectGroupism } from './lib/bootstrapism';
+import { hamlism } from './lib/hamlism';
+import { Transaction } from './lib/transaction';
+import config from './config';
 
 export function rskHandler () {
   return {
@@ -11,8 +12,9 @@ export function rskHandler () {
     _networkName: 'Mainnet',
     _networkFromPath: 'Bitcoin',
     _fromRskAddress: '',
+    _btcAddress: '',
+    _rskAddress: '',
     $$: [
-      rskModal(),
       {
         $virus: selectGroupism('Network', ['Mainnet', 'Testnet']),
         name: 'network',
@@ -21,35 +23,26 @@ export function rskHandler () {
         onchange (e: Event) { this._networkName = (<HTMLInputElement> e.target).value }
       },
       {
-        $virus: buttonismWithSize('Convert SBTC to BTC', 'success', 'small'),
-        'data-id': 'rsk-tx-creation',
-        'data-toggle': 'modal',
-        'data-target': '#modalDialogRsk',
-        onclick () {
-          let modalRsk: any = document.querySelector('#modalDialogRsk')
-          modalRsk._clear()
-          modalRsk._network = 'Rsk'
-          modalRsk._title = 'Convert SBTC to BTC'
-          modalRsk._toRskAddress = '0x0000000000000000000000000000000001000006'
-          modalRsk._disableToAddress = true
-          modalRsk._networkName = this._networkName
+        $virus: buttonismWithSize('Get Address', 'info', 'block'),
+        'data-id': 'get-address-rsk',
+        async onclick() {
+          let transaction = new Transaction();
+          let [coin, btcPath, rskPath] =
+            this._networkName === 'Mainnet' ?
+             ['btc', config.defaultPath, config.rskMainNetPath] :
+             ['testnet', config.defaultTestnetPath, config.rskTestNetPath];
+          this._btcAddress = await transaction._addAddressFromTrezor('Bitcoin', btcPath, coin);
+          this._rskAddress = await transaction._addAddressFromTrezor('Rsk', rskPath);
         }
-      }, {
-        $tag: 'span',
-        $text: ' '
-      }, {
-        $virus: buttonismWithSize('Send SBTC', 'success', 'small'),
-        'data-id': 'rsk-tx-creation-sbtc',
-        'data-toggle': 'modal',
-        'data-target': '#modalDialogRsk',
-        onclick () {
-          let modalRsk: any = document.querySelector('#modalDialogRsk')
-          modalRsk._clear()
-          modalRsk._title = 'Send SBTC'
-          modalRsk._network = 'Rsk'
-          modalRsk._disableToAddress = false
-          modalRsk._networkName = this._networkName
-        }
-      }]
+      },
+      {
+        $tag: 'label',
+        $update () { this.$text = this._btcAddress }
+      },
+      {
+        $tag: 'label',
+        $update () { this.$text = this._rskAddress }
+      }
+      ]
   }
 }
