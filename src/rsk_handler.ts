@@ -25,6 +25,16 @@ export function rskHandler () {
     },
     $$:[
       {
+        $type: 'datalist',
+        id: 'peg',
+        $$: [
+          {
+            $type: 'option',
+            value: 'PEG'
+          }
+        ]
+      },
+      {
         $virus: selectGroupism('Network', ['Mainnet', 'Testnet']),
         name: 'network',
         id: 'setup_network',
@@ -94,6 +104,7 @@ export function rskHandler () {
                             $type: 'input',
                             class: 'form-control form-group',
                             type: 'text',
+                            list: 'peg',
                             placeholder: 'Destination'
                           },
                           {
@@ -151,6 +162,7 @@ export function rskHandler () {
                             $type: 'input',
                             class: 'form-control form-group',
                             type: 'text',
+                            list: 'peg',
                             placeholder: 'Destination'
                           },
                           {
