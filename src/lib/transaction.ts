@@ -95,7 +95,7 @@ interface SignedResponse {
   rawtx: string;
 }
 
-interface Address {
+export interface Address {
   toString: () => string;
   balance: string;
   type: string;
@@ -122,9 +122,9 @@ export class Transaction {
   async _addBtcAddressFromTrezor (_derivationPath: number[], coin: string): Promise<{}> {
     const btcAddress = await (<any> window).TrezorConnect.getAddress({path: _derivationPath, coin: coin})
     if (btcAddress.success) {
-      let transaction = new Transaction()
-      let balance = await transaction.getBalance('bitcoin', btcAddress.payload.address)
-      return new Promise(resolve => resolve({ toString: () => btcAddress.payload.address, balance, type: 'btc' }))
+      let transaction = new Transaction();
+      //let balance = await transaction.getBalance('bitcoin', btcAddress.payload.address);
+      return new Promise(resolve => resolve({ toString: () => btcAddress.payload.address, balance: '0.0', type: 'btc' }));
     } else {
       throw new Error(btcAddress.payload.error);
     }

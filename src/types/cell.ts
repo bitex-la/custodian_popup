@@ -1,4 +1,4 @@
-export default interface Cell {
+interface Cell {
   $$?: any[];
   $components?: Cell[];
   $help?: boolean;
@@ -7,7 +7,6 @@ export default interface Cell {
   $tag?: string;
   $text?: string;
   $type?: string;
-  $update?: () => void;
   $virus?: Cell[];
   for?: string;
   id?: string;
@@ -17,4 +16,7 @@ export default interface Cell {
   selected?: string;
   tabindex?: number;
   value?: string;
+  $update?(): void;
 }
+abstract class Cell { }
+export default Cell

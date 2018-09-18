@@ -1,20 +1,46 @@
 import { updateEpidemic } from './lib/update_epidemic';
 import { buttonismWithSize, selectGroupism } from './lib/bootstrapism';
 import { hamlism } from './lib/hamlism';
-import { Transaction } from './lib/transaction';
+import { Transaction, Address } from './lib/transaction';
 import config from './config';
+import Cell from './types/cell';
 
-export function rskHandler () {
-  return {
-    id: 'rsk',
-    $virus: [ updateEpidemic, hamlism ],
-    class: 'form',
-    _networkName: 'Mainnet',
-    _networkFromPath: 'Bitcoin',
-    _fromRskAddress: '',
-    _btcAddress: '',
-    _rskAddress: '',
-    $$: [
+class RskHandler extends Cell {
+  id: string;
+  virus: any[];
+  class: string;
+  _networkName: string;
+  _networkFromPath: string;
+  _fromRskAddress: string;
+  _btcAddress: string;
+  _rskAddress: string;
+  $$: any[];
+
+  updateBtcAddress (address: Address) {
+    this._btcAddress = address.toString();
+  }
+
+  updateRskAddress (address: Address) {
+    this._rskAddress = address.toString();
+  }
+
+  $update () {
+    console.log('okkkk');
+  }
+
+  constructor () {
+    super();
+    let self = this;
+    this.id = 'rsk';
+    this.virus = [ updateEpidemic, hamlism ];
+    this.class = 'form';
+    this._networkName = 'Mainnet';
+    this._networkFromPath = 'Bitcoin';
+    this._fromRskAddress = '';
+    this.$update = () => {
+      console.log('upppdatee');
+    };
+    this.$$ = [
       {
         $virus: selectGroupism('Network', ['Mainnet', 'Testnet']),
         name: 'network',
@@ -25,24 +51,70 @@ export function rskHandler () {
       {
         $virus: buttonismWithSize('Get Address', 'info', 'block'),
         'data-id': 'get-address-rsk',
-        async onclick() {
+        async onclick () {
           let transaction = new Transaction();
           let [coin, btcPath, rskPath] =
             this._networkName === 'Mainnet' ?
              ['btc', config.defaultPath, config.rskMainNetPath] :
              ['testnet', config.defaultTestnetPath, config.rskTestNetPath];
-          this._btcAddress = await transaction._addAddressFromTrezor('Bitcoin', btcPath, coin);
-          this._rskAddress = await transaction._addAddressFromTrezor('Rsk', rskPath);
+          self.updateBtcAddress(<Address> await transaction._addAddressFromTrezor('Bitcoin', btcPath, coin));
+          self.updateRskAddress(<Address> await transaction._addAddressFromTrezor('Rsk', rskPath));
         }
       },
       {
-        $tag: 'label',
-        $update () { this.$text = this._btcAddress }
-      },
-      {
-        $tag: 'label',
-        $update () { this.$text = this._rskAddress }
+        class: 'row',
+        $$: [
+          {
+            class: 'col-lg-6',
+            $$: [
+              {
+                class: 'card',
+                $$: [
+                  {
+                    class: 'card-body',
+                    $$: [
+                      {
+                        $type: 'input',
+                        type: 'text',
+                        readonly: true,
+                        value: '',
+                        $update () { this.value = self._btcAddress }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            class: 'col-lg-6',
+            $$: [
+              {
+                class: 'card',
+                $$: [
+                  {
+                    class: 'card-body',
+                    $$: [
+                      {
+                        $type: 'input',
+                        type: 'text',
+                        readonly: true,
+                        value: '',
+                        $update () { this.value = self._rskAddress }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       }
-      ]
+    ];
   }
+}
+
+
+export function rskHandler (): RskHandler {
+  return new RskHandler();
 }
