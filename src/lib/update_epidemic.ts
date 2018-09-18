@@ -8,17 +8,11 @@ export function updateEpidemic (component: Cell) {
     }
   }
 
-  let recursiveParentUpdate = (node: Node) => {
-    (<Cell> node).$update && (<Cell> node).$update();
-    recursiveParentUpdate(node.parentNode);
-  }
-
   let oldUpdate = component.$update;
 
   component.$update = function () {
     oldUpdate && oldUpdate.call(this);
     recursiveChildrenUpdate(this);
-    recursiveParentUpdate(this);
   }
 
   return component;
