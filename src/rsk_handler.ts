@@ -5,7 +5,7 @@ import { Transaction, Address } from './lib/transaction';
 import config from './config';
 import { WalletService } from './services/wallet_service.js';
 import { TransactionService } from './services/transaction_service.js'
-import { showSuccess, showError } from './messages';
+import { showSuccess, showError, showPermanentMessage } from './messages';
 
 export function rskHandler () {
   let btcAddress: Address = { balance: '0', toString: (): string => '', type: '' };
@@ -143,6 +143,8 @@ export function rskHandler () {
                             async onclick () {
                               let self = this
                               if (self._btcAddress.balance > self._btcAmount) {
+                                this.disabled = true;
+                                this.$text = 'Sending...';
                                 let transaction = new Transaction();
 
                                 let url = `/plain_wallets/relationships/addresses/${Object.keys(self._btcAddress.toString())[0]}/get_utxos?since=0&limit=1000000`;
@@ -158,6 +160,8 @@ export function rskHandler () {
                                 let tx = await transaction.createTx(this._rawTransaction, networkName);
                                 let signedTx = await transaction.signTransaction(tx, networkName);
                                 TransactionService(config).broadcast(signedTx);
+                                this.disabled = false;
+                                this.$text = 'Send';
                                 showSuccess('Transaction Broadcasted');
                               } else {
                                 showError('The amount is less than allowed');
@@ -226,17 +230,22 @@ export function rskHandler () {
                             $virus: buttonismWithSize('Send', 'primary', 'block'),
                             'data-id': 'send-rsk',
                             async onclick () {
+                              this.disabled = true;
+                              this.$text = 'Sending...';
                               let transaction = new Transaction();
                               let rskPath =
                                 this._networkName === 'Mainnet' ?
                                   config.rskMainNetPath : config.rskTestNetPath;
-                              transaction.sendRskTransaction(this._networkName,
+                              let tx = await transaction.sendRskTransaction(this._networkName,
                                 rskPath,
                                 this._getBridgeAddress(),
                                 this._rskAddress.toString(),
                                 null,
                                 this._rskAmount,
                                 null);
+                              showPermanentMessage(`Transaction hash: ${tx.transactionHash}`);
+                              this.disabled = false;
+                              this.$text = 'Send';
                             }
                           }
                         ]

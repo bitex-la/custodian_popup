@@ -36,3 +36,7 @@ export function loading () {
 export function notLoading () {
   (<any>window).$('#messages').find('.loading').remove();
 }
+
+export function showPermanentMessage (text: string) {
+  new Message('success', text, null, false);
+}
