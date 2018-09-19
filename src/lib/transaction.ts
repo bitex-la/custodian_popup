@@ -120,11 +120,11 @@ export class Transaction {
   }
 
   async _addBtcAddressFromTrezor (_derivationPath: number[], coin: string): Promise<{}> {
-    const btcAddress = await (<any> window).TrezorConnect.getAddress({path: _derivationPath, coin: coin})
+    const btcAddress = await (<any> window).TrezorConnect.getAddress({path: _derivationPath, coin: coin});
     if (btcAddress.success) {
       let transaction = new Transaction();
-      //let balance = await transaction.getBalance('bitcoin', btcAddress.payload.address);
-      return new Promise(resolve => resolve({ toString: () => btcAddress.payload.address, balance: '0.0', type: 'btc' }));
+      let balance = await transaction.getBalance('bitcoin', btcAddress.payload.address);
+      return new Promise(resolve => resolve({ toString: () => btcAddress.payload.address, balance, type: 'btc' }));
     } else {
       throw new Error(btcAddress.payload.error);
     }

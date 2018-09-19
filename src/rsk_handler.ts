@@ -103,6 +103,7 @@ export function rskHandler () {
                       {
                         $type: 'span',
                         class: 'badge badge-info',
+                        id: 'badge-btc-balance',
                         $update () { this.$text = this._btcAddress.balance }
                       },
                       {
@@ -122,6 +123,7 @@ export function rskHandler () {
                             $type: 'input',
                             class: 'form-control form-group',
                             type: 'text',
+                            id: 'amount-btc',
                             placeholder: 'Amount',
                             onchange (e: Event) {
                               this._btcAmount = parseInt((<HTMLInputElement> e.target).value);
@@ -192,6 +194,7 @@ export function rskHandler () {
                       {
                         $type: 'span',
                         class: 'badge badge-info',
+                        id: 'badge-rsk-balance',
                         $update () { this.$text = this._rskAddress.balance }
                       },
                       {
@@ -211,6 +214,7 @@ export function rskHandler () {
                             $type: 'input',
                             class: 'form-control form-group',
                             type: 'text',
+                            id: 'amount-rsk',
                             placeholder: 'Amount',
                             onchange (e: Event) {
                               this._rskAmount = parseInt((<HTMLInputElement> e.target).value);
