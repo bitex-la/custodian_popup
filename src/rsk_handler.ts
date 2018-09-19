@@ -19,16 +19,26 @@ export function rskHandler () {
     _fromRskAddress: '',
     _btcAddress: btcAddress,
     _rskAddress: rskAddress,
-    _destinationAddress: '',
-    _amount: 0,
+    _destinationRskAddress: '',
+    _rskAmount: 0,
+    _destinationBtcAddress: '',
+    _btcAmount: 0,
     _rawTransaction: {},
     async _getDestinationAddress(): Promise<string> {
       let transaction = new Transaction();
-      switch(this._destinationAddress) {
+      switch(this._destinationBtcAddress) {
         case 'PEG': 
           return transaction.getFederationAdress(this._networkName);
         default: 
-          return this._destinationAddress;
+          return this._destinationBtcAddress;
+      }
+    },
+    _getBridgeAddress(): string {
+      switch(this._destinationRskAddress) {
+        case 'PEG': 
+          return '0x0000000000000000000000000000000001000006';
+        default: 
+          return this._destinationRskAddress;
       }
     },
     _updateBtcAddress (address: Address) {
@@ -114,7 +124,7 @@ export function rskHandler () {
                             type: 'text',
                             placeholder: 'Amount',
                             onchange (e: Event) {
-                              this._amount = parseInt((<HTMLInputElement> e.target).value);
+                              this._btcAmount = parseInt((<HTMLInputElement> e.target).value);
                             }
                           },
                           {
@@ -124,7 +134,7 @@ export function rskHandler () {
                             list: 'peg',
                             placeholder: 'Destination',
                             onchange (e: Event) {
-                              this._destinationAddress = (<HTMLInputElement> e.target).value;
+                              this._destinationBtcAddress = (<HTMLInputElement> e.target).value;
                             }
                           },
                           {
@@ -132,7 +142,7 @@ export function rskHandler () {
                             'data-id': 'send-btc',
                             async onclick () {
                               let self = this
-                              if (self._btcAddress.balance > self._amount) {
+                              if (self._btcAddress.balance > self._btcAmount) {
                                 let transaction = new Transaction();
 
                                 let url = `/plain_wallets/relationships/addresses/${Object.keys(self._btcAddress.toString())[0]}/get_utxos?since=0&limit=1000000`;
@@ -141,7 +151,7 @@ export function rskHandler () {
                                 this._rawTransaction['_outputs'] = [{
                                   script_type: 'PAYTOADDRESS',
                                   address: self._getDestinationAddress(),
-                                  amount: self._amount
+                                  amount: self._btcAmount
                                 }];
 
                                 let networkName = this._networkName === 'Mainnet' ? 'bitcoin' : 'testnet';
@@ -197,19 +207,36 @@ export function rskHandler () {
                             $type: 'input',
                             class: 'form-control form-group',
                             type: 'text',
-                            placeholder: 'Amount'
+                            placeholder: 'Amount',
+                            onchange (e: Event) {
+                              this._rskAmount = parseInt((<HTMLInputElement> e.target).value);
+                            }
                           },
                           {
                             $type: 'input',
                             class: 'form-control form-group',
                             type: 'text',
                             list: 'peg',
-                            placeholder: 'Destination'
+                            placeholder: 'Destination',
+                            onchange (e: Event) {
+                              this._destinationRskAddress = (<HTMLInputElement> e.target).value;
+                            }
                           },
                           {
                             $virus: buttonismWithSize('Send', 'primary', 'block'),
                             'data-id': 'send-rsk',
                             async onclick () {
+                              let transaction = new Transaction();
+                              let rskPath =
+                                this._networkName === 'Mainnet' ?
+                                  config.rskMainNetPath : config.rskTestNetPath;
+                              transaction.sendRskTransaction(this._networkName,
+                                rskPath,
+                                this._getBridgeAddress(),
+                                this._rskAddress.toString(),
+                                null,
+                                this._rskAmount,
+                                null);
                             }
                           }
                         ]
