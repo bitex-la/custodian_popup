@@ -3,7 +3,9 @@ import { buttonismWithSize, selectGroupism } from './lib/bootstrapism';
 import { hamlism } from './lib/hamlism';
 import { Transaction, Address } from './lib/transaction';
 import config from './config';
-import Cell from './types/cell';
+import { WalletService } from './services/wallet_service.js';
+import { TransactionService } from './services/transaction_service.js'
+import { showSuccess, showError } from './messages';
 
 export function rskHandler () {
   let btcAddress: Address = { balance: '0', toString: (): string => '', type: '' };
@@ -17,6 +19,18 @@ export function rskHandler () {
     _fromRskAddress: '',
     _btcAddress: btcAddress,
     _rskAddress: rskAddress,
+    _destinationAddress: '',
+    _amount: 0,
+    _rawTransaction: {},
+    async _getDestinationAddress(): Promise<string> {
+      let transaction = new Transaction();
+      switch(this._destinationAddress) {
+        case 'PEG': 
+          return transaction.getFederationAdress(this._networkName);
+        default: 
+          return this._destinationAddress;
+      }
+    },
     _updateBtcAddress (address: Address) {
       this._btcAddress = address;
     },
@@ -98,19 +112,46 @@ export function rskHandler () {
                             $type: 'input',
                             class: 'form-control form-group',
                             type: 'text',
-                            placeholder: 'Amount'
+                            placeholder: 'Amount',
+                            onchange (e: Event) {
+                              this._amount = parseInt((<HTMLInputElement> e.target).value);
+                            }
                           },
                           {
                             $type: 'input',
                             class: 'form-control form-group',
                             type: 'text',
                             list: 'peg',
-                            placeholder: 'Destination'
+                            placeholder: 'Destination',
+                            onchange (e: Event) {
+                              this._destinationAddress = (<HTMLInputElement> e.target).value;
+                            }
                           },
                           {
                             $virus: buttonismWithSize('Send', 'primary', 'block'),
                             'data-id': 'send-btc',
                             async onclick () {
+                              let self = this
+                              if (self._btcAddress.balance > self._amount) {
+                                let transaction = new Transaction();
+
+                                let url = `/plain_wallets/relationships/addresses/${Object.keys(self._btcAddress.toString())[0]}/get_utxos?since=0&limit=1000000`;
+                                let successData: { data: { }} = await WalletService(config).list(url);
+                                this._rawTransaction = successData.data;
+                                this._rawTransaction['_outputs'] = [{
+                                  script_type: 'PAYTOADDRESS',
+                                  address: self._getDestinationAddress(),
+                                  amount: self._amount
+                                }];
+
+                                let networkName = this._networkName === 'Mainnet' ? 'bitcoin' : 'testnet';
+                                let tx = await transaction.createTx(this._rawTransaction, networkName);
+                                let signedTx = await transaction.signTransaction(tx, networkName);
+                                TransactionService(config).broadcast(signedTx);
+                                showSuccess('Transaction Broadcasted');
+                              } else {
+                                showError('The amount is less than allowed');
+                              }
                             }
                           }
                         ]

@@ -8,7 +8,7 @@ import { addressesList } from './components/addresses_list.js'
 import { utxosList } from './components/utxos_list.js'
 import { InTransaction } from './lib/transaction'
 
-import { walletService } from './services/wallet_service.js'
+import { WalletService } from './services/wallet_service.js'
 
 import * as networks from './lib/networks.js'
 import config from './config'
@@ -119,7 +119,7 @@ export function walletHandler () {
         switch (self.type) {
           case 'wallet':
             url = `${self._walletType}/${self._walletId}/get_utxos?since=${since}&limit=${limit}`
-            walletService(config).list(url, (successData: { data: WalletUtxo[] }) => {
+            WalletService(config).list(url, (successData: { data: WalletUtxo[] }) => {
               self._since = ''
               self._limit = ''
               self._displayUtxos = 'block'
@@ -136,7 +136,7 @@ export function walletHandler () {
             break
           case 'address':
             url = `${self._walletType}/relationships/addresses/${self.address}/get_utxos?since=${since}&limit=${limit}`
-            walletService(config).list(url, (successData: { data: AddressUtxo[] }) => {
+            WalletService(config).list(url, (successData: { data: AddressUtxo[] }) => {
               self._since = ''
               self._limit = ''
               self._displayUtxos = 'block'
@@ -183,7 +183,7 @@ export function walletHandler () {
           this._wallets = []
           document.getElementsByClassName('wallets-table')[0].classList.remove('d-none')
           config.nodeSelected = config._chooseBackUrl(self._networkName)
-          walletService(config).list(self._walletType,
+          WalletService(config).list(self._walletType,
             (successData: { data: any }) => self._addWallets(successData.data),
             (errorData: string) => console.log(errorData))
         }
@@ -222,14 +222,14 @@ export function walletHandler () {
                       self._walletId = wallet.id
 
                       let addresses: Address = {};
-                      walletService(config).list(`${self._walletType}/${wallet.id}/relationships/addresses`,
+                      WalletService(config).list(`${self._walletType}/${wallet.id}/relationships/addresses`,
                         (successData: { data: any }) => {
                           (<any> window)._.forEach(successData.data, (address: any) => {
                             addresses[self._getStrAddress(address)] = '0'
                           })
 
                           let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=1000000`
-                          walletService(config).list(url, (successData: { data: AddressUtxo[] | WalletUtxo[] }) => {
+                          WalletService(config).list(url, (successData: { data: AddressUtxo[] | WalletUtxo[] }) => {
                             (<any> window)._.forEach(successData.data, (rawUtxo: AddressUtxo | WalletUtxo) => {
                               let utxo = (<AddressUtxo> rawUtxo);
                               let addressStr = self._walletType === '/plain_wallets' ? utxo.attributes.address.id : utxo.attributes.address.address
@@ -251,7 +251,7 @@ export function walletHandler () {
                       self._walletId = wallet.id;
                       self._resourceType = 'wallet';
                       let url = `${self._walletType}/${self._walletId}/get_utxos?since=0&limit=1000000`;
-                      walletService(config).list(url, (successData: { data: any }) => {
+                      WalletService(config).list(url, (successData: { data: any }) => {
                         self._rawTransaction = successData.data;
                         let totalAmount: number = (<any> window)._.sum((<any> window)._.map(successData.data, (utxo: WalletUtxo) => utxo.attributes.transaction.satoshis));
                         (<any> document.querySelector('#modalDialogTx'))._totalAmount = totalAmount;

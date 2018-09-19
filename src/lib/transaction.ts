@@ -164,7 +164,7 @@ export class Transaction {
     }
   }
 
-  createTx (_this: HandleParent, _networkName: string, callback: Function) {
+  async createTx (_this: HandleParent, _networkName: string): Promise<InTransaction> {
     let self = this;
     _.forEach(_this._rawTransaction, function (rawTx: RawTx) {
       let path = [];
@@ -229,14 +229,14 @@ export class Transaction {
       });
     });
 
-    self.calculateFee(_networkName, _this._outputs.length, (fee: number) => {
+    await self.calculateFee(_networkName, _this._outputs.length, (fee: number) => {
       self.transaction.outputs = _.map(_this._outputs, (output: Output) => {
         let outputResult = (<any>Object).assign({}, output)
         outputResult['amount'] = outputResult['amount'] - fee
         return outputResult
       });
-      callback(self.transaction)
     });
+    return new Promise<InTransaction>((resolve, reject) => resolve(self.transaction) );
   }
  
   async signTransaction (original_json: InTransaction, coin: string): Promise<SignedResponse> {
@@ -276,7 +276,11 @@ export class Transaction {
       }
     } else {
       return new Promise<SignedResponse>((resolve, reject) => {
-        reject({json: result.payload.error, done: false, rawtx: null})
+        if (result.payload) {
+          reject({json: result.payload.error, done: false, rawtx: null});
+        } else {
+          reject({json: result.message, done: false, rawtx: null});
+        }
       });
     }
   }
