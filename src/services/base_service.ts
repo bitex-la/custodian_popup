@@ -1,4 +1,4 @@
-type Config = { [index: string] : string };
+import { Config } from '../config';
 
 class BaseService {
 
@@ -8,19 +8,17 @@ class BaseService {
     this.config = config
   }
 
-  postToNode (url: string, data: any, successCallback: () => void, errorCallback: () => void) {
+  postToNode (url: string, data: any) {
     return (<any> window).jQuery.ajax({
       method: 'POST',
-      url: this.config[this.config.nodeSelected] + url,
+      url: (<any> this.config)[this.config.nodeSelected] + url,
       contentType: 'application/json; charset=utf-8',
-      data: JSON.stringify(data),
-      success: successCallback,
-      error: errorCallback
+      data: JSON.stringify(data)
     });
   }
 
   listFromNode<T> (url: string): Promise<T> {
-    return this.getMethod(this.config[this.config.nodeSelected] + url);
+    return this.getMethod((<any> this.config)[this.config.nodeSelected] + url);
   }
 
   getMethod<T> (url: string): Promise<T> {

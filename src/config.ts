@@ -1,5 +1,6 @@
-
+type DerivationPath = { text: string, id: number[] };
 export class Config {
+
   btcNodeUrl: string = '/api/btc';
   bchNodeUrl: string = '/api/bch';
   ltcNodeUrl: string = '/api/ltc';
@@ -12,7 +13,7 @@ export class Config {
   defaultSegwitPath: number[] = [49, 0, 0, 0, 0];
   defaultSegwitTestnetPath: number[] = [49, 1, 0, 0, 0];
 
-  _derivationPaths() {
+  _derivationPaths() : DerivationPath[] {
     return [{
       text: "Bitcoin m/44'/0'/0'/0'/0",
       id: this.defaultPath

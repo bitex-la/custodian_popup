@@ -3,7 +3,7 @@ import { buttonismWithSize, selectGroupism } from './lib/bootstrapism';
 import { hamlism } from './lib/hamlism';
 import { Transaction, Address } from './lib/transaction';
 import config from './config';
-import { WalletService } from './services/wallet_service.js';
+import { WalletService } from './services/wallet_service';
 import { TransactionService } from './services/transaction_service.js'
 import { showSuccess, showError, showPermanentMessage } from './messages';
 
@@ -142,7 +142,7 @@ export function rskHandler () {
                           },
                           {
                             $virus: buttonismWithSize('Send', 'primary', 'block'),
-                            'data-id': 'send-btc',
+                            id: 'send-btc',
                             async onclick () {
                               let self = this
                               if (self._btcAddress.balance > self._btcAmount) {
@@ -150,22 +150,26 @@ export function rskHandler () {
                                 this.$text = 'Sending...';
                                 let transaction = new Transaction();
 
-                                let url = `/plain_wallets/relationships/addresses/${Object.keys(self._btcAddress.toString())[0]}/get_utxos?since=0&limit=1000000`;
-                                let successData: { data: { }} = await WalletService(config).list(url);
-                                this._rawTransaction = successData.data;
-                                this._rawTransaction['_outputs'] = [{
-                                  script_type: 'PAYTOADDRESS',
-                                  address: self._destinationBtcAddress,
-                                  amount: self._btcAmount
-                                }];
+                                try {
+                                  let url = `/plain_wallets/relationships/addresses/${Object.keys(self._btcAddress.toString())[0]}/get_utxos?since=0&limit=1000000`;
+                                  let successData = await WalletService(config).list(url);
+                                  this._rawTransaction = successData.data;
+                                  this._rawTransaction['_outputs'] = [{
+                                    script_type: 'PAYTOADDRESS',
+                                    address: self._destinationBtcAddress,
+                                    amount: self._btcAmount
+                                  }];
 
-                                let networkName = this._networkName === 'Mainnet' ? 'bitcoin' : 'testnet';
-                                let tx = await transaction.createTx(this._rawTransaction, networkName);
-                                let signedTx = await transaction.signTransaction(tx, networkName);
-                                TransactionService(config).broadcast(signedTx);
-                                this.disabled = false;
-                                this.$text = 'Send';
-                                showSuccess('Transaction Broadcasted');
+                                  let networkName = this._networkName === 'Mainnet' ? 'bitcoin' : 'testnet';
+                                  let tx = await transaction.createTx(this._rawTransaction, networkName);
+                                  let signedTx = await transaction.signTransaction(tx, networkName);
+                                  let transactionResponse = await TransactionService(config).broadcast(signedTx);
+                                  this.disabled = false;
+                                  this.$text = 'Send';
+                                  showPermanentMessage(`Transaction hash: ${transactionResponse}`);
+                                } catch (e) {
+                                  showError(e)
+                                }
                               } else {
                                 showError('The amount is less than allowed');
                               }
@@ -253,24 +257,32 @@ export function rskHandler () {
                           },
                           {
                             $virus: buttonismWithSize('Send', 'primary', 'block'),
-                            'data-id': 'send-rsk',
+                            id: 'send-rsk',
                             async onclick () {
-                              this.disabled = true;
-                              this.$text = 'Sending...';
-                              let transaction = new Transaction();
-                              let rskPath =
-                                this._networkName === 'Mainnet' ?
-                                  config.rskMainNetPath : config.rskTestNetPath;
-                              let tx = await transaction.sendRskTransaction(this._networkName,
-                                rskPath,
-                                this._destinationRskAddress,
-                                this._rskAddress.toString(),
-                                null,
-                                this._rskAmount,
-                                null);
-                              showPermanentMessage(`Transaction hash: ${tx.transactionHash}`);
-                              this.disabled = false;
-                              this.$text = 'Send';
+                              if (this._rskAddress.balance > this._rskAmount) {
+                                try {
+                                  this.disabled = true;
+                                  this.$text = 'Sending...';
+                                  let transaction = new Transaction();
+                                  let rskPath =
+                                    this._networkName === 'Mainnet' ?
+                                      config.rskMainNetPath : config.rskTestNetPath;
+                                  let tx = await transaction.sendRskTransaction(this._networkName,
+                                    rskPath,
+                                    this._destinationRskAddress,
+                                    this._rskAddress.toString(),
+                                    null,
+                                    this._rskAmount,
+                                    null);
+                                  showPermanentMessage(`Transaction hash: ${tx.transactionHash}`);
+                                } catch (e) {
+                                  showError(e);
+                                }
+                                this.disabled = false;
+                                this.$text = 'Send';
+                              } else {
+                                showError('The amount is less than allowed');
+                              }
                             }
                           }
                         ]

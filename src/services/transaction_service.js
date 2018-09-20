@@ -1,14 +1,12 @@
 export function TransactionService (config) {
   return {
-    broadcast (hash, successCallback, errorCallback) {
+    broadcast (hash) {
       return window.$.ajax({
         method: 'POST',
         url: `${config[config.nodeSelected]}/transactions/broadcast`,
         contentType: 'application/json; charset=utf-8',
         data: hash,
-        crossDomain: true,
-        success: successCallback,
-        error: errorCallback
+        crossDomain: true
       })
     },
     balance (address) {
