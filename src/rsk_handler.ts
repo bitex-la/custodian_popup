@@ -24,40 +24,19 @@ export function rskHandler () {
     _destinationBtcAddress: '',
     _btcAmount: 0,
     _rawTransaction: {},
-    async _getDestinationAddress(): Promise<string> {
-      let transaction = new Transaction();
-      switch(this._destinationBtcAddress) {
-        case 'PEG': 
-          return transaction.getFederationAdress(this._networkName);
-        default: 
-          return this._destinationBtcAddress;
-      }
-    },
-    _getBridgeAddress(): string {
-      switch(this._destinationRskAddress) {
-        case 'PEG': 
-          return '0x0000000000000000000000000000000001000006';
-        default: 
-          return this._destinationRskAddress;
-      }
-    },
     _updateBtcAddress (address: Address) {
       this._btcAddress = address;
+    },
+    _updateDestinationBtcAddress (address: string) {
+      this._destinationBtcAddress = address;
     },
     _updateRskAddress (address: Address) {
       this._rskAddress = address;
     },
+    _updateDestinationRskAddress (address: string) {
+      this._destinationRskAddress = address;
+    },
     $$:[
-      {
-        $type: 'datalist',
-        id: 'peg',
-        $$: [
-          {
-            $type: 'option',
-            value: 'PEG'
-          }
-        ]
-      },
       {
         $virus: selectGroupism('Network', ['Mainnet', 'Testnet']),
         name: 'network',
@@ -133,11 +112,33 @@ export function rskHandler () {
                             $type: 'input',
                             class: 'form-control form-group',
                             type: 'text',
-                            list: 'peg',
                             placeholder: 'Destination',
+                            id: 'destination-btc-address',
+                            $update () { this.value = this._destinationBtcAddress },
                             onchange (e: Event) {
                               this._destinationBtcAddress = (<HTMLInputElement> e.target).value;
                             }
+                          },
+                          {
+                            $type: 'input',
+                            type: 'checkbox',
+                            id: 'is-btc-peg',
+                            async onchange (e: Event) {
+                              if ((<HTMLInputElement> e.target).checked) {
+                                let transaction = new Transaction();
+                                let destinationBtcAddress = await transaction.getFederationAdress(this._networkName);
+                                this._updateDestinationBtcAddress(destinationBtcAddress);
+                                document.getElementById('destination-btc-address').setAttribute('disabled', 'disabled');
+                              } else {
+                                this._updateDestinationBtcAddress('');
+                                document.getElementById('destination-btc-address').removeAttribute('disabled');
+                              }
+                            }
+                          },
+                          {
+                            $type: 'label',
+                            for: 'is-btc-peg',
+                            $text: 'PEG'
                           },
                           {
                             $virus: buttonismWithSize('Send', 'primary', 'block'),
@@ -154,7 +155,7 @@ export function rskHandler () {
                                 this._rawTransaction = successData.data;
                                 this._rawTransaction['_outputs'] = [{
                                   script_type: 'PAYTOADDRESS',
-                                  address: self._getDestinationAddress(),
+                                  address: self._destinationBtcAddress,
                                   amount: self._btcAmount
                                 }];
 
@@ -224,11 +225,31 @@ export function rskHandler () {
                             $type: 'input',
                             class: 'form-control form-group',
                             type: 'text',
-                            list: 'peg',
                             placeholder: 'Destination',
+                            id: 'destination-rsk-address',
+                            $update () { this.value = this._destinationRskAddress },
                             onchange (e: Event) {
                               this._destinationRskAddress = (<HTMLInputElement> e.target).value;
                             }
+                          },
+                          {
+                            $type: 'input',
+                            type: 'checkbox',
+                            id: 'is-rsk-peg',
+                            async onchange (e: Event) {
+                              if ((<HTMLInputElement> e.target).checked) {
+                                this._updateDestinationRskAddress('0x0000000000000000000000000000000001000006');
+                                document.getElementById('destination-rsk-address').setAttribute('disabled', 'disabled');
+                              } else {
+                                this._updateDestinationRskAddress('');
+                                document.getElementById('destination-rsk-address').removeAttribute('disabled');
+                              }
+                            }
+                          },
+                          {
+                            $type: 'label',
+                            for: 'is-rsk-peg',
+                            $text: 'PEG'
                           },
                           {
                             $virus: buttonismWithSize('Send', 'primary', 'block'),
@@ -242,7 +263,7 @@ export function rskHandler () {
                                   config.rskMainNetPath : config.rskTestNetPath;
                               let tx = await transaction.sendRskTransaction(this._networkName,
                                 rskPath,
-                                this._getBridgeAddress(),
+                                this._destinationRskAddress,
                                 this._rskAddress.toString(),
                                 null,
                                 this._rskAmount,
