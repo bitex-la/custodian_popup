@@ -73,6 +73,42 @@ test('Creates and test a rsk transaction', async t => {
 test('Does not allow the creation of a rsk transaction with less money that allowed', async t => {
   mockTrezor(t)
 
+  mockJQueryAjax(t, (params, ajaxResponse) => {
+    if (params.method === 'GET' && /balance/.test(params.url)) {
+      return ajaxResponse('1000000000000')
+    } else if (params.method === 'GET' && /plain_wallets\/relationships\/addresses\/0\/get_utxos\?since=0&limit=1000000/.test(params.url)) {
+      return ajaxResponse({
+        data: [{
+          attributes: {
+            transaction: {
+              satoshis: 123000,
+              transaction_hash: 'hash456',
+              position: 0
+            },
+            address: {
+              path: [],
+              address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
+            }
+          }
+        },
+        {
+          attributes: {
+            transaction: {
+              satoshis: 789000,
+              transaction_hash: 'hash652',
+              position: 1
+            },
+            address: {
+              path: [],
+              address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
+            }
+          }
+        }
+        ]
+      })
+    }
+  })
+
   const selectNetwork = Selector('#setup_network')
 
   await t
