@@ -19,24 +19,20 @@ jobs:
       - checkout
 
       - run:
-          name: update-npm 
-          command: 'sudo npm install -g npm@latest'
-
-      - run:
           name: install-npm 
           command: 'npm install'
 
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v2-dependencies-{{ checksum "package.json" }}
+          - v3-dependencies-{{ checksum "package.json" }}
           # fallback to using the latest cache if no exact match is found
-          - v2-dependencies-
+          - v3-dependencies-
 
       - save_cache:
           paths:
             - node_modules
-          key: v2-dependencies-{{ checksum "package.json" }}
+          key: v3-dependencies-{{ checksum "package.json" }}
         
       # run tests!
       - run: 
