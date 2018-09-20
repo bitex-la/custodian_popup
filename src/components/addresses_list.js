@@ -2,7 +2,7 @@ import _ from 'lodash'
 import { hamlism } from '../lib/hamlism'
 import { buttonismWithSize } from '../lib/bootstrapism'
 import { showError } from '../messages'
-import { walletService } from '../services/wallet_service'
+import { WalletService } from '../services/wallet_service'
 
 import config from '../config'
 
@@ -55,12 +55,12 @@ export function addressesList () {
                     self._resourceType = 'address'
 
                     let url = `/plain_wallets/relationships/addresses/${Object.keys(address)[0]}/get_utxos?since=0&limit=1000000`
-                    walletService(config).list(url).done((successData) => {
+                    WalletService(config).list(url).then((successData) => {
                       document.querySelector('#wallets')._rawTransaction = successData.data
                       let totalAmount = _.sum(_.map(successData.data, (utxo) => utxo.attributes.satoshis))
                       document.querySelector('#modalDialogTx')._totalAmount = totalAmount
                       document.querySelector('#modalDialogTx')._updateAmount()
-                    }).fail((errorData) => showError(errorData))
+                    }).catch((errorData) => showError(errorData))
                   }
                 }]
               }

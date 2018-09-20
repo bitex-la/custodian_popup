@@ -208,7 +208,7 @@ export function modalTx () {
                     onclick () {
                       let self = this
                       let transaction = new Transaction()
-                      transaction.createTx(self, this._networkName, (tx) => {
+                      transaction.createTx(self, this._networkName).then((tx) => {
                         document.querySelector('#signing')._transactionJson = tx
                         document.querySelector('#signing').$update()
                       })

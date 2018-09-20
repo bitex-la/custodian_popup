@@ -1,20 +1,20 @@
-import { walletService } from '../services/wallet_service'
+import { WalletService } from '../services/wallet_service'
 import { showError, showInfo } from '../messages'
 
 export function CustodianManager (config) {
   return {
     _createWallet (type, wallet, hdNodes, buildAddress) {
-      walletService(config).create(`/${type}`,
-        wallet,
-        (walletResponse) => {
-          window._.forEach(hdNodes, (node) => {
-            let address = buildAddress(node.getAddress())
-            walletService(config).create(`/${type}/${walletResponse.data.id}/relationships/addresses`,
-              address).done(() => showInfo(`Address saved`)).fail((error) => showError(error.statusText))
+      WalletService(config).create(`/${type}`, wallet)
+        .then(
+          (walletResponse) => {
+            window._.forEach(hdNodes, (node) => {
+              let address = buildAddress(node.getAddress())
+              WalletService(config).create(`/${type}/${walletResponse.data.id}/relationships/addresses`,
+                address).then(() => showInfo(`Address saved`)).catch((error) => showError(error.statusText))
+            })
+            showInfo('Wallet saved')
           })
-          showInfo('Wallet saved')
-        },
-        (error) => showError(error.statusText))
+        .catch((error) => showError(error.statusText))
     },
     _sendMultisigToCustodian (wallet) {
       let xpubs = window._.map(wallet._hdNodes, (node) => node.neutered().toBase58())
