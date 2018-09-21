@@ -4,9 +4,7 @@ import { mockJQueryAjax } from './jquery.js'
 
 fixture(`Testing Rsk transactions`).page(`http://localhost:9966`)
 
-test('Creates and test a rsk transaction', async t => {
-  mockTrezor(t)
-
+function _mockJQueryAjax (t) {
   mockJQueryAjax(t, (params, ajaxResponse) => {
     if (params.method === 'GET' && /estimatefee/.test(params.url)) {
       return ajaxResponse({2: '0.00001000'})
@@ -46,6 +44,11 @@ test('Creates and test a rsk transaction', async t => {
       })
     }
   })
+}
+
+test('Creates and test a rsk transaction', async t => {
+  mockTrezor(t)
+  _mockJQueryAjax(t)
 
   const selectNetwork = Selector('#setup_network')
 
@@ -65,49 +68,11 @@ test('Creates and test a rsk transaction', async t => {
     .click(Selector('#send-btc'))
     .click(Selector('#send-rsk'))
     .expect(Selector('body').textContent).contains('Transaction hash')
-    .typeText('input[id="amount-btc"]', '67539187298798798797')
-    .click(Selector('#send-btc'))
-    .expect(Selector('body').textContent).contains('The amount is less than allowed')
 })
 
-test('Does not allow the creation of a rsk transaction with less money that allowed', async t => {
+test('Does not allow the creation of a transaction with less money that allowed', async t => {
   mockTrezor(t)
-
-  mockJQueryAjax(t, (params, ajaxResponse) => {
-    if (params.method === 'GET' && /balance/.test(params.url)) {
-      return ajaxResponse('1000000000000')
-    } else if (params.method === 'GET' && /plain_wallets\/relationships\/addresses\/0\/get_utxos\?since=0&limit=1000000/.test(params.url)) {
-      return ajaxResponse({
-        data: [{
-          attributes: {
-            transaction: {
-              satoshis: 123000,
-              transaction_hash: 'hash456',
-              position: 0
-            },
-            address: {
-              path: [],
-              address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
-            }
-          }
-        },
-        {
-          attributes: {
-            transaction: {
-              satoshis: 789000,
-              transaction_hash: 'hash652',
-              position: 1
-            },
-            address: {
-              path: [],
-              address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
-            }
-          }
-        }
-        ]
-      })
-    }
-  })
+  _mockJQueryAjax(t)
 
   const selectNetwork = Selector('#setup_network')
 
@@ -118,5 +83,8 @@ test('Does not allow the creation of a rsk transaction with less money that allo
     .click('button[data-id="get-address-rsk"]')
     .typeText('input[id="amount-rsk"]', '67539187298798798797')
     .click(Selector('#send-rsk'))
+    .expect(Selector('body').textContent).contains('The amount is less than allowed')
+    .typeText('input[id="amount-btc"]', '67539187298798798797')
+    .click(Selector('#send-btc'))
     .expect(Selector('body').textContent).contains('The amount is less than allowed')
 })

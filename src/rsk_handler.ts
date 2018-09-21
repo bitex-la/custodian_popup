@@ -53,7 +53,7 @@ export function rskHandler () {
         id: 'get-address-button',
         $$: [
           {
-            $virus: buttonismWithSize('Get Address', 'info', 'block'),
+            $virus: buttonismWithSize('Get Addresses', 'info', 'block'),
             'data-id': 'get-address-rsk',
             async onclick () {
               let transaction = new Transaction();
