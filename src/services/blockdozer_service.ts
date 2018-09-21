@@ -1,19 +1,19 @@
 export function blockdozerService () {
   return {
-    satoshisPerByte (network, defaultUrl) {
+    satoshisPerByte (network: string, defaultUrl: boolean) {
       if (defaultUrl) {
-        return window.jQuery.ajax({
+        return (<any> window).jQuery.ajax({
           method: 'GET',
           url: 'https://blockdozer.com/api/utils/estimatefee'
         })
       } else {
-        return window.jQuery.ajax({
+        return (<any> window).jQuery.ajax({
           method: 'GET',
           url: `${this.chooseRootUrl(network)}/api/utils/estimatefee`
         })
       }
     },
-    chooseRootUrl (network) {
+    chooseRootUrl (network: string) {
       switch (network) {
         case 'bitcoin':
           return 'https://btc.blockdozer.com'

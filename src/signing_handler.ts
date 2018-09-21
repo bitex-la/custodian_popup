@@ -3,7 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib'
 import { showError, showSuccess } from './messages'
 import { selectGroupism } from './lib/bootstrapism'
 import { updateEpidemic } from './lib/update_epidemic'
-import { TransactionService } from './services/transaction_service.js'
+import { TransactionService } from './services/transaction_service'
 import * as networks from './lib/networks.js'
 import config from './config'
 

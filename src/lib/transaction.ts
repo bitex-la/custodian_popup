@@ -1,9 +1,9 @@
 import * as _  from 'lodash';
 
 import { loading, notLoading } from '../messages';
-import { blockdozerService } from '../services/blockdozer_service.js';
-import { blockcypherService } from '../services/blockcypher_service.js';
-import { TransactionService } from '../services/transaction_service.js';
+import { blockdozerService } from '../services/blockdozer_service';
+import { blockcypherService } from '../services/blockcypher_service';
+import { TransactionService } from '../services/transaction_service';
 import config from '../config';
 
 const Web3 = require('web3');

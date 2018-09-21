@@ -4,7 +4,7 @@ import { hamlism } from './lib/hamlism';
 import { Transaction, Address } from './lib/transaction';
 import config from './config';
 import { WalletService } from './services/wallet_service';
-import { TransactionService } from './services/transaction_service.js'
+import { TransactionService } from './services/transaction_service';
 import { showError, showPermanentMessage } from './messages';
 
 export function rskHandler () {
@@ -169,7 +169,7 @@ export function rskHandler () {
                                   let networkName = this._networkName === 'Mainnet' ? 'bitcoin' : 'testnet';
                                   let tx = await transaction.createTx(this._rawTransaction, networkName);
                                   let signedTx = await transaction.signTransaction(tx, networkName);
-                                  let transactionResponse = await TransactionService(config).broadcast(signedTx);
+                                  let transactionResponse = await TransactionService(config).broadcast(signedTx.rawtx);
                                   this.disabled = false;
                                   this.$text = 'Send';
                                   showPermanentMessage(`Transaction hash: ${transactionResponse}`);
