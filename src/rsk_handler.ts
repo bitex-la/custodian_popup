@@ -5,7 +5,7 @@ import { Transaction, Address } from './lib/transaction';
 import config from './config';
 import { WalletService } from './services/wallet_service';
 import { TransactionService } from './services/transaction_service.js'
-import { showSuccess, showError, showPermanentMessage } from './messages';
+import { showError, showPermanentMessage } from './messages';
 
 export function rskHandler () {
   let btcAddress: Address = { balance: '0', toString: (): string => '', type: '' };
@@ -38,15 +38,19 @@ export function rskHandler () {
     },
     $$:[
       {
-        $virus: selectGroupism('Network', ['Mainnet', 'Testnet']),
+        $virus: selectGroupism('Network', ['Select Network...', 'Mainnet', 'Testnet']),
         name: 'network',
         id: 'setup_network',
         autofocus: true,
         $update () { this.value = this._networkName },
-        onchange (e: Event) { this._networkName = (<HTMLInputElement> e.target).value }
+        onchange (e: Event) {
+           this._networkName = (<HTMLInputElement> e.target).value;
+           document.getElementById('get-address-button').classList.remove('invisible');
+        }
       },
       {
-        class: 'form-group',
+        class: 'form-group invisible',
+        id: 'get-address-button',
         $$: [
           {
             $virus: buttonismWithSize('Get Address', 'info', 'block'),
@@ -59,12 +63,14 @@ export function rskHandler () {
                  ['testnet', config.defaultTestnetPath, config.rskTestNetPath];
               this._updateBtcAddress(<Address> await transaction._addAddressFromTrezor('Bitcoin', btcPath, coin));
               this._updateRskAddress(<Address> await transaction._addAddressFromTrezor('Rsk', rskPath));
+              document.getElementById('exchange-operations').classList.remove('invisible');
             }
           }
         ]
       },
       {
-        class: 'row',
+        class: 'row invisible',
+        id: 'exchange-operations',
         $$: [
           {
             class: 'col-lg-6',
