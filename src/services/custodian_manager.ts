@@ -1,23 +1,40 @@
-import { WalletService } from '../services/wallet_service'
+import { WalletService } from './wallet_service'
 import { showError, showInfo } from '../messages'
+import { Config } from '../config';
 
-export function CustodianManager (config) {
+interface Node {
+  getAddress: () => string,
+  neutered: () => {
+    toBase58: () => string
+  }
+}
+
+interface Error {
+  statusText: string,
+}
+
+interface Wallet {
+  _hdNodes: Node[],
+  _required: string
+}
+
+export function CustodianManager (config: Config) {
   return {
-    _createWallet (type, wallet, hdNodes, buildAddress) {
+    _createWallet (type: string, wallet: string, hdNodes: Node[], buildAddress: (address: string) => string) {
       WalletService(config).create(`/${type}`, wallet)
         .then(
-          (walletResponse) => {
-            window._.forEach(hdNodes, (node) => {
+          (walletResponse: { data: { id: string }}) => {
+            (<any> window)._.forEach(hdNodes, (node: Node) => {
               let address = buildAddress(node.getAddress())
               WalletService(config).create(`/${type}/${walletResponse.data.id}/relationships/addresses`,
-                address).then(() => showInfo(`Address saved`)).catch((error) => showError(error.statusText))
-            })
-            showInfo('Wallet saved')
+                address).then(() => showInfo(`Address saved`)).catch((error: Error) => showError(error.statusText))
+            });
+            showInfo('Wallet saved');
           })
-        .catch((error) => showError(error.statusText))
+        .catch((error: Error) => showError(error.statusText))
     },
-    _sendMultisigToCustodian (wallet) {
-      let xpubs = window._.map(wallet._hdNodes, (node) => node.neutered().toBase58())
+    _sendMultisigToCustodian (wallet: Wallet) {
+      let xpubs = (<any> window)._.map(wallet._hdNodes, (node: Node) => node.neutered().toBase58());
 
       let multisigWallet = {
         data: {
@@ -33,19 +50,19 @@ export function CustodianManager (config) {
       this._createWallet('multisig_wallets',
         multisigWallet,
         wallet._hdNodes,
-        (address) => {
+        (address: string) => {
           return {
             data: {
               attributes: {
                 address: address,
-                path: []
+                path: (<number[]> [])
               },
               type: 'hd_address'
             }
           }
         })
     },
-    _sendHdToCustodian (node) {
+    _sendHdToCustodian (node: Node) {
       let hdWallet = {
         data: {
           attributes: {
@@ -59,19 +76,19 @@ export function CustodianManager (config) {
       this._createWallet('hd_wallets',
         hdWallet,
         [node],
-        (address) => {
+        (address: string) => {
           return {
             data: {
               attributes: {
                 address: address,
-                path: []
+                path: (<number[]> [])
               },
               type: 'hd_address'
             }
           }
         })
     },
-    _sendPlainToCustodian (node) {
+    _sendPlainToCustodian (node: Node) {
       let plainWallet = {
         data: {
           attributes: {
@@ -84,7 +101,7 @@ export function CustodianManager (config) {
       this._createWallet('plain_wallets',
         plainWallet,
         [node],
-        (address) => {
+        (address: string) => {
           return {
             data: {
               attributes: { },

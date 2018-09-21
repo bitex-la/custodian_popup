@@ -2,7 +2,7 @@ import Cell from '../types/cell';
 import { buttonism, buttonismWithSize, formGroupism } from '../lib/bootstrapism';
 import { hamlism } from '../lib/hamlism';
 import { showError, loading, notLoading } from '../messages';
-import { CustodianManager } from '../services/custodian_manager.js';
+import { CustodianManager } from '../services/custodian_manager';
 import { Transaction } from '../lib/transaction';
 import config from '../config';
 var Wallet = require('ethereumjs-wallet');
