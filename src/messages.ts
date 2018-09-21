@@ -1,16 +1,17 @@
-
+let messageId = 1;
 class Message {
 
   constructor(type: string, text: string, extra: string, hide: boolean) {
-    if ((<any> window).$('body > #messages').length == 0) {
+    if ((<any> window).$('body > .messages').length == 0) {
       (<any> window).$('body').prepend("<div class='messages mt-2'/>");
     }
     
-    let el: HTMLElement = (<any> window).$(`<div class='alert alert-${type} ${extra}'>${text}</div>`);
+    let el: HTMLElement = (<any> window).$(`<div class='alert-${messageId} alert alert-${type} ${extra}'>${text}</div>`);
     (<any> window).$('.messages').append(el);
     if (hide) {
-      setTimeout(() => { (<any> window).$('.alert').remove() }, 5000);
+      window.setTimeout((id: number) => { (<any> window).$(`.alert-${id}`).remove(); }, 5000, messageId);
     }
+    messageId += 1;
   }
 
 }
