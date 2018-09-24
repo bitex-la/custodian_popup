@@ -36,6 +36,11 @@ export function rskHandler () {
     _updateDestinationRskAddress (address: string) {
       this._destinationRskAddress = address;
     },
+    _toHexString (byteArray: number[]) {
+      return Array.prototype.map.call(byteArray, function (byte: number) {
+        return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+      }).join('');
+    },
     $$:[
       {
         $virus: selectGroupism('Network', ['Select Network...', 'Mainnet', 'Testnet']),
@@ -160,24 +165,27 @@ export function rskHandler () {
                                   let url = `/plain_wallets/relationships/addresses/${Object.keys(self._btcAddress.toString())[0]}/get_utxos?since=0&limit=1000000`;
                                   let successData = await WalletService(config).list(url);
                                   this._rawTransaction = successData.data;
-                                  this._rawTransaction['_outputs'] = [{
+                                  this['_outputs'] = [{
                                     script_type: 'PAYTOADDRESS',
                                     address: self._destinationBtcAddress,
                                     amount: self._btcAmount
                                   }];
 
                                   let networkName = this._networkName === 'Mainnet' ? 'bitcoin' : 'testnet';
-                                  let tx = await transaction.createTx(this._rawTransaction, networkName);
+                                  let tx = await transaction.createTx(this, networkName);
                                   let signedTx = await transaction.signTransaction(tx, networkName);
                                   let transactionResponse = await TransactionService(config).broadcast(signedTx.rawtx);
-                                  this.disabled = false;
-                                  this.$text = 'Send';
-                                  showPermanentMessage(`Transaction hash: ${transactionResponse}`);
+                                  let decoded = self._toHexString(transactionResponse.hash);
+                                  showPermanentMessage(`Transaction hash: ${decoded.toString('hex')}`);
                                 } catch (e) {
-                                  showError(e)
+                                  showError(e.json);
                                 }
+                                this.disabled = false;
+                                this.$text = 'Send';
                               } else {
                                 showError('The amount is less than allowed');
+                                this.disabled = false;
+                                this.$text = 'Send';
                               }
                             }
                           }
@@ -288,6 +296,8 @@ export function rskHandler () {
                                 this.$text = 'Send';
                               } else {
                                 showError('The amount is less than allowed');
+                                this.disabled = false;
+                                this.$text = 'Send';
                               }
                             }
                           }

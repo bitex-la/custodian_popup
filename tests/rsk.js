@@ -2,14 +2,14 @@ import { Selector } from 'testcafe'
 import { mockTrezor } from './trezor.js'
 import { mockJQueryAjax } from './jquery.js'
 
-fixture(`Testing Rsk transactions`).page(`http://localhost:9966`)
+fixture(`Testing Rsk transactions`).page(`http://localhost`)
 
 function _mockJQueryAjax (t) {
   mockJQueryAjax(t, (params, ajaxResponse) => {
     if (params.method === 'GET' && /estimatefee/.test(params.url)) {
       return ajaxResponse({2: '0.00001000'})
     } else if (params.method === 'POST' && /transactions\/broadcast/.test(params.url)) {
-      return ajaxResponse(null)
+      return ajaxResponse({hash: [1, 2, 3, 4, 5, 6, 7, 8, 9, 12]})
     } else if (params.method === 'GET' && /balance/.test(params.url)) {
       return ajaxResponse('1000000000000')
     } else if (params.method === 'GET' && /plain_wallets\/relationships\/addresses\/0\/get_utxos\?since=0&limit=1000000/.test(params.url)) {
@@ -87,4 +87,22 @@ test('Does not allow the creation of a transaction with less money that allowed'
     .typeText('input[id="amount-btc"]', '67539187298798798797')
     .click(Selector('#send-btc'))
     .expect(Selector('body').textContent).contains('The amount is less than allowed')
+})
+
+test('Does not allow transactions over invalid addresses', async t => {
+  mockTrezor(t)
+
+  const selectNetwork = Selector('#setup_network')
+
+  await t
+    .click('a[href="#tab_rsk"]')
+    .click(selectNetwork)
+    .click(selectNetwork.find('option').withText('Testnet'))
+    .click('button[data-id="get-address-rsk"]')
+    .typeText('input[id="destination-rsk-address"]', '12345678b90')
+    .click(Selector('#send-rsk'))
+    .expect(Selector('body').textContent).contains('Error: Provided address "12345678b90" is invalid')
+    .typeText('input[id="destination-btc-address"]', '9876544332')
+    .click(Selector('#send-btc'))
+    .expect(Selector('body').textContent).contains('Invalid parameters: Invalid Testnet output address 9876544332')
 })

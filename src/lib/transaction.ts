@@ -193,13 +193,7 @@ export class Transaction {
         transaction = rawTx.attributes;
       }
 
-      if (_this._walletType === '/hd_wallets') {
-        self.transaction.inputs.push({
-          address_n: path,
-          prev_hash: transaction.transaction_hash,
-          prev_index: transaction.position
-        });
-      } else if (_this._walletType === '/multisig_wallets') {
+      if (_this._walletType === '/multisig_wallets') {
         self.transaction.inputs.push({
           address_n: path,
           prev_hash: transaction.transaction_hash,
@@ -207,7 +201,14 @@ export class Transaction {
           script_type: 'SPENDMULTISIG',
           multisig: multisig
         });
+      } else {
+        self.transaction.inputs.push({
+          address_n: path,
+          prev_hash: transaction.transaction_hash,
+          prev_index: transaction.position
+        });
       }
+
       self.transaction.transactions.push({
         hash: transaction.transaction_hash,
         version: transaction.version,
