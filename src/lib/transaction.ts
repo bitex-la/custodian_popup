@@ -232,9 +232,9 @@ export class Transaction {
 
     await self.calculateFee(_networkName, _this._outputs.length, (fee: number) => {
       self.transaction.outputs = _.map(_this._outputs, (output: Output) => {
-        let outputResult = (<any>Object).assign({}, output)
-        outputResult['amount'] = outputResult['amount'] - fee
-        return outputResult
+        let outputResult = (<any>Object).assign({}, output);
+        outputResult['amount'] = outputResult['amount'] - fee;
+        return outputResult;
       });
     });
     return new Promise<InTransaction>((resolve, reject) => resolve(self.transaction) );

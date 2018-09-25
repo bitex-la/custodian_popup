@@ -156,7 +156,7 @@ export function rskHandler () {
                             id: 'send-btc',
                             async onclick () {
                               let self = this
-                              if (self._btcAddress.balance > self._btcAmount) {
+                              if (self._btcAddress.balance >= self._btcAmount) {
                                 this.disabled = true;
                                 this.$text = 'Sending...';
                                 let transaction = new Transaction();
@@ -170,6 +170,14 @@ export function rskHandler () {
                                     address: self._destinationBtcAddress,
                                     amount: self._btcAmount
                                   }];
+
+                                  if (self._btcAddress.balance > self._btcAmount) {
+                                    this['_outputs'] = [{
+                                      script_type: 'PAYTOADDRESS',
+                                      address: self._btcAddress.toString(),
+                                      amount: self._btcAddress.balance - self._btcAmount
+                                    }];
+                                  }
 
                                   let networkName = this._networkName === 'Mainnet' ? 'bitcoin' : 'testnet';
                                   let tx = await transaction.createTx(this, networkName);
