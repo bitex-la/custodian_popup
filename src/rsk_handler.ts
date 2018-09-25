@@ -172,11 +172,11 @@ export function rskHandler () {
                                   }];
 
                                   if (self._btcAddress.balance > self._btcAmount) {
-                                    this['_outputs'] = [{
+                                    this['_outputs'].push({
                                       script_type: 'PAYTOADDRESS',
                                       address: self._btcAddress.toString(),
                                       amount: self._btcAddress.balance - self._btcAmount
-                                    }];
+                                    });
                                   }
 
                                   let networkName = this._networkName === 'Mainnet' ? 'bitcoin' : 'testnet';
