@@ -68,6 +68,13 @@ test('Creates and test a rsk transaction', async t => {
     .click(Selector('#send-btc'))
     .click(Selector('#send-rsk'))
     .expect(Selector('body').textContent).contains('Transaction hash')
+    .wait(30000)
+    .expect(Selector('#amount-rsk').value).eql('')
+    .expect(Selector('#amount-btc').value).eql('')
+    .expect(Selector('#destination-rsk-address').value).eql('')
+    .expect(Selector('#destination-btc-address').value).eql('')
+    .expect(Selector('#origin-rsk-address').value).eql('')
+    .expect(Selector('#origin-btc-address').value).eql('')
 })
 
 test('Does not allow the creation of a transaction with less money that allowed', async t => {

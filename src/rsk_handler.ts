@@ -36,6 +36,16 @@ export function rskHandler () {
     _updateDestinationRskAddress (address: string) {
       this._destinationRskAddress = address;
     },
+    _clearBtcForm () {
+      this._btcAddress = '';
+      this._destinationBtcAddress = '';
+      this._btcAmount = '';
+    },
+    _clearRskForm () {
+      this._rskAddress = '';
+      this._destinationRskAddress = '';
+      this._rskAmount = '';
+    },
     $$:[
       {
         $virus: selectGroupism('Network', ['Select Network...', 'Mainnet', 'Testnet']),
@@ -96,6 +106,7 @@ export function rskHandler () {
                         class: 'form-control',
                         type: 'text',
                         readonly: true,
+                        id: 'origin-btc-address',
                         $update () { this.value = this._btcAddress.toString() }
                       },
                       {
@@ -110,6 +121,7 @@ export function rskHandler () {
                             type: 'text',
                             id: 'amount-btc',
                             placeholder: 'Amount',
+                            $update () { this.value = this._btcAmount },
                             onchange (e: Event) {
                               this._btcAmount = parseInt((<HTMLInputElement> e.target).value);
                             }
@@ -152,8 +164,8 @@ export function rskHandler () {
                             async onclick () {
                               let self = this
                               if (parseInt(self._btcAddress.balance) >= self._btcAmount) {
-                                this.disabled = true;
-                                this.$text = 'Sending...';
+                                self.disabled = true;
+                                self.$text = 'Sending...';
                                 let transaction = new Transaction();
 
                                 try {
@@ -178,16 +190,17 @@ export function rskHandler () {
                                   let tx = await transaction.createTx(this, networkName);
                                   let signedTx = await transaction.signTransaction(tx, networkName);
                                   let transactionResponse = await TransactionService(config).broadcast(signedTx.rawtx);
+                                  self._clearBtcForm();
                                   showPermanentMessage(`Transaction hash: ${transactionResponse}`);
                                 } catch (e) {
                                   showError(e.json || e.payload.error);
                                 }
-                                this.disabled = false;
-                                this.$text = 'Send';
+                                self.disabled = false;
+                                self.$text = 'Send';
                               } else {
                                 showError('The amount is less than allowed');
-                                this.disabled = false;
-                                this.$text = 'Send';
+                                self.disabled = false;
+                                self.$text = 'Send';
                               }
                             }
                           }
@@ -223,6 +236,7 @@ export function rskHandler () {
                         class: 'form-control',
                         type: 'text',
                         readonly: true,
+                        id: 'origin-rsk-address',
                         $update () { this.value = this._rskAddress.toString() }
                       },
                       {
@@ -237,6 +251,7 @@ export function rskHandler () {
                             type: 'text',
                             id: 'amount-rsk',
                             placeholder: 'Amount',
+                            $update () { this.value = this._rskAmount },
                             onchange (e: Event) {
                               this._rskAmount = parseInt((<HTMLInputElement> e.target).value);
                             }
@@ -275,31 +290,36 @@ export function rskHandler () {
                             $virus: buttonismWithSize('Send', 'primary', 'block'),
                             id: 'send-rsk',
                             async onclick () {
-                              if (this._rskAddress.balance > this._rskAmount) {
+                              let self = this;
+                              if (self._rskAddress.balance > self._rskAmount) {
                                 try {
-                                  this.disabled = true;
-                                  this.$text = 'Sending...';
+                                  self.disabled = true;
+                                  self.$text = 'Sending...';
                                   let transaction = new Transaction();
                                   let rskPath =
-                                    this._networkName === 'Mainnet' ?
+                                    self._networkName === 'Mainnet' ?
                                       config.rskMainNetPath : config.rskTestNetPath;
-                                  let tx = await transaction.sendRskTransaction(this._networkName,
+                                  let tx = await transaction.sendRskTransaction(self._networkName,
                                     rskPath,
-                                    this._destinationRskAddress,
-                                    this._rskAddress.toString(),
+                                    self._destinationRskAddress,
+                                    self._rskAddress.toString(),
                                     null,
-                                    this._rskAmount,
+                                    self._rskAmount,
                                     null);
+                                  self._clearRskForm();
                                   showPermanentMessage(`Transaction hash: ${tx.transactionHash}`);
                                 } catch (e) {
+                                  if (e === 'The process continues in background') {
+                                    self._clearRskForm();
+                                  }
                                   showError(e);
                                 }
-                                this.disabled = false;
-                                this.$text = 'Send';
+                                self.disabled = false;
+                                self.$text = 'Send';
                               } else {
                                 showError('The amount is less than allowed');
-                                this.disabled = false;
-                                this.$text = 'Send';
+                                self.disabled = false;
+                                self.$text = 'Send';
                               }
                             }
                           }
