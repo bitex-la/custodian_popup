@@ -68,7 +68,7 @@ test('Creates and test a rsk transaction', async t => {
     .click(Selector('#send-btc'))
     .click(Selector('#send-rsk'))
     .expect(Selector('body').textContent).contains('Transaction hash')
-    .wait(30000)
+    .wait(310000)
     .expect(Selector('#amount-rsk').value).eql('')
     .expect(Selector('#amount-btc').value).eql('')
     .expect(Selector('#destination-rsk-address').value).eql('')
