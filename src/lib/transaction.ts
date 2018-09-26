@@ -300,7 +300,6 @@ export class Transaction {
   async sendRskTransaction(network: string, path: number[], to: string, _from: string, gasPriceGwei: number, value: number, data?: string) {
     let self = this;
     loading();
-    let timeOut = new Promise((resolve, reject) => setTimeout(() => reject('It took 5 minutes, something probably gone wrong'), 300000));
 
     let web3 = self.getWeb3();
     let gasValue: number = await self.getGasPrice();
@@ -342,8 +341,7 @@ export class Transaction {
       let ethtx = new EthereumTx(tx);
       const serializedTx = ethtx.serialize();
       const rawTx = '0x' + serializedTx.toString('hex');
-      var sendTx = web3.eth.sendSignedTransaction(rawTx);
-      return Promise.race([sendTx, timeOut]);
+      return web3.eth.sendSignedTransaction(rawTx);
     } else {
       throw new Error(result.payload.error);
     }
