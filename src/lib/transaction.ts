@@ -300,7 +300,7 @@ export class Transaction {
   async sendRskTransaction(network: string, path: number[], to: string, _from: string, gasPriceGwei: number, value: number, data?: string) {
     let self = this;
     loading();
-    let timeOut = new Promise((resolve, reject) => setTimeout(() => reject('The process continues in background'), 120000));
+    let timeOut = new Promise((resolve, reject) => setTimeout(() => reject('It took 5 minutes, something probably gone wrong'), 300000));
 
     let web3 = self.getWeb3();
     let gasValue: number = await self.getGasPrice();
