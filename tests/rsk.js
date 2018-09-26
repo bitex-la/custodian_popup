@@ -2,7 +2,7 @@ import { Selector } from 'testcafe'
 import { mockTrezor } from './trezor.js'
 import { mockJQueryAjax } from './jquery.js'
 
-fixture(`Testing Rsk transactions`).page(`http://localhost`)
+fixture(`Testing Rsk transactions`).page(`http://localhost:9966`)
 
 function _mockJQueryAjax (t) {
   mockJQueryAjax(t, (params, ajaxResponse) => {
