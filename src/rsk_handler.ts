@@ -151,7 +151,7 @@ export function rskHandler () {
                             id: 'send-btc',
                             async onclick () {
                               let self = this
-                              if (self._btcAddress.balance >= self._btcAmount) {
+                              if (parseInt(self._btcAddress.balance) >= self._btcAmount) {
                                 this.disabled = true;
                                 this.$text = 'Sending...';
                                 let transaction = new Transaction();
@@ -180,7 +180,7 @@ export function rskHandler () {
                                   let transactionResponse = await TransactionService(config).broadcast(signedTx.rawtx);
                                   showPermanentMessage(`Transaction hash: ${transactionResponse}`);
                                 } catch (e) {
-                                  showError(e.json);
+                                  showError(e.json || e.payload.error);
                                 }
                                 this.disabled = false;
                                 this.$text = 'Send';

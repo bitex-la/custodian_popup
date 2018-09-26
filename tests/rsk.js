@@ -9,10 +9,10 @@ function _mockJQueryAjax (t) {
     if (params.method === 'GET' && /estimatefee/.test(params.url)) {
       return ajaxResponse({2: '0.00001000'})
     } else if (params.method === 'POST' && /transactions\/broadcast/.test(params.url)) {
-      return ajaxResponse({hash: [1, 2, 3, 4, 5, 6, 7, 8, 9, 12]})
+      return ajaxResponse('58e1b8b52e85d25c2566db3a5f39d26fdfd2849b9860e74a1b012f3b8a9b32c7')
     } else if (params.method === 'GET' && /balance/.test(params.url)) {
       return ajaxResponse('1000000000000')
-    } else if (params.method === 'GET' && /plain_wallets\/relationships\/addresses\/0\/get_utxos\?since=0&limit=1000000/.test(params.url)) {
+    } else if (params.method === 'GET' && /get_utxos\?since=0&limit=1000000/.test(params.url)) {
       return ajaxResponse({
         data: [{
           attributes: {
@@ -91,6 +91,7 @@ test('Does not allow the creation of a transaction with less money that allowed'
 
 test('Does not allow transactions over invalid addresses', async t => {
   mockTrezor(t)
+  _mockJQueryAjax(t)
 
   const selectNetwork = Selector('#setup_network')
 
