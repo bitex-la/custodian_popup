@@ -36,11 +36,6 @@ export function rskHandler () {
     _updateDestinationRskAddress (address: string) {
       this._destinationRskAddress = address;
     },
-    _toHexString (byteArray: number[]) {
-      return Array.prototype.map.call(byteArray, function (byte: number) {
-        return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-      }).join('');
-    },
     $$:[
       {
         $virus: selectGroupism('Network', ['Select Network...', 'Mainnet', 'Testnet']),
@@ -183,8 +178,7 @@ export function rskHandler () {
                                   let tx = await transaction.createTx(this, networkName);
                                   let signedTx = await transaction.signTransaction(tx, networkName);
                                   let transactionResponse = await TransactionService(config).broadcast(signedTx.rawtx);
-                                  let decoded = self._toHexString(transactionResponse.hash);
-                                  showPermanentMessage(`Transaction hash: ${decoded.toString('hex')}`);
+                                  showPermanentMessage(`Transaction hash: ${transactionResponse}`);
                                 } catch (e) {
                                   showError(e.json);
                                 }
