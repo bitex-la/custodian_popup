@@ -1,9 +1,10 @@
-import { hamlism } from '../lib/hamlism'
-import { Transaction } from '../lib/transaction'
-import { updateEpidemic } from '../lib/update_epidemic'
-import { buttonism, buttonismWithSize } from '../lib/bootstrapism'
-import { showError, showSuccess } from '../messages'
-import { DerivationPathModal } from './derivation_path_modal.js'
+import { hamlism } from '../lib/hamlism';
+import { Transaction } from '../lib/transaction';
+import { updateEpidemic } from '../lib/update_epidemic';
+import { buttonism, buttonismWithSize } from '../lib/bootstrapism';
+import { showError, showSuccess } from '../messages';
+import { DerivationPathModal } from './derivation_path_modal.js';
+import Cell from '../types/cell';
 
 export function rskModal () {
   return {
@@ -75,11 +76,9 @@ export function rskModal () {
                         class: 'form-control',
                         type: 'text',
                         disabled: true,
-                        $update () {
-                          this.value = this._fromRskAddress
-                        },
-                        onchange (e) {
-                          this._fromRskAddress = e.target.value
+                        $update () { this.value = this._fromRskAddress; },
+                        onchange (e: Event) {
+                          this._fromRskAddress = parseInt((<HTMLInputElement> e.target).value);
                         }
                       },
                       {
@@ -91,8 +90,8 @@ export function rskModal () {
                             'data-target': '#modalDerivation',
                             'data-id': 'add-address-from-trezor',
                             onclick () {
-                              let derivationPathModal = document.querySelector('#modalDerivation')
-                              derivationPathModal._network = this._network
+                              let derivationPathModal = <any> document.querySelector('#modalDerivation');
+                              derivationPathModal._network = this._network;
                             }
                           }
                         ]
@@ -120,8 +119,8 @@ export function rskModal () {
                             this.removeAttribute('disabled')
                           }
                         },
-                        onchange (e) {
-                          this._toRskAddress = e.target.value
+                        onchange (e: Event) {
+                          this._toRskAddress = parseInt((<HTMLInputElement> e.target).value);
                         }
                       }
                     ]
@@ -139,11 +138,9 @@ export function rskModal () {
                         id: 'amount-rsk',
                         class: 'form-control',
                         type: 'number',
-                        $update () {
-                          this.value = this._rskAmount
-                        },
-                        onchange (e) {
-                          this._rskAmount = e.target.value
+                        $update () { this.value = this._rskAmount; },
+                        onchange (e: Event) {
+                          this._rskAmount = parseInt((<HTMLInputElement> e.target).value);
                         }
                       },
                       {
@@ -153,11 +150,11 @@ export function rskModal () {
                             $virus: buttonism('Get balance'),
                             'data-id': 'add-balance',
                             async onclick () {
-                              let self = document.querySelector('#modalDialogRsk')
-                              let transaction = new Transaction()
-                              let balance = await transaction.getRskBalance(this._fromRskAddress)
-                              this._rskAmount = balance
-                              self.$update()
+                              let self = <Cell> document.querySelector('#modalDialogRsk');
+                              let transaction = new Transaction();
+                              let balance = await transaction.getRskBalance(this._fromRskAddress);
+                              this._rskAmount = balance;
+                              self.$update();
                             }
                           }
                         ]
@@ -178,27 +175,27 @@ export function rskModal () {
                     $virus: buttonismWithSize('Submit', 'primary', 'small'),
                     'data-id': 'create-rsk-modal-tx',
                     onclick () {
-                      let self = this
-                      let transaction = new Transaction()
-                      let path = JSON.parse(self._path)
+                      let self = this;
+                      let transaction = new Transaction();
+                      let path = JSON.parse(self._path);
                       if (path.length === 0) {
-                        let modalDerivation = document.querySelector('#modalDerivation')
-                        modalDerivation._fromTrezor = false
-                        window.$('#modalDerivation').modal('show')
+                        let modalDerivation = <any> document.querySelector('#modalDerivation');
+                        modalDerivation._fromTrezor = false;
+                        (<any> window).$('#modalDerivation').modal('show');
                       } else {
                         try {
                           switch (self._network) {
                             case 'Bitcoin':
-                              transaction.sendBtcTransaction(self._networkName, path, self._toRskAddress, self._fromRskAddress, parseInt(self._rskAmount))
-                              break
+                              transaction.sendBtcTransaction(self._networkName, path, self._toRskAddress, self._fromRskAddress, parseInt(self._rskAmount));
+                              break;
                             case 'Rsk':
-                              transaction.sendRskTransaction(self._networkName, path, self._toRskAddress, self._fromRskAddress, null, parseInt(self._rskAmount), null)
-                              break
+                              transaction.sendRskTransaction(self._networkName, path, self._toRskAddress, self._fromRskAddress, null, parseInt(self._rskAmount), null);
+                              break;
                           }
-                          showSuccess('Transaction broadcasted')
-                          window.$('#modalDialogRsk').modal('hide')
+                          showSuccess('Transaction broadcasted');
+                          (<any> window).$('#modalDialogRsk').modal('hide');
                         } catch (e) {
-                          showError(e)
+                          showError(e);
                         }
                       }
                     }
