@@ -110,3 +110,22 @@ test('Does not allow transactions over invalid addresses', async t => {
     .click(Selector('#send-btc'))
     .expect(Selector('body').textContent).contains('Invalid parameters: Invalid Testnet output address 9876544332')
 })
+
+test('Throws an error when network is wrong', async t => {
+  mockTrezor(t)
+  _mockJQueryAjax(t)
+
+  const selectNetwork = Selector('#setup_network')
+
+  await t
+    .click('a[href="#tab_rsk"]')
+    .click(selectNetwork)
+    .click(selectNetwork.find('option').withText('Testnet'))
+    .click('button[data-id="conf-modal-button"]')
+    .selectText('input[id="url-conf-rsk-testnet"]')
+    .pressKey('delete')
+    .typeText('input[id="url-conf-rsk-testnet"]', 'aaa')
+    .click('button[data-id="set-conf"]')
+    .click('button[data-id="get-address-rsk"]')
+    .expect(Selector('body').textContent).contains("Error: CONNECTION ERROR: Couldn't connect to node aaa.")
+})

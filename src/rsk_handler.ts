@@ -74,6 +74,7 @@ export function rskHandler () {
               {
                 $type: 'button',
                 class: 'btn btn-info float-right',
+                'data-id': 'conf-modal-button',
                 'data-toggle': 'modal',
                 'data-target': '#confModal',
                 $$: [

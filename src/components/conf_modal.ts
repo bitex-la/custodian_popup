@@ -104,6 +104,7 @@ export function confModal () {
                   },
                   {
                     $virus: buttonismWithSize('Submit', 'primary', 'small'),
+                    'data-dismiss': 'modal',
                     'data-id': 'set-conf',
                     onclick () {
                       if (this._rskTestnetUrl.length > 0) {
