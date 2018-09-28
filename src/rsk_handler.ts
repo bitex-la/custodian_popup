@@ -6,6 +6,7 @@ import config from './config';
 import { WalletService } from './services/wallet_service';
 import { TransactionService } from './services/transaction_service';
 import { showError, showPermanentMessage } from './messages';
+import { confModal } from './components/conf_modal';
 
 export function rskHandler () {
   let btcAddress: Address = { balance: '0', toString: (): string => '', type: '' };
@@ -47,16 +48,44 @@ export function rskHandler () {
       this._rskAmount = '';
     },
     $$:[
+      confModal(),
       {
-        $virus: selectGroupism('Network', ['Select Network...', 'Mainnet', 'Testnet']),
-        name: 'network',
-        id: 'setup_network',
-        autofocus: true,
-        $update () { this.value = this._networkName },
-        onchange (e: Event) {
-           this._networkName = (<HTMLInputElement> e.target).value;
-           document.getElementById('get-address-button').classList.remove('invisible');
-        }
+        class: 'row',
+        $$: [
+          {
+            class: 'col-sm-11',
+            $$: [
+              {
+                $virus: selectGroupism('Network', ['Select Network...', 'Mainnet', 'Testnet']),
+                name: 'network',
+                id: 'setup_network',
+                autofocus: true,
+                $update() { this.value = this._networkName },
+                onchange(e: Event) {
+                  this._networkName = (<HTMLInputElement>e.target).value;
+                  document.getElementById('get-address-button').classList.remove('invisible');
+                }
+              }
+            ]
+          },
+          {
+            class: 'col-sm-1',
+            $$: [
+              {
+                $type: 'button',
+                class: 'btn btn-info float-right',
+                'data-toggle': 'modal',
+                'data-target': '#confModal',
+                $$: [
+                  {
+                    $type: 'i',
+                    class: 'fas fa-wrench'
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       {
         class: 'form-group invisible',
@@ -66,14 +95,18 @@ export function rskHandler () {
             $virus: buttonismWithSize('Get Addresses', 'info', 'block'),
             'data-id': 'get-address-rsk',
             async onclick () {
-              let transaction = new Transaction();
-              let [coin, btcPath, rskPath] =
-                this._networkName === 'Mainnet' ?
-                 ['btc', config.defaultPath, config.rskMainNetPath] :
-                 ['testnet', config.defaultTestnetPath, config.rskTestNetPath];
-              this._updateBtcAddress(<Address> await transaction._addAddressFromTrezor('Bitcoin', btcPath, coin));
-              this._updateRskAddress(<Address> await transaction._addAddressFromTrezor('Rsk', rskPath));
-              document.getElementById('exchange-operations').classList.remove('invisible');
+              try {
+                let transaction = new Transaction();
+                let [coin, btcPath, rskPath] =
+                  this._networkName === 'Mainnet' ?
+                  ['btc', config.defaultPath, config.rskMainNetPath] :
+                  ['testnet', config.defaultTestnetPath, config.rskTestNetPath];
+                this._updateBtcAddress(<Address> await transaction._addAddressFromTrezor('Bitcoin', btcPath, coin));
+                this._updateRskAddress(<Address> await transaction._addAddressFromTrezor('Rsk', rskPath));
+                document.getElementById('exchange-operations').classList.remove('invisible');
+              } catch (e) {
+                showError(e);
+              }
             }
           }
         ]

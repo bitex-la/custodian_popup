@@ -4,7 +4,7 @@ export class Config {
   btcNodeUrl: string = '/api/btc';
   bchNodeUrl: string = '/api/bch';
   ltcNodeUrl: string = '/api/ltc';
-  rskNodeUrl: string = 'http://mycrypto.testnet.rsk.co/';
+  rskNodeUrl: string = '';
   nodeSelected: string = 'btcNodeUrl';
   rskMainNetPath: number[] = [44, 137, 0, 0, 0];
   rskTestNetPath: number[] = [44, 37310, 0, 0, 0];
@@ -12,6 +12,23 @@ export class Config {
   defaultTestnetPath: number[] = [44, 1, 0, 0, 0];
   defaultSegwitPath: number[] = [49, 0, 0, 0, 0];
   defaultSegwitTestnetPath: number[] = [49, 1, 0, 0, 0];
+  storage = window.localStorage;
+
+  _setRskTestnetNodeUrl(url: string) {
+    this.storage.setItem('rskTestnetNodeUrl', url);
+  }
+
+  _setRskMainnetNodeUrl(url: string) {
+    this.storage.setItem('rskMainnetNodeUrl', url);
+  }
+
+  _getRskMainnetNodeUrl(): string {
+    return this.storage.getItem('rskMainnetNodeUrl') || 'https://public-node.rsk.co/';
+  }
+
+  _getRskTestnetNodeUrl(): string {
+    return this.storage.getItem('rskTestnetNodeUrl') || 'http://mycrypto.testnet.rsk.co/';
+  }
 
   _derivationPaths() : DerivationPath[] {
     return [{
@@ -82,9 +99,9 @@ export class Config {
   _getUrlRskNode(_networkName: string): string {
     switch(_networkName) {
       case 'Testnet':
-        return 'http://mycrypto.testnet.rsk.co/'
+        return this._getRskTestnetNodeUrl();
       default:
-        return 'https://public-node.rsk.co/'
+        return this._getRskMainnetNodeUrl();
     }
   }
 

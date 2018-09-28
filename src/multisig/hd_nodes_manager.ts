@@ -148,7 +148,8 @@ export function hdNodesManager () {
                       }
                       hdNode.getBalance = async () => {
                         let transaction = new Transaction()
-                        return transaction.getRskBalance(hdNode.getAddress())
+                        let network = self._networkName === 'rsk_testnet' ? 'Testnet' : 'Mainnet';
+                        return transaction.getRskBalance(network, hdNode.getAddress())
                       }
                       this._hdNodes.push(hdNode)
                       break

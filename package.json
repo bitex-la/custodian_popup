@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/bitex-la/custodian-popup",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.3.1",
     "@intercellular/cell": "bitex-la/cell#virus",
     "@types/bitcoinjs-lib": "^3.4.0",
     "@types/node": "^10.7.1",

@@ -113,7 +113,8 @@ export class Transaction {
   async _addAddressFromTrezor (network: Network, _derivationPath: number[], coin?: string): Promise<{}> {
     switch(network) {
       case "Rsk":
-        return this._addRskAddressFromTrezor(_derivationPath);
+        let rsknetwork = _derivationPath === config.rskTestNetPath ? 'Testnet' : 'Mainnet';
+        return this._addRskAddressFromTrezor(rsknetwork, _derivationPath);
       case "Bitcoin":
         return this._addBtcAddressFromTrezor(_derivationPath, coin);
     }
@@ -130,11 +131,11 @@ export class Transaction {
     }
   }
 
-  async _addRskAddressFromTrezor (_derivationPath: number[]): Promise<{}> {
+  async _addRskAddressFromTrezor (network: string, _derivationPath: number[]): Promise<{}> {
     const ethAddress = await (<any> window).TrezorConnect.ethereumGetAddress({path: _derivationPath});
     if (ethAddress.success) {
       try {
-        let balance: string = await this.getRskBalance(ethAddress.payload.address.toLowerCase());
+        let balance: string = await this.getRskBalance(network, ethAddress.payload.address.toLowerCase());
         let address: Address = { 
           toString: () => ethAddress.payload.address.toLowerCase(),
           type: 'rsk',
@@ -301,11 +302,11 @@ export class Transaction {
     let self = this;
     loading();
 
-    let web3 = self.getWeb3();
-    let gasValue: number = await self.getGasPrice();
+    let web3 = self.getWeb3(network);
+    let gasValue: number = await self.getGasPrice(network);
     let gasPrice: number = gasPriceGwei === null ? gasValue : gasPriceGwei * 1e9;
-    let gasEstimated: number = await self.estimateGas(data, to);
-    let nonce: string = await self.getNonce(_from);
+    let gasEstimated: number = await self.estimateGas(network, data, to);
+    let nonce: string = await self.getNonce(network, _from);
     let finalValue = value - (gasPrice * gasEstimated);
 
     const result = await (<any>window).TrezorConnect.ethereumSignTransaction({
@@ -369,8 +370,8 @@ export class Transaction {
     }
   }
 
-  async getGasPrice(): Promise<number> {
-    let web3 = this.getWeb3();
+  async getGasPrice(network: string): Promise<number> {
+    let web3 = this.getWeb3(network);
     let getLatestBlock: any = await web3.eth.getBlock('latest');
     let rawGas = parseFloat(getLatestBlock.minimumGasPrice);
     let gasPrice = rawGas === 0 ? 0.001 : rawGas;
@@ -383,13 +384,13 @@ export class Transaction {
     return rawGasLimit;
   }
 
-  async estimateGas(data: string, to: string): Promise<number> {
-    let web3 = this.getWeb3();
+  async estimateGas(network: string, data: string, to: string): Promise<number> {
+    let web3 = this.getWeb3(network);
     return await web3.eth.estimateGas({to, data});
   }
 
-  async getNonce(address: string): Promise<string> {
-    let web3 = this.getWeb3();
+  async getNonce(network: string, address: string): Promise<string> {
+    let web3 = this.getWeb3(network);
     let rawNonce: number = await web3.eth.getTransactionCount(address);
     return `${rawNonce.toString(16)}`;
   }
@@ -418,8 +419,8 @@ export class Transaction {
     });
   }
 
-  getRskBalance(address: string): Promise<string> {
-    let web3 = this.getWeb3();
+  getRskBalance(network: string, address: string): Promise<string> {
+    let web3 = this.getWeb3(network);
     return new Promise((resolve, reject) => {
       web3.eth.getBalance(address).then((balance: string) => resolve(balance)).catch((error: string) => reject(error));
     })
@@ -437,7 +438,7 @@ export class Transaction {
     return rskUtils.getBtcPrivateKey(net, privKey);
   }
 
-  getWeb3 () {
-    return new Web3(new Web3.providers.HttpProvider(config.rskNodeUrl))
+  getWeb3 (network: string) {
+    return new Web3(new Web3.providers.HttpProvider(config._getUrlRskNode(network)));
   }
 }
