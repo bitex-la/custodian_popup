@@ -98,12 +98,12 @@ export function rskHandler () {
             async onclick () {
               try {
                 let transaction = new Transaction();
-                let [coin, btcPath, rskPath] =
+                let [coin, derivationPath] =
                   this._networkName === 'Mainnet' ?
-                  ['btc', config.defaultPath, config.rskMainNetPath] :
-                  ['testnet', config.defaultTestnetPath, config.rskTestNetPath];
-                this._updateBtcAddress(<Address> await transaction._addAddressFromTrezor('Bitcoin', btcPath, coin));
-                this._updateRskAddress(<Address> await transaction._addAddressFromTrezor('Rsk', rskPath));
+                  ['btc', config.defaultPath] :
+                  ['testnet', config.defaultTestnetPath];
+                this._updateBtcAddress(<Address> await transaction._addAddressFromTrezor('Bitcoin', derivationPath, coin));
+                this._updateRskAddress(<Address> await transaction._addAddressFromTrezor('Rsk', derivationPath));
                 document.getElementById('exchange-operations').classList.remove('invisible');
               } catch (e) {
                 showError(e);
