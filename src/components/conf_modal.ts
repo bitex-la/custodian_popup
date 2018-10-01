@@ -98,8 +98,8 @@ export function confModal () {
                       }
                     ]
                   },
-                  derivationPath('mainnet-derivation-path', '_derivationPathMainnet'),
-                  derivationPath('testnet-derivation-path', '_derivationPathTestnet')
+                  derivationPath('mainnet-derivation-path', 'Mainnet Custom Path', '_derivationPathMainnet'),
+                  derivationPath('testnet-derivation-path', 'Testnet Custom Path', '_derivationPathTestnet')
                 ]
               },
               {

@@ -1,13 +1,13 @@
-export function derivationPath(id: string, derivationPath: string) {
+export function derivationPath(id: string, title: string, derivationPath: string) {
   return {
-    id: "derivationPath",
+    id: id,
     $$: [
       {
         class: "form-group input-group",
         $$: [
           {
             $tag: "span.input-group-addon.col-sm-2",
-            $text: "Custom Path"
+            $text: title
           },
           {
             $tag: "input",

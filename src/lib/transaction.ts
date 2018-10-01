@@ -111,12 +111,15 @@ export class Transaction {
   transaction: InTransaction = { outputs: [], inputs: [], transactions: [] };
 
   async _addAddressFromTrezor (network: Network, _derivationPath: number[], coin?: string): Promise<{}> {
+    let [rsknetwork, derivationPath] = 
+      JSON.stringify(_derivationPath) === JSON.stringify(config._getDerivationPathTestnet()) ?
+        ['Testnet', config._getDerivationPathTestnet()] : ['Mainnet', config._getDerivationPathMainnet()];
+
     switch(network) {
       case "Rsk":
-        let rsknetwork = JSON.stringify(_derivationPath) === JSON.stringify(config._getDerivationPathTestnet()) ? 'Testnet' : 'Mainnet';
-        return this._addRskAddressFromTrezor(rsknetwork, _derivationPath);
+        return this._addRskAddressFromTrezor(rsknetwork, derivationPath);
       case "Bitcoin":
-        return this._addBtcAddressFromTrezor(_derivationPath, coin);
+        return this._addBtcAddressFromTrezor(derivationPath, coin);
     }
   }
 
