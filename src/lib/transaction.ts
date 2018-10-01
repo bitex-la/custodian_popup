@@ -113,7 +113,7 @@ export class Transaction {
   async _addAddressFromTrezor (network: Network, _derivationPath: number[], coin?: string): Promise<{}> {
     switch(network) {
       case "Rsk":
-        let rsknetwork = _derivationPath === config.rskTestNetPath ? 'Testnet' : 'Mainnet';
+        let rsknetwork = JSON.stringify(_derivationPath) === JSON.stringify(config._getDerivationPathTestnet()) ? 'Testnet' : 'Mainnet';
         return this._addRskAddressFromTrezor(rsknetwork, _derivationPath);
       case "Bitcoin":
         return this._addBtcAddressFromTrezor(_derivationPath, coin);
@@ -307,7 +307,7 @@ export class Transaction {
     let gasPrice: number = gasPriceGwei === null ? gasValue : gasPriceGwei * 1e9;
     let gasEstimated: number = await self.estimateGas(network, data, to);
     let nonce: string = await self.getNonce(network, _from);
-    let finalValue = value - (gasPrice * gasEstimated);
+    let finalValue = (value * 10000000000) - (gasPrice * gasEstimated);
 
     const result = await (<any>window).TrezorConnect.ethereumSignTransaction({
       path,
@@ -422,7 +422,10 @@ export class Transaction {
   getRskBalance(network: string, address: string): Promise<string> {
     let web3 = this.getWeb3(network);
     return new Promise((resolve, reject) => {
-      web3.eth.getBalance(address).then((balance: string) => resolve(balance)).catch((error: string) => reject(error));
+      web3.eth.getBalance(address).then((balance: string) => {
+        let convertedAmount = parseInt(balance) / 10000000000;
+        resolve(convertedAmount.toString());
+      }).catch((error: string) => reject(error));
     })
   }
 

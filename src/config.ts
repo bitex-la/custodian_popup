@@ -27,7 +27,23 @@ export class Config {
   }
 
   _getRskTestnetNodeUrl(): string {
-    return this.storage.getItem('rskTestnetNodeUrl') || 'http://mycrypto.testnet.rsk.co/';
+    return this.storage.getItem('rskTestnetNodeUrl') || 'https://public-node.testnet.rsk.co/';
+  }
+
+  _setDerivationPathMainnet(path: number[]) {
+    this.storage.setItem('derivationPathMainnet', JSON.stringify(path));
+  }
+
+  _setDerivationPathTestnet(path: number[]) {
+    this.storage.setItem('derivationPathTestnet', JSON.stringify(path));
+  }
+
+  _getDerivationPathMainnet(): number[] {
+    return JSON.parse(this.storage.getItem('derivationPathMainnet')) || this.defaultPath;
+  }
+
+  _getDerivationPathTestnet(): number[] {
+    return JSON.parse(this.storage.getItem('derivationPathTestnet')) || this.defaultTestnetPath;
   }
 
   _derivationPaths() : DerivationPath[] {

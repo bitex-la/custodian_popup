@@ -2,8 +2,10 @@ import { hamlism } from '../lib/hamlism';
 import { updateEpidemic } from '../lib/update_epidemic';
 import { buttonismWithSize } from '../lib/bootstrapism';
 import config from '../config';
+import { derivationPath } from './derivation_path';
 
 export function confModal () {
+  let emptyPath: number[] = [];
   return {
     id: 'confModal',
     class: 'modal fade',
@@ -12,9 +14,13 @@ export function confModal () {
     _title: 'Configuration',
     _rskTestnetUrl: '',
     _rskMainnetUrl: '',
+    _derivationPathMainnet: emptyPath,
+    _derivationPathTestnet: emptyPath,
     $init() {
       this._rskTestnetUrl = config._getRskTestnetNodeUrl();
       this._rskMainnetUrl = config._getRskMainnetNodeUrl();
+      this._derivationPathMainnet = config._getDerivationPathMainnet();
+      this._derivationPathTestnet = config._getDerivationPathTestnet();
     },
     $$: [
       {
@@ -91,7 +97,9 @@ export function confModal () {
                         }
                       }
                     ]
-                  }
+                  },
+                  derivationPath('mainnet-derivation-path', '_derivationPathMainnet'),
+                  derivationPath('testnet-derivation-path', '_derivationPathTestnet')
                 ]
               },
               {
@@ -112,6 +120,12 @@ export function confModal () {
                       }
                       if (this._rskMainnetUrl.length > 0) {
                         config._setRskMainnetNodeUrl(this._rskMainnetUrl);
+                      }
+                      if (this._derivationPathMainnet.length > 0) {
+                        config._setDerivationPathMainnet(this._derivationPathMainnet);
+                      }
+                      if (this._derivationPathTestnet.length > 0) {
+                        config._setDerivationPathTestnet(this._derivationPathTestnet);
                       }
 
                       (<any> $('#confModal')).modal('hide');
