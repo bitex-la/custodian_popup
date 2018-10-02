@@ -12,7 +12,7 @@ export function derivationPath(id: string, title: string, derivationPath: string
           {
             $tag: "input",
             name: "purpose-path",
-            id: "purpose-path",
+            id: `${id}-purpose-path`,
             class: "form-control col-sm-2",
             type: "number",
             $update () { this.value = this[derivationPath][0]; },
@@ -23,7 +23,7 @@ export function derivationPath(id: string, title: string, derivationPath: string
           {
             $tag: "input",
             name: "coin-type-path",
-            id: "coin-type-path",
+            id: `${id}-coin-type-path`,
             class: "form-control col-sm-2",
             type: "number",
             $update () { this.value = this[derivationPath][1]; },
@@ -34,7 +34,7 @@ export function derivationPath(id: string, title: string, derivationPath: string
           {
             $tag: "input",
             name: "account-path",
-            id: "account-path",
+            id: `${id}-account-path`,
             class: "form-control col-sm-2",
             type: "number",
             $update () { this.value = this[derivationPath][2]; },
@@ -45,7 +45,7 @@ export function derivationPath(id: string, title: string, derivationPath: string
           {
             $tag: "input",
             name: "change-path",
-            id: "change-path",
+            id: `${id}-change-path`,
             class: "form-control col-sm-2",
             type: "number",
             $update () { this.value = this[derivationPath][3]; },
@@ -56,7 +56,7 @@ export function derivationPath(id: string, title: string, derivationPath: string
           {
             $tag: "input",
             name: "address-index-path",
-            id: "address-index-path",
+            id: `${id}-address-index-path`,
             class: "form-control col-sm-2",
             type: "number",
             $update () { this.value = this[derivationPath][4]; },
