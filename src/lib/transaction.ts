@@ -101,12 +101,15 @@ export interface Address {
   type: string;
 }
 
-type Bitcoin = "Bitcoin"
-type Rsk = "Rsk"
+type Bitcoin = "Bitcoin";
+type Rsk = "Rsk";
 
-type Network  = Bitcoin | Rsk
+type Network  = Bitcoin | Rsk;
 
 export class Transaction {
+
+  SATOSHIS = 100000000;
+  WEISTOSATOSHIS = 10000000000;
 
   transaction: InTransaction = { outputs: [], inputs: [], transactions: [] };
 
@@ -155,7 +158,7 @@ export class Transaction {
 
   async calculateFee (_networkName: string, outputLength: number, callback: Function) {
     let calculateFee = (response: {2: string}, callback: Function) => {
-      let satoshis = parseFloat(response[2]) * 100000000;
+      let satoshis = parseFloat(response[2]) * this.SATOSHIS;
       let fee = (10 + (149 * this.transaction.inputs.length) + (35 * outputLength)) * satoshis;
       callback(fee);
     }
@@ -310,7 +313,7 @@ export class Transaction {
     let gasPrice: number = gasPriceGwei === null ? gasValue : gasPriceGwei * 1e9;
     let gasEstimated: number = await self.estimateGas(network, data, to);
     let nonce: string = await self.getNonce(network, _from);
-    let finalValue = (value * 10000000000) - (gasPrice * gasEstimated);
+    let finalValue = (value * this.WEISTOSATOSHIS) - (gasPrice * gasEstimated);
 
     const result = await (<any>window).TrezorConnect.ethereumSignTransaction({
       path,
@@ -426,7 +429,8 @@ export class Transaction {
     let web3 = this.getWeb3(network);
     return new Promise((resolve, reject) => {
       web3.eth.getBalance(address).then((balance: string) => {
-        let convertedAmount = parseInt(balance) / 10000000000;
+        
+        let convertedAmount = parseInt(balance) / this.WEISTOSATOSHIS;
         resolve(convertedAmount.toString());
       }).catch((error: string) => reject(error));
     })
