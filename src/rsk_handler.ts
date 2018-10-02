@@ -325,16 +325,22 @@ export function rskHandler () {
                             id: 'send-rsk',
                             async onclick () {
                               let self = this;
-                              if (self._rskAddress.balance > self._rskAmount) {
+                              if (self._rskAddress.balance < self._rskAmount) {
+                                showError('The amount is less than allowed');
+                              } else if (self._rskAmount < 500000 ) {
+                                showError('Minimum amount is 0.005 SBTC');
+                              } else {
                                 try {
                                   self.disabled = true;
                                   self.$text = 'Sending...';
                                   let transaction = new Transaction();
-                                  let rskPath =
-                                    self._networkName === 'Mainnet' ?
-                                      config.rskMainNetPath : config.rskTestNetPath;
+                                  let derivationPath =
+                                    this._networkName === 'Mainnet' ?
+                                      config.defaultPath :
+                                      config.defaultTestnetPath;
+
                                   let tx = await transaction.sendRskTransaction(self._networkName,
-                                    rskPath,
+                                    derivationPath,
                                     self._destinationRskAddress,
                                     self._rskAddress.toString(),
                                     null,
@@ -348,13 +354,9 @@ export function rskHandler () {
                                   }
                                   showError(e);
                                 }
-                                self.disabled = false;
-                                self.$text = 'Send';
-                              } else {
-                                showError('The amount is less than allowed');
-                                self.disabled = false;
-                                self.$text = 'Send';
                               }
+                              self.disabled = false;
+                              self.$text = 'Send';
                             }
                           }
                         ]

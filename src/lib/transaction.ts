@@ -319,22 +319,22 @@ export class Transaction {
       path,
       transaction: {
         to,
-        value: `0x${finalValue.toString(16)}`,
+        value: `0x${finalValue.toString(16).toUpperCase()}`,
         data: "",
         chainId: config._getRskChainId(network),
         nonce: `0x${nonce}`,
-        gasLimit: `0x${gasEstimated.toString(16)}`,
-        gasPrice: `0x${gasPrice.toString(16)}`
+        gasLimit: `0x${gasEstimated.toString(16).toUpperCase()}`,
+        gasPrice: `0x${gasPrice.toString(16).toUpperCase()}`
       }
     });
 
     if (result.success) {
       let tx = {
         nonce: `0x${nonce}`,
-        gasPrice: `0x${gasPrice.toString(16)}`,
-        gasLimit: `0x${gasEstimated.toString(16)}`,
+        gasPrice: `0x${gasPrice.toString(16).toUpperCase()}`,
+        gasLimit: `0x${gasEstimated.toString(16).toUpperCase()}`,
         to: to,
-        value: `0x${finalValue.toString(16)}`,
+        value: `0x${finalValue.toString(16).toUpperCase()}`,
         data,
         chainId: config._getRskChainId(network),
         from: _from,
@@ -380,8 +380,8 @@ export class Transaction {
     let web3 = this.getWeb3(network);
     let getLatestBlock: any = await web3.eth.getBlock('latest');
     let rawGas = parseFloat(getLatestBlock.minimumGasPrice);
-    let gasPrice = rawGas === 0 ? 0.001 : rawGas;
-    return (gasPrice * 10000);
+    let gasPrice = rawGas <= 1 ? 1 : rawGas * 1.01;
+    return gasPrice;
   }
 
   getGasLimit(data: string): number {
@@ -397,8 +397,8 @@ export class Transaction {
 
   async getNonce(network: string, address: string): Promise<string> {
     let web3 = this.getWeb3(network);
-    let rawNonce: number = await web3.eth.getTransactionCount(address);
-    return `${rawNonce.toString(16)}`;
+    let rawNonce: number = await web3.eth.getTransactionCount(address, 'pending');
+    return `${rawNonce.toString(16).toUpperCase()}`;
   }
 
   getFederationAdress(network: string): Promise<string> {

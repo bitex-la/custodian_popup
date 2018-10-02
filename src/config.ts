@@ -27,7 +27,7 @@ export class Config {
   }
 
   _getRskTestnetNodeUrl(): string {
-    return this.storage.getItem('rskTestnetNodeUrl') || 'https://public-node.testnet.rsk.co/';
+    return this.storage.getItem('rskTestnetNodeUrl') || 'https://mycrypto.testnet.rsk.co/';
   }
 
   _setDerivationPathMainnet(path: number[]) {
