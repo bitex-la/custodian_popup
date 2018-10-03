@@ -430,7 +430,7 @@ export class Transaction {
     return new Promise((resolve, reject) => {
       web3.eth.getBalance(address).then((balance: string) => {
         
-        let convertedAmount = parseInt(balance) / this.WEISTOSATOSHIS;
+        let convertedAmount = Math.floor(parseInt(balance) / this.WEISTOSATOSHIS);
         resolve(convertedAmount.toString());
       }).catch((error: string) => reject(error));
     })
