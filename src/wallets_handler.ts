@@ -15,13 +15,9 @@ import config from './config';
 
 type Address = { [index: string] : string };
 
-interface SingleAddress {
-  id: string;
-}
-
 interface CompleteAddress {
   attributes: {
-    address: string
+    public_address: string
   }
 }
 
@@ -51,8 +47,8 @@ interface AddressUtxo {
     transaction_hash: string;
     position: string;
     address?: {
-      id?: string;
-      address?: string;
+      public_address?: string;
+      wallet?: Wallet;
     };
   }
 }
@@ -72,6 +68,7 @@ export function walletHandler () {
     $virus: updateEpidemic,
     class: 'form',
     _walletType: '',
+    _addressType: '',
     _walletId: 0,
     _address: '',
     _addresses: addresses,
@@ -92,13 +89,8 @@ export function walletHandler () {
     _addUtxos (utxos: string[]) {
       this._utxos = utxos
     },
-    _getStrAddress (address: SingleAddress | CompleteAddress) {
-      switch (this._walletType) {
-        case '/plain_wallets':
-          return (<SingleAddress> address).id
-        default:
-          return (<CompleteAddress> address).attributes.address
-      }
+    _getStrAddress (address: CompleteAddress) {
+        return address.attributes.public_address
     },
     _buildWalletsTable () {
       switch (this._walletType) {
@@ -137,7 +129,7 @@ export function walletHandler () {
             }
             break
           case 'address':
-            url = `${self._walletType}/relationships/addresses/${self.address}/get_utxos?since=${since}&limit=${limit}`
+            url = `${self._addressType}/${self.address}/get_utxos?since=${since}&limit=${limit}`
 
             try {
               let successData = await WalletService(config).list(url);
@@ -185,6 +177,17 @@ export function walletHandler () {
         async onchange (e: Event) {
           let self = this
           this._walletType = (<HTMLInputElement> e.target).value
+          switch (self._walletType) {
+            case '/plain_wallets':
+              this._addressType = '/plain_addresses';
+              break;
+            case '/hd_wallets':
+              this._addressType = '/hd_addresses';
+              break;
+            case '/multisig_wallets':
+              this._addressType = '/multisig_addresses';
+              break;
+          };
           this._wallets = []
           document.getElementsByClassName('wallets-table')[0].classList.remove('d-none')
           config.nodeSelected = config._chooseBackUrl(self._networkName)
@@ -231,7 +234,7 @@ export function walletHandler () {
 
                       let addresses: Address = {};
                       try {
-                        let addressesResponse = await WalletService(config).list(`${self._walletType}/${wallet.id}/relationships/addresses`);
+                        let addressesResponse = await WalletService(config).list(`${self._addressType}?wallet_id=${self._walletId}`);
                         (<any> window)._.forEach(addressesResponse.data, (address: any) => {
                           addresses[self._getStrAddress(address)] = '0'
                         });
@@ -241,7 +244,7 @@ export function walletHandler () {
                           let utxosResponse = await WalletService(config).list(url);
                           (<any> window)._.forEach(utxosResponse.data, (rawUtxo: AddressUtxo | WalletUtxo) => {
                             let utxo = (<AddressUtxo> rawUtxo);
-                            let addressStr = self._walletType === '/plain_wallets' ? utxo.attributes.address.id : utxo.attributes.address.address
+                            let addressStr = utxo.attributes.address.public_address;
                             addresses[addressStr] += (<WalletUtxo> rawUtxo).attributes.transaction.satoshis
                           });
                           self._addAddresses((<any> window)._.map((<any> window)._.toPairs(addresses), (d: any[]) => (<any> window)._.fromPairs([d])));
