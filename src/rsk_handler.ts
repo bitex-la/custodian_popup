@@ -203,7 +203,7 @@ export function rskHandler () {
                                 let transaction = new Transaction();
 
                                 try {
-                                  let url = `/plain_wallets/relationships/addresses/${self._btcAddress.toString()}/get_utxos?since=0&limit=1000000`;
+                                  let url = `/plain_addresses/${self._btcAddress.toString()}/get_utxos?since=0&limit=1000000`;
                                   let successData = await WalletService(config).list(url);
                                   this._rawTransaction = successData.data;
                                   this['_outputs'] = [{

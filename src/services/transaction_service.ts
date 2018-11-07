@@ -14,7 +14,7 @@ export function TransactionService (config: Config) {
     balance (address: string) {
       return (<any> window).$.ajax({
         method: 'GET',
-        url: `${(<any> config)[config.nodeSelected]}/plain_wallets/relationships/addresses/${address}/balance?since=0&limit=10000`,
+        url: `${(<any> config)[config.nodeSelected]}/plain_addresses/${address}/balance?since=0&limit=10000`,
         contentType: 'application/json; charset=utf-8'
       })
     }

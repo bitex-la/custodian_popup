@@ -12,7 +12,6 @@ class BaseService {
     return (<any> window).jQuery.ajax({
       method: 'POST',
       url: (<any> this.config)[this.config.nodeSelected] + url,
-      contentType: 'application/json; charset=utf-8',
       data: JSON.stringify(data)
     });
   }
@@ -24,8 +23,7 @@ class BaseService {
   getMethod<T> (url: string): Promise<T> {
     return (<any> window).jQuery.ajax({
       method: 'GET',
-      url: url,
-      contentType: 'application/json; charset=utf-8'
+      url: url
     });
   }
 }

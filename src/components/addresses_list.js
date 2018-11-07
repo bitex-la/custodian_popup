@@ -54,7 +54,7 @@ export function addressesList () {
                     let self = this
                     self._resourceType = 'address'
 
-                    let url = `/plain_wallets/relationships/addresses/${Object.keys(address)[0]}/get_utxos?since=0&limit=1000000`
+                    let url = `/plain_addresses/${Object.keys(address)[0]}/get_utxos?since=0&limit=1000000`
                     WalletService(config).list(url).then((successData) => {
                       document.querySelector('#wallets')._rawTransaction = successData.data
                       let totalAmount = _.sum(_.map(successData.data, (utxo) => utxo.attributes.satoshis))
