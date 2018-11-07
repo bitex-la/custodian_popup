@@ -15,6 +15,7 @@ test('Creates a Raw Hd Node', async t => {
     let hdWallet = {
       attributes: {
         version: 1,
+        label: 'hdwallet',
         xpub: 'tpubD6NzVbkrYhZ4YSh1zgHc1L2fNXQmSZM1FEbVFpNGzK9J1GDuhRnfoLUA7Unzq44qHVviVtyKdfLjnJYiuTUTjYAJt6Un4svFfRPb7m6TvZk'
       },
       id: '123',
@@ -23,8 +24,10 @@ test('Creates a Raw Hd Node', async t => {
 
     if (params.method === 'POST' && /hd_wallets/.test(params.url)) {
       return ajaxResponse({data: hdWallet})
-    } else if (params.method === 'GET' && /hd_wallets\/123\/relationships\/addresses/.test(params.url)) {
-      return ajaxResponse({data: [{attributes: {address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'}}]})
+    } else if (params.method === 'POST' && /hd_addresses/.test(params.url)) {
+      return ajaxResponse({data: [{attributes: {public_address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'}}]})
+    } else if (params.method === 'GET' && /hd_addresses\?wallet_id=123/.test(params.url)) {
+      return ajaxResponse({data: [{attributes: {public_address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'}}]})
     } else if (params.method === 'GET' && /hd_wallets\/123\/get_utxos\?since=0/.test(params.url)) {
       return ajaxResponse({
         data: [{
@@ -36,7 +39,7 @@ test('Creates a Raw Hd Node', async t => {
             },
             address: {
               path: [],
-              address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
+              public_address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
             }
           }
         },
@@ -49,7 +52,7 @@ test('Creates a Raw Hd Node', async t => {
             },
             address: {
               path: [],
-              address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
+              public_address: 'mxZpWbpSVtJoLHU2ZSC75VTteKc4F7RkTn'
             }
           }
         }

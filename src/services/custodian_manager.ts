@@ -25,9 +25,9 @@ export function CustodianManager (config: Config) {
         .then(
           (walletResponse: { data: { id: string }}) => {
             (<any> window)._.forEach(hdNodes, (node: Node) => {
-              let address = buildAddress(walletResponse.data.id, node.getAddress())
+              let address = buildAddress(walletResponse.data.id, node.getAddress());
               WalletService(config).create(`/${addressType}`,
-                address).then(() => showInfo(`Address saved`)).catch((error: Error) => showError(error.statusText))
+                address).then(() => showInfo(`Address saved`)).catch((error: Error) => showError(error.statusText));
             });
             showInfo('Wallet saved');
           })
