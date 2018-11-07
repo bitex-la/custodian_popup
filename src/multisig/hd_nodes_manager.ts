@@ -20,7 +20,8 @@ export function hdNodesManager () {
     async _hdNodeFromTrezor () {
       let networkName = this._networkName
       loading()
-      let _path = this._path.length === 0 ? config._chooseDerivationPath(networkName) : this._path
+      let _raw_path = typeof this._path === 'string' ? JSON.parse(this._path) : this._paht;
+      let _path = _raw_path.length === 0 ? config._chooseDerivationPath(networkName) : this._path
       const result = await (<any> window).TrezorConnect.getPublicKey({path: _path, coin: networkName})
       if (result.success) {
         this._addHdNodeFromXpub(result.payload.xpub)
