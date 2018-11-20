@@ -1,6 +1,6 @@
 {
   "name": "custodian-popup",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "High level custodian tools for webapp usage",
   "repository": {
     "type": "git",
@@ -9,6 +9,8 @@
   "author": "Bitex <http://bitex.la>",
   "license": "MIT",
   "scripts": {
+    "build": "webpack --mode production",
+    "prod": "webpack-dev-server --open --config webpack.prod.config.js",
     "dev": "webpack-dev-server",
     "e2e": "bash ./wait_localhost.sh && testcafe chrome test/*",
     "test": "npm-run-all --parallel --race dev e2e"
@@ -19,19 +21,28 @@
   "homepage": "https://github.com/bitex-la/custodian-popup",
   "dependencies": {
     "@intercellular/cell": "bitex-la/cell#virus",
+    "@types/bitcoinjs-lib": "^3.4.0",
+    "@types/node": "^10.7.1",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "bip32-path": "0.4.2",
     "bip44-constants": "^2.3.0",
-    "bitcoinjs-lib": "^3.3.1",
+    "bitcoin-to-rsk-key-utils": "github:rsksmart/utils",
+    "bitcoinjs-lib": "^4.0.1",
     "bowser": "^1.9.3",
+    "coininfo": "^4.0.1",
     "es6-promise": "^2.3.0",
+    "ethereumjs-tx": "^1.3.6",
+    "ethereumjs-wallet": "^0.6.1",
     "fast-async": "^6.3.1",
     "hd-wallet": "^7.11.3",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
-    "trezor.js": "6.1.0"
+    "trezor-connect": "^5.0.28",
+    "trezor.js": "6.1.0",
+    "web3": "^1.0.0-beta.35"
   },
   "devDependencies": {
+    "@types/jquery": "^3.3.6",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.4",
     "babel-plugin-add-module-exports": "^0.1.2",
@@ -42,13 +53,25 @@
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.2.0",
     "browserify": "^13.1.1",
+    "casperjs": "1.1.4",
+    "eslint": "^5.3.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "eslint-plugin-testcafe": "^0.2.1",
     "exorcist": "^0.4.0",
+    "mock-trezor": "^1.2.1",
     "npm-run-all": "^4.1.3",
+    "sinon": "^6.1.3",
     "testcafe": "^0.20.4",
+    "ts-loader": "^4.4.2",
+    "typescript": "^3.0.1",
     "uglifyify": "^3.0.1",
     "watchify": "^3.6.0",
     "webpack": "^4.1.1",
-    "webpack-cli": "^2.0.12",
+    "webpack-cli": "^3.1.1",
     "webpack-dev-server": "^3.1.1"
   }
 }

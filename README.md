@@ -1,8 +1,20 @@
-# Development
+# Front End interface to Custodian Server and interaction with Rsk BlockChain
 
-- Clone this repo
-- Install dependencies: `npm install`
-- Start the development server: `npm run dev` and visit http://localhost:9966
+[![CircleCI](https://circleci.com/gh/werner/custodian_popup.svg?style=svg)](https://circleci.com/gh/werner/custodian_popup)
 
-## Testing
-- To run the E2E tests: `npm run test`
+## Intro to docker
+- [Getting started](https://docs.docker.com/get-started/#recap-and-cheat-sheet)
+- [Docker cheat sheet](https://github.com/wsargent/docker-cheat-sheet)
+
+## System Requirements
+- Install [docker](https://www.docker.com/community-edition#/download)
+- Install [docker compose](https://docs.docker.com/compose/install/#install-compose)
+
+## How to install and run
+
+```
+$git clone git@github.com:bitex-la/custodian_popup.git
+$cd custodian_popup
+docker-compose build
+docker-compose up -d
+```

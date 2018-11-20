@@ -1,7 +1,8 @@
-var path = require('path')
+var path = require('path');
+var webpack = require('webpack');
 module.exports = {
-  mode: 'development',
-  entry: './src/popup',
+  mode: 'production',
+  entry: './src/popup.js',
   output: {
     path: path.resolve(__dirname, 'build'),
     filename: 'popup.bundle.js'
@@ -25,14 +26,5 @@ module.exports = {
   },
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ]
-  },
-  devServer: {
-    compress: true,
-    port: 9966,
-    host: '0.0.0.0'
-  },
-  stats: {
-    colors: true
-  },
-  devtool: 'source-map'
-}
+  }
+};
