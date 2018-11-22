@@ -20,22 +20,24 @@ import config from './config';
 (<any> window).bitcoin = bitcoin;
 (<any> window).wallets = [];
 
-(<any>window)._.forEach(
-  ["/plain_wallets", "/hd_wallets", "/multisig_wallets"],
-  (url: string) => {
-    WalletService(config)
-      .list(url)
-      .then(response => {
-        if (response.data.length > 0) {
-          (<any>window)._.forEach(
-            response.data,
-            (datum: { attributes: { label: string } }) =>
-              (<any> window).wallets.push(datum.attributes.label)
-          );
-        }
-      });
-  }
-);
+let updateWallet = async () => {
+  (<any>window)._.forEach(
+    ["/plain_wallets", "/hd_wallets", "/multisig_wallets"],
+    async (url: string) => {
+      let response = await WalletService(config).list(url);
+      if (response.data.length > 0) {
+        (<any>window)._.forEach(
+          response.data,
+          (datum: { attributes: { label: string } }) => {
+            (<any> window).wallets.push(datum.attributes.label);
+            (<any> window.document.getElementById('wallets')).$update();
+          }
+        );
+      }
+    }
+  );
+}
+
 require('./lib/bootstrap.min.js');
 
 (<any> window).app = {
@@ -59,3 +61,5 @@ require('./lib/bootstrap.min.js');
     rskHandler()
   ]
 }
+
+updateWallet();
