@@ -14,27 +14,10 @@ var Wallet = require("ethereumjs-wallet");
 var bip32 = require("bip32");
 
 export function hdNodesManager() {
-  let wallets: string[] = [];
-  (<any>window)._.forEach(
-    ["/plain_wallets", "/hd_wallets", "/multisig_wallets"],
-    (url: string) => {
-      WalletService(config)
-        .list(url)
-        .then(response => {
-          if (response.data.length > 0) {
-            (<any>window)._.forEach(
-              response.data,
-              (datum: { attributes: { label: string } }) =>
-                wallets.push(datum.attributes.label)
-            );
-          }
-        });
-    }
-  );
   return {
     class: "well well-sm",
     _path: "[]",
-    _wallets: wallets,
+    _wallets: (<any> window).wallets,
     _setPath: function (string: string) {
       this._path = string ? bip32.fromString(string).toPathArray() : [];
     },
