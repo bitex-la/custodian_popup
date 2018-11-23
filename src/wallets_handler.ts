@@ -1,27 +1,7 @@
 import { hamlism } from './lib/hamlism';
 import { updateEpidemic } from './lib/update_epidemic';
-import { selectGroupism, selectObjectGroupism, buttonismWithSize } from './lib/bootstrapism';
-import { showError } from './messages';
-import { modal } from './components/utxos_modal.js';
-import { modalTx } from './components/output_tx_modal.js';
-import { addressesList } from './components/addresses_list.js';
-import { utxosList } from './components/utxos_list.js';
-import { InTransaction } from './lib/transaction';
 
-import { WalletService } from './services/wallet_service';
-
-import * as networks from './lib/networks.js';
-import config from './config';
-
-type Address = { [index: string] : string };
-
-interface CompleteAddress {
-  attributes: {
-    public_address: string
-  }
-}
-
-export interface Wallet {
+export class Wallet {
   id: string;
   type: string;
   attributes: {
@@ -32,39 +12,29 @@ export interface Wallet {
     xpubs?: string[];
     signers?: number[];
   };
-}
 
-interface WalletUtxo {
-  attributes: {
-    transaction: {
-      satoshis: string;
-      transaction_hash: string;
-      position: string;
+  prettyLabel(): string {
+    let label = this.attributes.label;
+    let splitWords = label.replace('_', ' ');
+    return this.titleCase(splitWords);
+  }
+
+  prettyType(): string {
+    let type = this.type;
+    let splitWords = type.replace('_', ' ');
+    return this.titleCase(splitWords);
+  }
+
+  private titleCase(str: string) {
+    var splitStr = str.toLowerCase().split(' ');
+    for (var i = 0; i < splitStr.length; i++) {
+        splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
     }
+    return splitStr.join(' '); 
   }
 }
 
-interface AddressUtxo {
-  attributes: {
-    satoshis: string;
-    transaction_hash: string;
-    position: string;
-    address?: {
-      public_address?: string;
-      wallet?: Wallet;
-    };
-  }
-}
-
-export function walletHandler () {
-  let addresses: string[] = [];
-  let utxos: string[] = [];
-  let rawTransaction: InTransaction = {
-      outputs: [],
-      inputs: [],
-      transactions: []
-  };
-
+export function walletHandler() {
   return {
     id: 'wallets',
     $virus: [updateEpidemic, hamlism],
@@ -73,50 +43,39 @@ export function walletHandler () {
       $tag: "ul.list-group.wallets-server.list-group-flush.mt-3",
       $update() {
         this.innerHTML = "";
-        (<any>window)._.forEach((<any> window).wallets, (wallet: Wallet) => this.$build({
-          $type: 'li',
-          $virus: hamlism,
-          class: 'list-group-item d-flex justify-content-between align-items-center',
-          $$: [
+        (<any>window)._.forEach((<any>window).wallets, (rawWallet: Wallet) => {
+          let wallet = Object.assign(new Wallet, rawWallet);
+          this.$build(
             {
               $type: 'div',
-              class: 'card',
+              $virus: hamlism,
+              class: 'list-group-item list-group-item-action flex-column',
               $$: [
                 {
                   $type: 'div',
-                  class: 'card-header',
-                  $text: wallet.type
-                },
-                {
-                  $type: 'div',
-                  class: 'card-body',
+                  class: 'd-flex w-100 justify-content-between',
                   $$: [
                     {
-                      $type: 'blockquote',
-                      class: 'blockquote mb-0',
-                      $$: [
-                        {
-                          $type: 'p',
-                          $text: wallet.attributes.label
-                        },
-                        {
-                          $type: 'footer',
-                          class: 'blockquote-footer',
-                          $text: wallet.attributes.balance
-                        }
-                      ]
+                      $type: 'h4',
+                      class: 'mb-1',
+                      $text: wallet.prettyLabel()
+                    },
+                    {
+                      $type: 'medium',
+                      $text: wallet.attributes.balance
                     }
                   ]
+                },
+                {
+                  $type: 'p',
+                  class: 'mb-1',
+                  $text: wallet.prettyType()
                 }
               ]
-            },
-            {
-              $type: 'span',
-              class: 'badge badge-primary badge-pill',
-              $text: wallet.attributes.balance
             }
-          ]
-        }));
+          )
+        }
+        );
       }
     }]
   }
