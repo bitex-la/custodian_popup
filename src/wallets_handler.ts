@@ -21,13 +21,16 @@ interface CompleteAddress {
   }
 }
 
-interface Wallet {
+export interface Wallet {
   id: string;
-  attributes?: {
+  type: string;
+  attributes: {
     version: string;
-    xpub: string;
-    xpubs: string[];
-    signers: number[];
+    label: string;
+    balance: number;
+    xpub?: string;
+    xpubs?: string[];
+    signers?: number[];
   };
 }
 
@@ -64,16 +67,55 @@ export function walletHandler () {
 
   return {
     id: 'wallets',
-    $virus: updateEpidemic,
+    $virus: [updateEpidemic, hamlism],
     class: 'form',
     $$: [{
-      $tag: "ul.list-group.wallets-server.mt-3",
+      $tag: "ul.list-group.wallets-server.list-group-flush.mt-3",
       $update() {
         this.innerHTML = "";
-        (<any>window)._.forEach((<any> window).wallets, (label: string) => this.$build({
+        (<any>window)._.forEach((<any> window).wallets, (wallet: Wallet) => this.$build({
           $type: 'li',
-          class: 'list-group-item',
-          $text: label
+          $virus: hamlism,
+          class: 'list-group-item d-flex justify-content-between align-items-center',
+          $$: [
+            {
+              $type: 'div',
+              class: 'card',
+              $$: [
+                {
+                  $type: 'div',
+                  class: 'card-header',
+                  $text: wallet.type
+                },
+                {
+                  $type: 'div',
+                  class: 'card-body',
+                  $$: [
+                    {
+                      $type: 'blockquote',
+                      class: 'blockquote mb-0',
+                      $$: [
+                        {
+                          $type: 'p',
+                          $text: wallet.attributes.label
+                        },
+                        {
+                          $type: 'footer',
+                          class: 'blockquote-footer',
+                          $text: wallet.attributes.balance
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              $type: 'span',
+              class: 'badge badge-primary badge-pill',
+              $text: wallet.attributes.balance
+            }
+          ]
         }));
       }
     }]

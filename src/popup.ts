@@ -5,7 +5,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import { multisigSetupHandler } from './multisig/index';
 import { signingHandler } from './signing_handler';
-import { walletHandler } from './wallets_handler';
+import { walletHandler, Wallet } from './wallets_handler';
 import { rskHandler } from './rsk_handler';
 import { hamlism } from './lib/hamlism';
 import { tabbism } from './lib/bootstrapism';
@@ -28,8 +28,8 @@ let updateWallet = async () => {
       if (response.data.length > 0) {
         (<any>window)._.forEach(
           response.data,
-          (datum: { attributes: { label: string } }) => {
-            (<any> window).wallets.push(datum.attributes.label);
+          (wallet: Wallet) => {
+            (<any> window).wallets.push(wallet);
             (<any> window.document.getElementById('wallets')).$update();
           }
         );
