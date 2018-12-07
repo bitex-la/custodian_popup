@@ -68,8 +68,8 @@ export function signingHandler () {
           let transaction = new Transaction()
           let transactionJson = typeof (this._transactionJson) === 'string' ? JSON.parse(this._transactionJson) : this._transactionJson
           try {
-            let result = await transaction.signTransaction(transactionJson, this._networkName)
-            this._handleSigningResult(result)
+            let result = await transaction.signTransaction(transactionJson, this._networkName);
+            this._handleSigningResult(result);
           } catch (error) {
             showError(error.json)
           }

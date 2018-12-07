@@ -4,7 +4,7 @@ module.exports = {
   bitcoin: coininfo.bitcoin.main.toBitcoinJS(),
   testnet: coininfo.bitcoin.test.toBitcoinJS(),
   litecoin: coininfo.litecoin.main.toBitcoinJS(),
-  bitcoin_cash: {
+  bcash: {
     hashGenesisBlock: '000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f',
     port: 8333,
     portRpc: 8332,

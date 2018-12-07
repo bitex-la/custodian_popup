@@ -29,7 +29,7 @@ interface MultiSig {
 }
 
 interface Input {
-  address_n: Array<number>; 
+  address_n?: Array<number>; 
   prev_hash: string; 
   prev_index: string; 
   sequence?: string;
@@ -247,16 +247,26 @@ export class Transaction {
     return new Promise<InTransaction>((resolve, reject) => resolve(self.transaction) );
   }
  
-  async signTransaction (original_json: InTransaction, coin: string): Promise<SignedResponse> {
+  async signTransaction (original_json: any, coin: string): Promise<SignedResponse> {
     let json = _.cloneDeep(original_json);
     loading();
-    json.outputs = _.map(json.outputs, (output: Output) => { output['amount'] = output.amount.toString(); return output});
+    json.inputs = _.map(json.trezor_inputs, (input: any) => {
+      input['amount'] = input['amount'].toString();
+      return input;
+    });
+    json.outputs = _.map(json.outputs, (output: any) => { 
+      let value : { [index:string] : string } = {};
+      value['address'] = output[0];
+      value['amount'] = output[1].toString();
+      value['script_type'] = 'PAYTOADDRESS';
+      return value;
+    });
     const result = await (<any>window).TrezorConnect.signTransaction({inputs: json.inputs, outputs: json.outputs, coin});
     if (result.success) {
       let signed = result.payload.serializedTx;
       let signatures = result.payload.signatures;
 
-      if(_.some(json.inputs, (i: Input) => i.multisig )) {
+      if(_.some(json.inputs, (i: any) => i.multisig )) {
         const resultPk = await (<any>window).TrezorConnect.getPublicKey({path: []});
         if (resultPk.success) {
 
