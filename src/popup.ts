@@ -6,7 +6,6 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { multisigSetupHandler } from './multisig/index';
 import { signingHandler } from './signing_handler';
 import { walletHandler, Wallet } from './wallets_handler';
-import { rskHandler } from './rsk_handler';
 import { hamlism } from './lib/hamlism';
 import { tabbism } from './lib/bootstrapism';
 import { updateEpidemic } from './lib/update_epidemic';
@@ -57,8 +56,7 @@ require('./lib/bootstrap.min.js');
   $$: [
     signingHandler(),
     multisigSetupHandler(),
-    walletHandler(),
-    rskHandler()
+    walletHandler()
   ]
 }
 

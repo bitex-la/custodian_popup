@@ -6,10 +6,6 @@ import { blockcypherService } from '../services/blockcypher_service';
 import { TransactionService } from '../services/transaction_service';
 import config from '../config';
 
-const Web3 = require('web3');
-const rskUtils = require('bitcoin-to-rsk-key-utils/rsk-conversion-utils.js');
-const EthereumTx = require('ethereumjs-tx');
-
 interface ABIDefinition {
     constant?: boolean;
     payable?: boolean;
@@ -119,8 +115,6 @@ export class Transaction {
         ['Testnet', config._getDerivationPathTestnet()] : ['Mainnet', config._getDerivationPathMainnet()];
 
     switch(network) {
-      case "Rsk":
-        return this._addRskAddressFromTrezor(rsknetwork, derivationPath);
       case "Bitcoin":
         return this._addBtcAddressFromTrezor(derivationPath, coin);
     }
@@ -134,25 +128,6 @@ export class Transaction {
       return new Promise(resolve => resolve({ toString: () => btcAddress.payload.address, balance, type: 'btc' }));
     } else {
       throw new Error(btcAddress.payload.error);
-    }
-  }
-
-  async _addRskAddressFromTrezor (network: string, _derivationPath: number[]): Promise<{}> {
-    const ethAddress = await (<any> window).TrezorConnect.ethereumGetAddress({path: _derivationPath});
-    if (ethAddress.success) {
-      try {
-        let balance: string = await this.getRskBalance(network, ethAddress.payload.address.toLowerCase());
-        let address: Address = { 
-          toString: () => ethAddress.payload.address.toLowerCase(),
-          type: 'rsk',
-          balance
-        };
-        return new Promise((resolve) => resolve(address));
-      } catch (e) {
-        throw new Error(e);
-      }
-    } else {
-      throw new Error(ethAddress.payload.error);
     }
   }
 
@@ -314,56 +289,6 @@ export class Transaction {
     return transaction.balance(address);
   }
 
-  async sendRskTransaction(network: string, path: number[], to: string, _from: string, gasPriceGwei: number, value: number, data?: string) {
-    let self = this;
-    loading();
-
-    let web3 = self.getWeb3(network);
-    let gasValue: number = await self.getGasPrice(network);
-    let gasPrice: number = gasPriceGwei === null ? gasValue : gasPriceGwei * 1e9;
-    let gasEstimated: number = await self.estimateGas(network, data, to);
-    let nonce: string = await self.getNonce(network, _from);
-    let finalValue = (value * this.WEISTOSATOSHIS) - (gasPrice * gasEstimated);
-
-    const result = await (<any>window).TrezorConnect.ethereumSignTransaction({
-      path,
-      transaction: {
-        to,
-        value: `0x${finalValue.toString(16).toUpperCase()}`,
-        data: "",
-        chainId: config._getRskChainId(network),
-        nonce: `0x${nonce}`,
-        gasLimit: `0x${gasEstimated.toString(16).toUpperCase()}`,
-        gasPrice: `0x${gasPrice.toString(16).toUpperCase()}`
-      }
-    });
-
-    if (result.success) {
-      let tx = {
-        nonce: `0x${nonce}`,
-        gasPrice: `0x${gasPrice.toString(16).toUpperCase()}`,
-        gasLimit: `0x${gasEstimated.toString(16).toUpperCase()}`,
-        to: to,
-        value: `0x${finalValue.toString(16).toUpperCase()}`,
-        data,
-        chainId: config._getRskChainId(network),
-        from: _from,
-        v: 0,
-        r: '',
-        s: ''
-      };
-      tx.v =  result.payload.v;
-      tx.r = result.payload.r;
-      tx.s = result.payload.s;
-      let ethtx = new EthereumTx(tx);
-      const serializedTx = ethtx.serialize();
-      const rawTx = '0x' + serializedTx.toString('hex');
-      return web3.eth.sendSignedTransaction(rawTx);
-    } else {
-      throw new Error(result.payload.error);
-    }
-  }
-
   async sendBtcTransaction(network: string, path: number[], to: string, _from: string, value: number) {
     let params = {
       outputs: [
@@ -384,81 +309,5 @@ export class Transaction {
     } else {
       throw new Error(result.payload.error);
     }
-  }
-
-  async getGasPrice(network: string): Promise<number> {
-    let web3 = this.getWeb3(network);
-    let getLatestBlock: any = await web3.eth.getBlock('latest');
-    let rawGas = parseFloat(getLatestBlock.minimumGasPrice);
-    let gasPrice = rawGas <= 1 ? 1 : rawGas * 1.01;
-    return gasPrice;
-  }
-
-  getGasLimit(data: string): number {
-    let dataSizeInBytes = data === null ? 1 : (new TextEncoder().encode(data)).length;
-    let rawGasLimit: number = 21000 + 68 * dataSizeInBytes;
-    return rawGasLimit;
-  }
-
-  async estimateGas(network: string, data: string, to: string): Promise<number> {
-    let web3 = this.getWeb3(network);
-    return await web3.eth.estimateGas({to, data});
-  }
-
-  async getNonce(network: string, address: string): Promise<string> {
-    let web3 = this.getWeb3(network);
-    let rawNonce: number = await web3.eth.getTransactionCount(address, 'pending');
-    return `${rawNonce.toString(16).toUpperCase()}`;
-  }
-
-  getFederationAdress(network: string): Promise<string> {
-    var web3: any = new Web3(config._getUrlRskNode(network));
-
-    var abi: Array<ABIDefinition> = [
-      {
-        "name": "getFederationAddress",
-        "type": "function",
-        "constant": true,
-        "inputs": [],
-        "outputs": [{ "name": "", "type": "string" }]
-      }
-    ];
-    var address = "0x0000000000000000000000000000000001000006";
-
-    var contract = new web3.eth.Contract(abi, address);
-
-    return new Promise((resolve, reject) => {
-      contract.methods.getFederationAddress()
-        .call()
-        .then((result: string) => resolve(result))
-        .catch((result: any) => reject(result))
-    });
-  }
-
-  getRskBalance(network: string, address: string): Promise<string> {
-    let web3 = this.getWeb3(network);
-    return new Promise((resolve, reject) => {
-      web3.eth.getBalance(address).then((balance: string) => {
-        
-        let convertedAmount = Math.floor(parseInt(balance) / this.WEISTOSATOSHIS);
-        resolve(convertedAmount.toString());
-      }).catch((error: string) => reject(error));
-    })
-  }
-
-  getRskPrivateKeyFromBtc(privKey: string) {
-    return rskUtils.privKeyToRskFormat(privKey);
-  }
-
-  getRskAddressFromBtc(privKey: string) {
-    return rskUtils.getRskAddress(privKey);
-  }
-
-  getBtcPrivKeyFromRsk(net: string, privKey: string) {
-    return rskUtils.getBtcPrivateKey(net, privKey);
-  }
-
-  getWeb3 (network: string) {
-    return new Web3(new Web3.providers.HttpProvider(config._getUrlRskNode(network)));
   }
 }

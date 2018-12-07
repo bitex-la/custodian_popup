@@ -222,45 +222,7 @@ export function hdNodesManager() {
                 onclick() {
                   try {
                     let self = this;
-                    switch (this._networkName) {
-                      case "rsk":
-                      case "rsk_testnet":
-                        let hdNode = bip32.fromBase58(
-                          self._xpub,
-                          this._network()
-                        );
-                        let ethWallet = Wallet.fromExtendedPublicKey(
-                          self._xpub
-                        );
-                        hdNode.ethAddress = ethWallet
-                          .getAddress()
-                          .toString("hex");
-                        hdNode.getAddress = () => {
-                          switch (self._networkName) {
-                            case "rsk":
-                            case "rsk_testnet":
-                              return hdNode.ethAddress;
-                            default:
-                              return hdNode.keyPair.getAddress();
-                          }
-                        };
-                        hdNode.getBalance = async () => {
-                          let transaction = new Transaction();
-                          let network =
-                            self._networkName === "rsk_testnet"
-                              ? "Testnet"
-                              : "Mainnet";
-                          return transaction.getRskBalance(
-                            network,
-                            hdNode.getAddress()
-                          );
-                        };
-                        this._hdNodes.push(hdNode);
-                        break;
-                      default:
-                        this._addHdNodeFromXpub(this._xpub);
-                        break;
-                    }
+                    this._addHdNodeFromXpub(this._xpub);
                   } catch (error) {
                     showError(error);
                   }
