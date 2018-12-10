@@ -41,7 +41,7 @@ export function signingHandler () {
       }
     },
     $$: [
-      { $virus: selectGroupism('Network', (<any> window)._.keys(networks)),
+      { $virus: selectGroupism('Network', networks),
         name: 'network',
         $update () { this.value = this._networkName },
         onchange (e: Event) { this._networkName = (<HTMLInputElement> e.target).value }
