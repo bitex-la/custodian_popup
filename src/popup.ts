@@ -50,7 +50,7 @@ require('./lib/bootstrap.min.js');
       case 'rsk_testnet':
         return (<any> window).bitcoin.networks['bitcoin']
       default:
-        return (<any> window).bitcoin.networks[this._networkName]
+        return (<any> window).bitcoin.networks[this._networkName.toLowerCase()]
     }
   },
   $$: [

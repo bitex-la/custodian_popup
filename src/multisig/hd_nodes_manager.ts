@@ -27,7 +27,7 @@ export function hdNodesManager() {
       let networkName = this._networkName;
       loading();
       let _raw_path =
-        typeof this._path === "string" ? JSON.parse(this._path) : this._paht;
+        typeof this._path === "string" ? JSON.parse(this._path) : this._path;
       let _path =
         _raw_path.length === 0
           ? config._chooseDerivationPath(networkName)

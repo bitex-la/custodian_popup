@@ -16,7 +16,7 @@ export function multisigSetupHandler () {
       (<any> window)._.each(this._hdNodes, (n: { network: {}}) => { n.network = this._network() })
     },
     $components: [
-      { $virus: selectGroupism('Network', _.keys(networks)),
+      { $virus: selectGroupism('Network', networks),
         id: 'multisig_setup_network',
         name: 'network',
         $update () { this.value = this._networkName },

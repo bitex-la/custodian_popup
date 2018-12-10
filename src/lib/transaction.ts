@@ -1,19 +1,19 @@
-import * as _  from 'lodash';
+import * as _ from "lodash";
 
-import { loading, notLoading } from '../messages';
-import { blockdozerService } from '../services/blockdozer_service';
-import { blockcypherService } from '../services/blockcypher_service';
-import { TransactionService } from '../services/transaction_service';
-import config from '../config';
+import { loading, notLoading } from "../messages";
+import { blockdozerService } from "../services/blockdozer_service";
+import { blockcypherService } from "../services/blockcypher_service";
+import { TransactionService } from "../services/transaction_service";
+import config from "../config";
 
 interface ABIDefinition {
-    constant?: boolean;
-    payable?: boolean;
-    anonymous?: boolean;
-    inputs?: Array<{ name: string; type: ABIDataTypes; indexed?: boolean }>;
-    name?: string;
-    outputs?: Array<{ name: string; type: ABIDataTypes }>;
-    type: "function" | "constructor" | "event" | "fallback";
+  constant?: boolean;
+  payable?: boolean;
+  anonymous?: boolean;
+  inputs?: Array<{ name: string; type: ABIDataTypes; indexed?: boolean }>;
+  name?: string;
+  outputs?: Array<{ name: string; type: ABIDataTypes }>;
+  type: "function" | "constructor" | "event" | "fallback";
 }
 
 type ABIDataTypes = "uint256" | "boolean" | "string" | "bytes" | string;
@@ -25,12 +25,12 @@ interface MultiSig {
 }
 
 interface Input {
-  address_n?: Array<number>; 
-  prev_hash: string; 
-  prev_index: string; 
+  address_n?: Array<number>;
+  prev_hash: string;
+  prev_index: string;
   sequence?: string;
   script_sig?: string;
-  multisig?: MultiSig; 
+  multisig?: MultiSig;
   script_type?: string;
 }
 
@@ -52,8 +52,13 @@ interface SimpleTransaction {
   position: string;
   version: string;
   locktime: number;
-  inputs: Array<{ prev_hash: string; prev_index: string; sequence: string; script_sig: string }>;
-  outputs: Array<{ amount: string; script_pubkey: string }>
+  inputs: Array<{
+    prev_hash: string;
+    prev_index: string;
+    sequence: string;
+    script_sig: string;
+  }>;
+  outputs: Array<{ amount: string; script_pubkey: string }>;
 }
 
 interface AddressTransaction {
@@ -66,16 +71,20 @@ interface CompleteTransaction {
   multisig: MultiSig;
 }
 
-function isCompleteTransaction(transaction: SimpleTransaction | CompleteTransaction): transaction is CompleteTransaction {
+function isCompleteTransaction(
+  transaction: SimpleTransaction | CompleteTransaction
+): transaction is CompleteTransaction {
   return (<CompleteTransaction>transaction).transaction !== undefined;
 }
 
-function isSimpleTransaction(transaction: SimpleTransaction | CompleteTransaction): transaction is SimpleTransaction {
+function isSimpleTransaction(
+  transaction: SimpleTransaction | CompleteTransaction
+): transaction is SimpleTransaction {
   return (<SimpleTransaction>transaction).transaction_hash !== undefined;
 }
 
 interface RawTx {
-  attributes: CompleteTransaction | SimpleTransaction
+  attributes: CompleteTransaction | SimpleTransaction;
 }
 
 interface HandleParent {
@@ -100,55 +109,90 @@ export interface Address {
 type Bitcoin = "Bitcoin";
 type Rsk = "Rsk";
 
-type Network  = Bitcoin | Rsk;
+type Network = Bitcoin | Rsk;
 
 export class Transaction {
-
   SATOSHIS = 100000000;
   WEISTOSATOSHIS = 10000000000;
 
   transaction: InTransaction = { outputs: [], inputs: [], transactions: [] };
 
-  async _addAddressFromTrezor (network: Network, _derivationPath: number[], coin?: string): Promise<{}> {
-    let [rsknetwork, derivationPath] = 
-      JSON.stringify(_derivationPath) === JSON.stringify(config._getDerivationPathTestnet()) ?
-        ['Testnet', config._getDerivationPathTestnet()] : ['Mainnet', config._getDerivationPathMainnet()];
+  async _addAddressFromTrezor(
+    network: Network,
+    _derivationPath: number[],
+    coin?: string
+  ): Promise<{}> {
+    let [rsknetwork, derivationPath] =
+      JSON.stringify(_derivationPath) ===
+      JSON.stringify(config._getDerivationPathTestnet())
+        ? ["Testnet", config._getDerivationPathTestnet()]
+        : ["Mainnet", config._getDerivationPathMainnet()];
 
-    switch(network) {
+    switch (network) {
       case "Bitcoin":
         return this._addBtcAddressFromTrezor(derivationPath, coin);
     }
   }
 
-  async _addBtcAddressFromTrezor (_derivationPath: number[], coin: string): Promise<{}> {
-    const btcAddress = await (<any> window).TrezorConnect.getAddress({path: _derivationPath, coin: coin});
+  async _addBtcAddressFromTrezor(
+    _derivationPath: number[],
+    coin: string
+  ): Promise<{}> {
+    const btcAddress = await (<any>window).TrezorConnect.getAddress({
+      path: _derivationPath,
+      coin: coin
+    });
     if (btcAddress.success) {
       let transaction = new Transaction();
-      let balance = await transaction.getBalance('bitcoin', btcAddress.payload.address);
-      return new Promise(resolve => resolve({ toString: () => btcAddress.payload.address, balance, type: 'btc' }));
+      let balance = await transaction.getBalance(
+        "bitcoin",
+        btcAddress.payload.address
+      );
+      return new Promise(resolve =>
+        resolve({
+          toString: () => btcAddress.payload.address,
+          balance,
+          type: "btc"
+        })
+      );
     } else {
       throw new Error(btcAddress.payload.error);
     }
   }
 
-  async calculateFee (_networkName: string, outputLength: number, callback: Function) {
-    let calculateFee = (response: {2: string}, callback: Function) => {
+  async calculateFee(
+    _networkName: string,
+    outputLength: number,
+    callback: Function
+  ) {
+    let calculateFee = (response: { 2: string }, callback: Function) => {
       let satoshis = parseFloat(response[2]) * this.SATOSHIS;
-      let fee = (10 + (149 * this.transaction.inputs.length) + (35 * outputLength)) * satoshis;
+      let fee =
+        (10 + 149 * this.transaction.inputs.length + 35 * outputLength) *
+        satoshis;
       callback(fee);
-    }
+    };
     try {
-      let response = await blockdozerService().satoshisPerByte(_networkName, false);
+      let response = await blockdozerService().satoshisPerByte(
+        _networkName,
+        false
+      );
       calculateFee(response, callback);
     } catch {
-      let response = await blockdozerService().satoshisPerByte(_networkName, true);
+      let response = await blockdozerService().satoshisPerByte(
+        _networkName,
+        true
+      );
       calculateFee(response, callback);
     }
   }
 
-  async createTx (_this: HandleParent, _networkName: string): Promise<InTransaction> {
+  async createTx(
+    _this: HandleParent,
+    _networkName: string
+  ): Promise<InTransaction> {
     let self = this;
-    _.forEach(_this._rawTransaction, function (rawTx: RawTx) {
+    _.forEach(_this._rawTransaction, function(rawTx: RawTx) {
       let path = [];
       let transaction: SimpleTransaction = null;
       let multisig: MultiSig = null;
@@ -157,7 +201,10 @@ export class Transaction {
       }
 
       if (isCompleteTransaction(rawTx.attributes)) {
-        if (rawTx.attributes.address.path && rawTx.attributes.address.path.length > 0) {
+        if (
+          rawTx.attributes.address.path &&
+          rawTx.attributes.address.path.length > 0
+        ) {
           path = JSON.parse(rawTx.attributes.address.path);
         } else {
           path = config._chooseDerivationPath(_networkName);
@@ -175,12 +222,12 @@ export class Transaction {
         transaction = rawTx.attributes;
       }
 
-      if (_this._walletType === '/multisig_wallets') {
+      if (_this._walletType === "/multisig_wallets") {
         self.transaction.inputs.push({
           address_n: path,
           prev_hash: transaction.transaction_hash,
           prev_index: transaction.position,
-          script_type: 'SPENDMULTISIG',
+          script_type: "SPENDMULTISIG",
           multisig: multisig
         });
       } else {
@@ -201,84 +248,115 @@ export class Transaction {
             prev_index: input.prev_index,
             sequence: input.sequence,
             script_sig: input.script_sig
-          }
+          };
         }),
         bin_outputs: _.map(transaction.outputs, function(output: Output) {
           return {
             amount: output.amount.toString(),
             script_pubkey: output.script_pubkey
-          }
+          };
         })
       });
     });
 
-    await self.calculateFee(_networkName, _this._outputs.length, (fee: number) => {
-      self.transaction.outputs = _.map(_this._outputs, (output: Output) => {
-        let outputResult = (<any>Object).assign({}, output);
-        outputResult['amount'] = outputResult['amount'] - fee;
-        return outputResult;
-      });
-    });
-    return new Promise<InTransaction>((resolve, reject) => resolve(self.transaction) );
+    await self.calculateFee(
+      _networkName,
+      _this._outputs.length,
+      (fee: number) => {
+        self.transaction.outputs = _.map(_this._outputs, (output: Output) => {
+          let outputResult = (<any>Object).assign({}, output);
+          outputResult["amount"] = outputResult["amount"] - fee;
+          return outputResult;
+        });
+      }
+    );
+    return new Promise<InTransaction>((resolve, reject) =>
+      resolve(self.transaction)
+    );
   }
- 
-  async signTransaction (original_json: any, coin: string): Promise<SignedResponse> {
+
+  async signTransaction(
+    original_json: any,
+    coin: string
+  ): Promise<SignedResponse> {
     let json = _.cloneDeep(original_json);
     loading();
     json.inputs = _.map(json.trezor_inputs, (input: any) => {
-      input['amount'] = input['amount'].toString();
+      if (input["amount"]) {
+        input["amount"] = input["amount"].toString();
+      }
       return input;
     });
-    json.outputs = _.map(json.outputs, (output: any) => { 
-      let value : { [index:string] : string } = {};
-      value['address'] = output[0];
-      value['amount'] = output[1].toString();
-      value['script_type'] = 'PAYTOADDRESS';
+    json.outputs = _.map(json.trezor_outputs, (output: any) => {
+      let value: { [index: string]: string } = {};
+      value["address"] = output["address"];
+      value["amount"] = output["amount"].toString();
+      if (output["script_type"] == "PAYTOADDRESS") {
+        value["script_type"] = "PAYTOP2SHWITNESS";
+      }
       return value;
     });
-    const result = await (<any>window).TrezorConnect.signTransaction({inputs: json.inputs, outputs: json.outputs, coin});
+    const result = await (<any>window).TrezorConnect.signTransaction({
+      inputs: json.inputs,
+      outputs: json.outputs,
+      coin
+    });
     if (result.success) {
       let signed = result.payload.serializedTx;
       let signatures = result.payload.signatures;
 
-      if(_.some(json.inputs, (i: any) => i.multisig )) {
-        const resultPk = await (<any>window).TrezorConnect.getPublicKey({path: []});
-        if (resultPk.success) {
-
-          let publicKey = result.payload.node.public_key;
-          _.each(json.inputs, (input: Input, inputIndex: string) => {
-            let signatureIndex = _.findIndex(input.multisig.pubkeys,
-              (p: { node: { public_key: string } }) => p.node.public_key == publicKey);
-            input.multisig.signatures[signatureIndex] = signatures[inputIndex];
-          })
-
-          let done = _.every(json.inputs, (i: Input) => {
-            return _.compact(i.multisig.signatures).length >= i.multisig.m;
-          })
-
-          notLoading();
-          return new Promise<SignedResponse>((resolve, reject) => resolve({json, done, rawtx: signed}) );
-
-        } else {
-          return new Promise<SignedResponse>((resolve, reject) => {
-            reject({json: resultPk.payload.error, done: false, rawtx: null})
+      for (var _i = 0; _i < json.inputs.length; _i++) {
+        let input = json.inputs[_i];
+        if (input.multisig) {
+          let resultPk = await (<any>window).TrezorConnect.getPublicKey({
+            path: input.address_n,
+            coin
           });
+          if (resultPk.success) {
+            let publicKey = resultPk.payload.publicKey;
+            let signatureIndex = _.findIndex(
+              input.multisig.pubkeys,
+              (p: any) => p.publicKey == publicKey
+            );
+
+            input.multisig.signatures[signatureIndex] = signatures[_i];
+          } else {
+            return new Promise<SignedResponse>((resolve, reject) => {
+              reject({
+                json: resultPk.payload.error,
+                done: false,
+                rawtx: null
+              });
+            });
+          }
         }
-      }else{
-        return new Promise<SignedResponse>(resolve => resolve({json: json, done: true, rawtx: signed}));
       }
+
+      let done = _.every(json.inputs, (i: Input) => {
+        return i.multisig
+          ? _.compact(i.multisig.signatures).length >= i.multisig.m
+          : true;
+      });
+
+      notLoading();
+      return new Promise<SignedResponse>((resolve, reject) =>
+        resolve({ json, done, rawtx: signed })
+      );
     } else {
       return new Promise<SignedResponse>((resolve, reject) => {
         if (result.payload) {
-          reject({json: result.payload.error, done: false, rawtx: null});
+          reject({ json: result.payload.error, done: false, rawtx: null });
         } else {
-          reject({json: result.message, done: false, rawtx: null});
+          reject({ json: result.message, done: false, rawtx: null });
         }
       });
     }
   }
 
-  async getBalanceFromOutside(network: string, address: string): Promise<string> {
+  async getBalanceFromOutside(
+    network: string,
+    address: string
+  ): Promise<string> {
     let balance = await blockcypherService().balance(network, address);
     return balance.final_balance;
   }
@@ -289,18 +367,24 @@ export class Transaction {
     return transaction.balance(address);
   }
 
-  async sendBtcTransaction(network: string, path: number[], to: string, _from: string, value: number) {
+  async sendBtcTransaction(
+    network: string,
+    path: number[],
+    to: string,
+    _from: string,
+    value: number
+  ) {
     let params = {
       outputs: [
         {
-           amount: value.toString(),
-           address: to
-         }
+          amount: value.toString(),
+          address: to
+        }
       ],
       coin: network,
       push: true
     };
-    let result = await (<any> window).TrezorConnect.composeTransaction(params);
+    let result = await (<any>window).TrezorConnect.composeTransaction(params);
     if (result.success) {
       let signed = result.payload.serializedTx;
 
