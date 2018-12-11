@@ -99,13 +99,13 @@ export class Config {
       case 'rsk':
       case 'rsk_testnet':
         return 'rskNodeUrl'
-      case 'bitcoin':
-      case 'testnet':
+      case 'Bitcoin':
+      case 'Testnet':
         return 'btcNodeUrl'
       case 'litecoin':
       case 'litecoin_testnet':
         return 'ltcNodeUrl'
-      case 'bitcoin_cash':
+      case 'Bcash':
       case 'bitcoin_cash_testnet':
         return 'bchNodeUrl'
     }

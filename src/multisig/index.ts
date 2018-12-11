@@ -8,10 +8,12 @@ var _ = require('lodash');
 
 export function multisigSetupHandler () {
   let hdNodes: any[] = [];
+  let xpubs: string[] = [];
   return {
     id: 'multisig_setup',
     $virus: updateEpidemic,
     _hdNodes: hdNodes,
+    _xpubs: xpubs,
     $update() {
       (<any> window)._.each(this._hdNodes, (n: { network: {}}) => { n.network = this._network() })
     },

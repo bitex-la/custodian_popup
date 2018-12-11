@@ -289,11 +289,8 @@ export class Transaction {
     });
     json.outputs = _.map(json.trezor_outputs, (output: any) => {
       let value: { [index: string]: string } = {};
-      value["address"] = output["address"];
+      value = output;
       value["amount"] = output["amount"].toString();
-      if (output["script_type"] == "PAYTOADDRESS") {
-        value["script_type"] = "PAYTOP2SHWITNESS";
-      }
       return value;
     });
     const result = await (<any>window).TrezorConnect.signTransaction({
@@ -305,31 +302,28 @@ export class Transaction {
       let signed = result.payload.serializedTx;
       let signatures = result.payload.signatures;
 
-      for (var _i = 0; _i < json.inputs.length; _i++) {
-        let input = json.inputs[_i];
-        if (input.multisig) {
-          let resultPk = await (<any>window).TrezorConnect.getPublicKey({
-            path: input.address_n,
-            coin
-          });
-          if (resultPk.success) {
+      let resultPk = await (<any>window).TrezorConnect.getPublicKey({ path: [] });
+      if (resultPk.success) {
+        for (var _i = 0; _i < json.inputs.length; _i++) {
+          let input = json.inputs[_i];
+          if (input.multisig) {
             let publicKey = resultPk.payload.publicKey;
             let signatureIndex = _.findIndex(
               input.multisig.pubkeys,
-              (p: any) => p.publicKey == publicKey
+              (p: any) => p.node.public_key == publicKey
             );
 
             input.multisig.signatures[signatureIndex] = signatures[_i];
-          } else {
-            return new Promise<SignedResponse>((resolve, reject) => {
-              reject({
-                json: resultPk.payload.error,
-                done: false,
-                rawtx: null
-              });
-            });
           }
         }
+      } else {
+        return new Promise<SignedResponse>((resolve, reject) => {
+          reject({
+            json: resultPk.payload.error,
+            done: false,
+            rawtx: null
+          });
+        });
       }
 
       let done = _.every(json.inputs, (i: Input) => {
@@ -362,9 +356,8 @@ export class Transaction {
   }
 
   async getBalance(network: string, address: string): Promise<string> {
-    config.nodeSelected = config._chooseBackUrl(network);
     let transaction = await TransactionService(config);
-    return transaction.balance(address);
+    return transaction.balance(config._chooseBackUrl(network), address);
   }
 
   async sendBtcTransaction(

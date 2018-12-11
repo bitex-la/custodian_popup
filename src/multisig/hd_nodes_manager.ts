@@ -57,6 +57,7 @@ export function hdNodesManager() {
         let transaction = new Transaction();
         return transaction.getBalance(self._networkName, hdNode.getAddress());
       };
+      this._xpubs.push(xpub);
       this._hdNodes.push(hdNode);
     },
     _hdNodeContainer(hdNode: any) {

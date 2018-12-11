@@ -11,10 +11,10 @@ export function TransactionService (config: Config) {
         crossDomain: true
       })
     },
-    balance (address: string) {
+    balance (nodeSelected: string, address: string) {
       return (<any> window).$.ajax({
         method: 'GET',
-        url: `${(<any> config)[config.nodeSelected]}/plain_addresses/${address}/balance?since=0&limit=10000`,
+        url: `${(<any> config)[nodeSelected]}/plain_addresses/${address}/get_utxos`,
         contentType: 'application/json; charset=utf-8'
       })
     }
