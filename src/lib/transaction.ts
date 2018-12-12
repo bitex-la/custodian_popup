@@ -275,9 +275,11 @@ export class Transaction {
   ): Promise<SignedResponse> {
     let json = _.cloneDeep(original_json);
     loading();
+    let raw_inputs = json.inputs;
     json.inputs = _.map(json.trezor_inputs, (input: any) => {
-      if (input["amount"]) {
-        input["amount"] = input["amount"].toString();
+      if (coin === 'bgold' || coin === 'bcash') {
+        let found_input = raw_inputs.filter((raw_input: any[]) => raw_input[1] === input['prev_hash']);
+        input["amount"] = found_input[0][3].toString();
       }
       return input;
     });

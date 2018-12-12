@@ -29,7 +29,10 @@ let updateWallet = async () => {
           response.data,
           (wallet: Wallet) => {
             (<any> window).wallets.push(wallet);
-            (<any> window.document.getElementById('wallets')).$update();
+            let walletTab = <any> window.document.getElementById('wallets');
+            if (walletTab) {
+              walletTab.$update();
+            }
           }
         );
       }
@@ -43,7 +46,7 @@ require('./lib/bootstrap.min.js');
   $cell: true,
   $tag: 'body.container',
   $virus: [hamlism, tabbism, updateEpidemic],
-  _networkName: 'bitcoin',
+  _networkName: 'Bitcoin',
   _network () {
     switch (this._networkName) {
       case 'rsk':

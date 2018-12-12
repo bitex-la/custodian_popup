@@ -62,7 +62,7 @@ export function walletHandler() {
                     },
                     {
                       $type: 'medium',
-                      $text: wallet.attributes.balance
+                      $text: `Balance: ${wallet.attributes.balance}`
                     }
                   ]
                 },
@@ -70,6 +70,17 @@ export function walletHandler() {
                   $type: 'p',
                   class: 'mb-1',
                   $text: wallet.prettyType()
+                },
+                {
+                  $type: 'small',
+                  class: 'mb-1',
+                  $$: [
+                    {
+                      $type: 'b',
+                      class: 'mb-1',
+                      $text: `Version: ${wallet.attributes.version}`
+                    }
+                  ]
                 }
               ]
             }

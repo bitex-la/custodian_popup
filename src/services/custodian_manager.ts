@@ -160,8 +160,9 @@ export function CustodianManager(config: Config) {
     _createPlainAddress(value: string, walletLabel: string) {
       return {
         data: {
-          attributes: {},
-          public_address: value,
+          attributes: {
+            public_address: value,
+          },
           relationships: {
             wallet: {
               data: {
