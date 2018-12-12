@@ -143,15 +143,9 @@ export class Transaction {
       coin: coin
     });
     if (btcAddress.success) {
-      let transaction = new Transaction();
-      let balance = await transaction.getBalance(
-        "bitcoin",
-        btcAddress.payload.address
-      );
       return new Promise(resolve =>
         resolve({
           toString: () => btcAddress.payload.address,
-          balance,
           type: "btc"
         })
       );
@@ -353,11 +347,6 @@ export class Transaction {
   ): Promise<string> {
     let balance = await blockcypherService().balance(network, address);
     return balance.final_balance;
-  }
-
-  async getBalance(network: string, address: string): Promise<string> {
-    let transaction = await TransactionService(config);
-    return transaction.balance(config._chooseBackUrl(network), address);
   }
 
   async sendBtcTransaction(

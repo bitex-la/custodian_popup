@@ -53,21 +53,11 @@ export function hdNodesManager() {
           network: networkName
         }).address;
       };
-      hdNode.getBalance = async () => {
-        let transaction = new Transaction();
-        return transaction.getBalance(self._networkName, hdNode.getAddress());
-      };
       this._xpubs.push(xpub);
       this._hdNodes.push(hdNode);
     },
     _hdNodeContainer(hdNode: any) {
       let self = this;
-      hdNode.getBalance().then((balance: string) => {
-        self._balance = ` Balance: ${balance}`;
-        (<Cell>(
-          document.querySelector(`#balance-${hdNode.getAddress()}`)
-        )).$update();
-      });
       return {
         $virus: hamlism,
         _toRskAddress: "",
@@ -87,13 +77,6 @@ export function hdNodesManager() {
               {
                 $tag: "span",
                 $text: hdNode.getAddress()
-              },
-              {
-                $tag: "span",
-                id: `balance-${hdNode.getAddress()}`,
-                $update() {
-                  this.$text = self._balance;
-                }
               }
             ]
           },
@@ -222,7 +205,6 @@ export function hdNodesManager() {
                 $virus: buttonism("Add node"),
                 onclick() {
                   try {
-                    let self = this;
                     this._addHdNodeFromXpub(this._xpub);
                   } catch (error) {
                     showError(error);

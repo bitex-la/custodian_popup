@@ -10,13 +10,6 @@ export function TransactionService (config: Config) {
         data: hash,
         crossDomain: true
       })
-    },
-    balance (nodeSelected: string, address: string) {
-      return (<any> window).$.ajax({
-        method: 'GET',
-        url: `${(<any> config)[nodeSelected]}/plain_addresses/${address}/get_utxos`,
-        contentType: 'application/json; charset=utf-8'
-      })
     }
   }
 }

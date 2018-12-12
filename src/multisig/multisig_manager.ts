@@ -84,7 +84,7 @@ function generateMultisig(
   xpubs: string[],
   required: number,
   multisigPath: string,
-  network: string
+  network: any
 ) {
   if (xpubs.length < 2) {
     return {
@@ -108,7 +108,7 @@ function generateMultisig(
     return Buffer.from(node.publicKey, 'hex');
   });
   let p2sh = (<any>window).bitcoin.payments.p2sh({
-    redeem: (<any>window).bitcoin.payments.p2ms({ m: signers, pubkeys })
+    redeem: (<any>window).bitcoin.payments.p2ms({ m: signers, network, pubkeys }), network
   });
 
   let pathArray = (<any>window)._.compact(
