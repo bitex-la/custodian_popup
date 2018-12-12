@@ -20,7 +20,7 @@ export function WalletService (config: Config) {
         }
       );
     },
-    create (url: string, data: string) {
+    create (url: string, data: any) {
       return baseService(config).postToNode(url, data);
     }
   }

@@ -1,4 +1,3 @@
-import Cell from "../types/cell";
 import {
   buttonism,
   buttonismWithSize,
@@ -7,18 +6,16 @@ import {
 import { hamlism } from "../lib/hamlism";
 import { showError, loading, notLoading } from "../messages";
 import { CustodianManager } from "../services/custodian_manager";
-import { Transaction } from "../lib/transaction";
 import config from "../config";
-import { WalletService } from "../services/wallet_service";
-var Wallet = require("ethereumjs-wallet");
+import { WalletService } from '../services/wallet_service';
 var bip32 = require("bip32");
 
 export function hdNodesManager() {
   return {
     class: "well well-sm",
     _path: "[]",
-    _wallets: (<any> window).wallets,
-    _setPath: function (string: string) {
+    _wallets: (<any>window).wallets,
+    _setPath: function(string: string) {
       this._path = string ? bip32.fromString(string).toPathArray() : [];
     },
     _xpub: "",
@@ -44,7 +41,6 @@ export function hdNodesManager() {
       }
     },
     _addHdNodeFromXpub(xpub: string) {
-      let self = this;
       let networkName = this._network();
       let hdNode = bip32.fromBase58(xpub, networkName);
       hdNode.getAddress = () => {
@@ -63,6 +59,26 @@ export function hdNodesManager() {
         _toRskAddress: "",
         _fromRskAddress: "",
         $tag: "li.list-group-item",
+        _chooseAddressTypeByWallet: (walletType: string) => {
+          switch (walletType) {
+            case 'plain_wallets':
+              return 'plain_addresses'
+            case 'hd_wallets':
+              return 'hd_addresses'
+            case 'multisig_wallets':
+              return 'multisig_addresses'
+          }
+        },
+        _createAddressByWallet: (address: string, walletType: string, walletName: string) => {
+          switch (walletType) {
+            case 'plain_wallets':
+              return CustodianManager(config)._createPlainAddress(address, walletName);
+            case 'hd_wallets':
+              return CustodianManager(config)._createHdAddress(address, walletName);
+            case 'multisig_wallets':
+              return CustodianManager(config)._createMultisigAddress(address, walletName);
+          }
+        },
         $$: [
           {
             $tag: "button.close",
@@ -136,27 +152,35 @@ export function hdNodesManager() {
                     $tag: ".col-lg",
                     $$: [
                       {
+                        id: 'add-to-wallet',
                         $placeholder: "Add to wallet",
                         $type: "select",
                         class: "form-control",
                         name: "wallet_select",
-                        $update() {
-                          this.value = this._networkName;
-                        },
                         onchange(e: Event) {
-                          this._networkName = (<HTMLInputElement>(
-                            e.target
-                          )).value;
+                          let type = (<HTMLInputElement>e.target).value;
+                          let walletName = (<HTMLSelectElement>document.getElementById('add-to-wallet')).selectedOptions[0].text;
+                          let walletService = WalletService(config);
+                          walletService.create(`/${this._chooseAddressTypeByWallet(type)}`, 
+                                               this._createAddressByWallet(hdNode.getAddress(), type, walletName));
                         },
-                        $$: (<any>window)._.map(
-                          this._wallets,
-                          (name: string) => {
-                            return {
-                              $type: "option",
-                              $text: name,
-                              value: name
-                            };
+                        $$: [
+                          {
+                            $type: "option",
+                            $text: "Add to Wallet",
+                            value: "Add to Wallet"
                           }
+                        ].concat(
+                          (<any>window)._.map(
+                            this._wallets,
+                            (address: { attributes: { label: string }, type: string }) => {
+                              return {
+                                $type: "option",
+                                $text: address.attributes.label,
+                                value: address.type
+                              };
+                            }
+                          )
                         )
                       }
                     ]
