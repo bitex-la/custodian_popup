@@ -6,26 +6,25 @@ import { blockcypherService } from "../services/blockcypher_service";
 import { TransactionService } from "../services/transaction_service";
 import config from "../config";
 
-interface ABIDefinition {
-  constant?: boolean;
-  payable?: boolean;
-  anonymous?: boolean;
-  inputs?: Array<{ name: string; type: ABIDataTypes; indexed?: boolean }>;
-  name?: string;
-  outputs?: Array<{ name: string; type: ABIDataTypes }>;
-  type: "function" | "constructor" | "event" | "fallback";
+interface PubKey {
+  node: {
+    chain_code: string;
+    depth: number;
+    child_num: number;
+    fingerprint: number;
+    public_key: string
+  }
 }
-
-type ABIDataTypes = "uint256" | "boolean" | "string" | "bytes" | string;
 
 interface MultiSig {
   signatures: Array<string>;
   m: number;
-  pubkeys: Array<{ node: { public_key: string } }>;
+  pubkeys: Array<PubKey>;
 }
 
 interface Input {
   address_n?: Array<number>;
+  amount?: number;
   prev_hash: string;
   prev_index: string;
   sequence?: string;
@@ -276,15 +275,15 @@ export class Transaction {
     let json = _.cloneDeep(original_json);
     loading();
     let raw_inputs = json.inputs;
-    json.inputs = _.map(json.trezor_inputs, (input: any) => {
+    json.inputs = _.map(json.trezor_inputs, (input: Input) => {
       if (coin === 'bgold' || coin === 'bcash') {
         let found_input = raw_inputs.filter((raw_input: any[]) => raw_input[1] === input['prev_hash']);
         input["amount"] = found_input[0][3].toString();
       }
       return input;
     });
-    json.outputs = _.map(json.trezor_outputs, (output: any) => {
-      let value: { [index: string]: string } = {};
+    json.outputs = _.map(json.trezor_outputs, (output: Output) => {
+      let value: Output;
       value = output;
       value["amount"] = output["amount"].toString();
       return value;
@@ -306,7 +305,7 @@ export class Transaction {
             let publicKey = resultPk.payload.publicKey;
             let signatureIndex = _.findIndex(
               input.multisig.pubkeys,
-              (p: any) => p.node.public_key == publicKey
+              (p: PubKey) => p.node.public_key == publicKey
             );
 
             input.multisig.signatures[signatureIndex] = signatures[_i];
