@@ -121,11 +121,11 @@ export class Transaction {
     _derivationPath: number[],
     coin?: string
   ): Promise<{}> {
-    let [rsknetwork, derivationPath] =
+    let derivationPath =
       JSON.stringify(_derivationPath) ===
       JSON.stringify(config._getDerivationPathTestnet())
-        ? ["Testnet", config._getDerivationPathTestnet()]
-        : ["Mainnet", config._getDerivationPathMainnet()];
+        ? config._getDerivationPathTestnet()
+        : config._getDerivationPathMainnet();
 
     switch (network) {
       case "Bitcoin":
