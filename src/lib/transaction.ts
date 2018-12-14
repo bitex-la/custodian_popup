@@ -276,9 +276,12 @@ export class Transaction {
     loading();
     let raw_inputs = json.inputs;
     json.inputs = _.map(json.trezor_inputs, (input: Input) => {
-      if (coin === 'bgold' || coin === 'bcash') {
+      if (coin === 'Bgold' || coin === 'Bcash') {
         let found_input = raw_inputs.filter((raw_input: any[]) => raw_input[1] === input['prev_hash']);
         input["amount"] = found_input[0][3].toString();
+        if (!input["script_type"]) {
+          input["script_type"] = "SPENDADDRESS";
+        }
       }
       return input;
     });
