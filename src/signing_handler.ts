@@ -16,10 +16,17 @@ export function signingHandler () {
     _transactionJson: '',
     class: 'form',
     _rawtx: '',
+    _json: '',
     _rskAddress: '',
     $update () {
       let self = this
       if (self._rawtx) {
+        self.$build({
+          class: 'jumbotron json-hex-tx',
+          $type: 'textarea',
+          cols: 100,
+          $text: JSON.stringify(this._transactionJson)
+        })
         self.$build({
           class: 'jumbotron serialized-hex-tx',
           $type: 'textarea',
@@ -41,7 +48,7 @@ export function signingHandler () {
       }
     },
     $$: [
-      { $virus: selectGroupism('Network', (<any> window)._.keys(networks)),
+      { $virus: selectGroupism('Network', networks),
         name: 'network',
         $update () { this.value = this._networkName },
         onchange (e: Event) { this._networkName = (<HTMLInputElement> e.target).value }
@@ -68,8 +75,8 @@ export function signingHandler () {
           let transaction = new Transaction()
           let transactionJson = typeof (this._transactionJson) === 'string' ? JSON.parse(this._transactionJson) : this._transactionJson
           try {
-            let result = await transaction.signTransaction(transactionJson, this._networkName)
-            this._handleSigningResult(result)
+            let result = await transaction.signTransaction(transactionJson, this._networkName.toLowerCase());
+            this._handleSigningResult(result);
           } catch (error) {
             showError(error.json)
           }

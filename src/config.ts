@@ -10,6 +10,7 @@ export class Config {
   rskTestNetPath: number[] = [44, 37310, 0, 0, 0];
   defaultPath: number[] = [44, 0, 0, 0, 0];
   defaultTestnetPath: number[] = [44, 1, 0, 0, 0];
+  defaultBgoldPath: number[] = [49, 156, 0, 0, 0];
   defaultSegwitPath: number[] = [49, 0, 0, 0, 0];
   defaultSegwitTestnetPath: number[] = [49, 1, 0, 0, 0];
   storage = window.localStorage;
@@ -73,16 +74,14 @@ export class Config {
 
   _chooseDerivationPath(_networkName: string) {
     switch(_networkName) {
-      case 'bitcoin':
-      case 'litecoin':
-      case 'bitcoin_cash':
-      case 'rsk':
+      case 'Bitcoin':
+      case 'Litecoin':
+      case 'Bcash':
         return this.defaultPath
-      case 'testnet':
-      case 'litecoin_testnet':
-      case 'bitcoin_cash_testnet':
-      case 'rsk_testnet':
+      case 'Testnet':
         return this.defaultTestnetPath
+      case 'Bgold':
+        return this.defaultBgoldPath
     }
   }
 
@@ -100,13 +99,13 @@ export class Config {
       case 'rsk':
       case 'rsk_testnet':
         return 'rskNodeUrl'
-      case 'bitcoin':
-      case 'testnet':
+      case 'Bitcoin':
+      case 'Testnet':
         return 'btcNodeUrl'
       case 'litecoin':
       case 'litecoin_testnet':
         return 'ltcNodeUrl'
-      case 'bitcoin_cash':
+      case 'Bcash':
       case 'bitcoin_cash_testnet':
         return 'bchNodeUrl'
     }
