@@ -21,6 +21,7 @@ export function signingHandler () {
     $update () {
       let self = this
       if (self._rawtx) {
+        (<any> window.document.getElementById('transaction-json')).$update();
         self.$build({
           class: 'jumbotron json-hex-tx',
           $type: 'textarea',
@@ -53,12 +54,12 @@ export function signingHandler () {
         $update () { this.value = this._networkName },
         onchange (e: Event) { this._networkName = (<HTMLInputElement> e.target).value }
       },
-      { $tag: '.form-group textarea#tansaction_json.form-control',
+      { $tag: '.form-group textarea#transaction-json.form-control',
         name: 'transaction_json',
         rows: 15,
         onchange (e: Event) { this._transactionJson = (<HTMLInputElement> e.target).value },
         $update () {
-          this.$text = JSON.stringify(this._transactionJson)
+          this.value = JSON.stringify(this._transactionJson);
         }
       },
       { $tag: 'button.btn.btn-primary.btn-block.mt-1',
@@ -81,6 +82,9 @@ export function signingHandler () {
             showError(error.json)
           }
         }
+      },
+      { 
+        $tag: 'hr'
       }
     ]
   }
