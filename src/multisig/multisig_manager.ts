@@ -11,6 +11,7 @@ export function multisigManager() {
     $virus: updateEpidemic,
     _path: "",
     _required: 0,
+    _multisigAddress: '',
     $$: [
       { $type: "h4", $text: "2. Create a multisig address" },
       {
@@ -32,6 +33,19 @@ export function multisigManager() {
             (<HTMLInputElement>e.target).value,
             "/"
           );
+        }
+      },
+      {
+        $virus: formGroupism("Address"),
+        $tag: "input",
+        id: "multisig-address",
+        name: "multisig_address",
+        type: "text",
+        onchange(e: Event) {
+          this._multisigAddress = (<HTMLInputElement>e.target).value;
+        },
+        $update() {
+          this.value = this._multisigAddress;
         }
       },
       {
@@ -59,19 +73,9 @@ export function multisigManager() {
           if (json.error) {
             component = { $tag: ".alert.alert-info", $text: json.error };
           } else {
-            component = {
-              $tag: ".card",
-              $$: [
-                {
-                  $tag: ".card-header",
-                  $text: json.address
-                }
-              ]
-            };
+            this._multisigAddress = json.address;
+            (<any> window.document.getElementById('multisig-address')).$update()
           }
-
-          this.innerHTML = "";
-          this.$build(hamlism(component));
         }
       }
     ]
