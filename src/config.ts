@@ -8,9 +8,21 @@ export class Config {
   nodeSelected: string = 'btcNodeUrl';
   rskMainNetPath: number[] = [44, 137, 0, 0, 0];
   rskTestNetPath: number[] = [44, 37310, 0, 0, 0];
-  defaultPath: number[] = [44, 0, 0, 0, 0];
-  defaultTestnetPath: number[] = [44, 1, 0, 0, 0];
-  defaultBgoldPath: number[] = [49, 156, 0, 0, 0];
+  defaultPath: number[] = [(44 | 0x80000000) >>> 0,
+                           (0 | 0x80000000) >>> 0,
+                           (0 | 0x80000000) >>> 0, 0, 0];
+  defaultTestnetPath: number[] = [(44 | 0x80000000) >>> 0,
+                                  (1 | 0x80000000) >>> 0,
+                                  (0 | 0x80000000) >>> 0, 0, 0];
+  defaultLiteCoinPath: number[] = [(49 | 0x80000000) >>> 0,
+                                   (2 | 0x80000000) >>> 0,
+                                   (0 | 0x80000000) >>> 0, 0, 0];
+  defaultBCashPath: number[] = [(44 | 0x80000000) >>> 0,
+                                (145 | 0x80000000) >>> 0,
+                                (0 | 0x80000000) >>> 0, 0, 0];
+  defaultBgoldPath: number[] = [(49 | 0x80000000) >>> 0,
+                                (156 | 0x80000000) >>> 0,
+                                (0 | 0x80000000) >>> 0, 0, 0];
   defaultSegwitPath: number[] = [49, 0, 0, 0, 0];
   defaultSegwitTestnetPath: number[] = [49, 1, 0, 0, 0];
   storage = window.localStorage;
@@ -75,13 +87,15 @@ export class Config {
   _chooseDerivationPath(_networkName: string) {
     switch(_networkName) {
       case 'Bitcoin':
+        return this.defaultPath;
       case 'Litecoin':
+        return this.defaultLiteCoinPath;
       case 'Bcash':
-        return this.defaultPath
+        return this.defaultBCashPath;
       case 'Testnet':
-        return this.defaultTestnetPath
+        return this.defaultTestnetPath;
       case 'Bgold':
-        return this.defaultBgoldPath
+        return this.defaultBgoldPath;
     }
   }
 
