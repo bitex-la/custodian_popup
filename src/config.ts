@@ -6,21 +6,19 @@ export class Config {
   ltcNodeUrl: string = '/api/ltc';
   rskNodeUrl: string = '';
   nodeSelected: string = 'btcNodeUrl';
-  rskMainNetPath: number[] = [44, 137, 0, 0, 0];
-  rskTestNetPath: number[] = [44, 37310, 0, 0, 0];
   defaultPath: number[] = [(44 | 0x80000000) >>> 0,
                            (0 | 0x80000000) >>> 0,
                            (0 | 0x80000000) >>> 0, 0, 0];
   defaultTestnetPath: number[] = [(44 | 0x80000000) >>> 0,
                                   (1 | 0x80000000) >>> 0,
                                   (0 | 0x80000000) >>> 0, 0, 0];
-  defaultLiteCoinPath: number[] = [(49 | 0x80000000) >>> 0,
+  defaultLiteCoinPath: number[] = [(44 | 0x80000000) >>> 0,
                                    (2 | 0x80000000) >>> 0,
                                    (0 | 0x80000000) >>> 0, 0, 0];
   defaultBCashPath: number[] = [(44 | 0x80000000) >>> 0,
                                 (145 | 0x80000000) >>> 0,
                                 (0 | 0x80000000) >>> 0, 0, 0];
-  defaultBgoldPath: number[] = [(49 | 0x80000000) >>> 0,
+  defaultBgoldPath: number[] = [(44 | 0x80000000) >>> 0,
                                 (156 | 0x80000000) >>> 0,
                                 (0 | 0x80000000) >>> 0, 0, 0];
   defaultSegwitPath: number[] = [49, 0, 0, 0, 0];
@@ -73,12 +71,6 @@ export class Config {
       text: "Testnet Segwit m/49'/1'/0'/0'/0",
       id: this.defaultSegwitTestnetPath
     }, {
-      text: "Rsk m/44'/137'/0'/0'/0",
-      id: this.rskMainNetPath
-    }, {
-      text: "Rsk Testnet m/44'/37310'/0'/0'/0",
-      id: this.rskTestNetPath
-    }, {
       text: "Custom",
       id: []
     }];
@@ -99,15 +91,6 @@ export class Config {
     }
   }
 
-  _chooseDerivationRskPath(_networkName: string) {
-    switch(_networkName) {
-      case 'rsk':
-        return this.rskMainNetPath
-      case 'rsk_testnet':
-        return this.rskTestNetPath
-    }
-  }
-
   _chooseBackUrl(_networkName: string) {
     switch(_networkName) {
       case 'rsk':
@@ -122,24 +105,6 @@ export class Config {
       case 'Bcash':
       case 'bitcoin_cash_testnet':
         return 'bchNodeUrl'
-    }
-  }
-
-  _getUrlRskNode(_networkName: string): string {
-    switch(_networkName) {
-      case 'Testnet':
-        return this._getRskTestnetNodeUrl();
-      default:
-        return this._getRskMainnetNodeUrl();
-    }
-  }
-
-  _getRskChainId(_networkName: string) {
-    switch(_networkName) {
-      case 'Mainnet':
-        return 30
-      case 'Testnet':
-        return 31
     }
   }
 }
