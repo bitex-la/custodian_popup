@@ -4,6 +4,7 @@ import {
   formGroupism
 } from "../lib/bootstrapism";
 import { hamlism } from "../lib/hamlism";
+import { updateEpidemic } from '../lib/update_epidemic';
 import { showError, loading, notLoading } from "../messages";
 import { CustodianManager } from "../services/custodian_manager";
 import config from "../config";
@@ -13,11 +14,14 @@ var bip32 = require("bip32");
 export function hdNodesManager() {
   return {
     class: "well well-sm",
+    id: 'hd-nodes-manager',
+    $virus: updateEpidemic,
     _path: "[]",
     _wallets: (<any>window).wallets,
     _setPath: function(string: string) {
       this._path = string ? bip32.fromString(string).toPathArray() : [];
     },
+    _address: "",
     _xpub: "",
     _balance: " Balance: 0",
     async _hdNodeFromTrezor() {
@@ -43,17 +47,22 @@ export function hdNodesManager() {
     _addHdNodeFromXpub(xpub: string) {
       let networkName = this._network();
       let hdNode = bip32.fromBase58(xpub, networkName);
-      hdNode.getAddress = () => {
-        return (<any>window).bitcoin.payments.p2pkh({
-          pubkey: hdNode.publicKey,
-          network: networkName
-        }).address;
+      hdNode.getAddress = (path: number[], coin: string) => {
+        return (<any>window).TrezorConnect.getAddress({ path, coin });
       };
       this._xpubs.push(xpub);
       this._hdNodes.push(hdNode);
     },
     _hdNodeContainer(hdNode: any) {
       let self = this;
+      let networkName = this._networkName;
+      let path = config._chooseDerivationPath(networkName);
+      hdNode.getAddress(path, networkName).then((result: any) => {
+        if (result.success) {
+          self._address = result.payload.address;
+          (<any> window.document.getElementsByClassName('address-text')[0]).textContent = result.payload.address;
+        }
+      });
       return {
         $virus: hamlism,
         _toRskAddress: "",
@@ -92,7 +101,7 @@ export function hdNodesManager() {
             $$: [
               {
                 $tag: "span",
-                $text: hdNode.getAddress()
+                class: 'address-text'
               }
             ]
           },
