@@ -4,17 +4,17 @@ import {
   formGroupism
 } from "../lib/bootstrapism";
 import { hamlism } from "../lib/hamlism";
-import { updateEpidemic } from '../lib/update_epidemic';
+import { updateEpidemic } from "../lib/update_epidemic";
 import { showError, loading, notLoading } from "../messages";
 import { CustodianManager } from "../services/custodian_manager";
 import config from "../config";
-import { WalletService } from '../services/wallet_service';
+import { WalletService } from "../services/wallet_service";
 var bip32 = require("bip32");
 
 export function hdNodesManager() {
   return {
     class: "well well-sm",
-    id: 'hd-nodes-manager',
+    id: "hd-nodes-manager",
     $virus: updateEpidemic,
     _path: "[]",
     _wallets: (<any>window).wallets,
@@ -44,11 +44,27 @@ export function hdNodesManager() {
         showError(result.payload.error);
       }
     },
-    _addHdNodeFromXpub(xpub: string) {
+    _addHdNodeFromXpub(xpub: string, fromTrezor: boolean = true) {
       let networkName = this._network();
       let hdNode = bip32.fromBase58(xpub, networkName);
+      hdNode.networkName = networkName;
+      hdNode.fromTrezor = fromTrezor;
       hdNode.getAddress = (path: number[], coin: string) => {
-        return (<any>window).TrezorConnect.getAddress({ path, coin });
+        if (hdNode.fromTrezor) {
+          return (<any>window).TrezorConnect.getAddress({ path, coin });
+        } else {
+          return new Promise(resolve => {
+            return resolve({
+              success: true,
+              payload: {
+                address: (<any>window).bitcoin.payments.p2pkh({
+                  pubkey: hdNode.publicKey,
+                  network: hdNode.networkName
+                }).address
+              }
+            });
+          });
+        }
       };
       this._xpubs.push(xpub);
       this._hdNodes.push(hdNode);
@@ -60,7 +76,9 @@ export function hdNodesManager() {
       hdNode.getAddress(path, networkName).then((result: any) => {
         if (result.success) {
           self._address = result.payload.address;
-          (<any> window.document.getElementsByClassName('address-text')[0]).textContent = result.payload.address;
+          (<any>(
+            window.document.getElementsByClassName("address-text")[0]
+          )).textContent = result.payload.address;
         }
       });
       return {
@@ -70,22 +88,35 @@ export function hdNodesManager() {
         $tag: "li.list-group-item",
         _chooseAddressTypeByWallet: (walletType: string) => {
           switch (walletType) {
-            case 'plain_wallets':
-              return 'plain_addresses'
-            case 'hd_wallets':
-              return 'hd_addresses'
-            case 'multisig_wallets':
-              return 'multisig_addresses'
+            case "plain_wallets":
+              return "plain_addresses";
+            case "hd_wallets":
+              return "hd_addresses";
+            case "multisig_wallets":
+              return "multisig_addresses";
           }
         },
-        _createAddressByWallet: (address: string, walletType: string, walletName: string) => {
+        _createAddressByWallet: (
+          address: string,
+          walletType: string,
+          walletName: string
+        ) => {
           switch (walletType) {
-            case 'plain_wallets':
-              return CustodianManager(config)._createPlainAddress(address, walletName);
-            case 'hd_wallets':
-              return CustodianManager(config)._createHdAddress(address, walletName);
-            case 'multisig_wallets':
-              return CustodianManager(config)._createMultisigAddress(address, walletName);
+            case "plain_wallets":
+              return CustodianManager(config)._createPlainAddress(
+                address,
+                walletName
+              );
+            case "hd_wallets":
+              return CustodianManager(config)._createHdAddress(
+                address,
+                walletName
+              );
+            case "multisig_wallets":
+              return CustodianManager(config)._createMultisigAddress(
+                address,
+                walletName
+              );
           }
         },
         $$: [
@@ -101,7 +132,7 @@ export function hdNodesManager() {
             $$: [
               {
                 $tag: "span",
-                class: 'address-text'
+                class: "address-text"
               }
             ]
           },
@@ -161,17 +192,25 @@ export function hdNodesManager() {
                     $tag: ".col-lg",
                     $$: [
                       {
-                        id: 'add-to-wallet',
+                        id: "add-to-wallet",
                         $placeholder: "Add to wallet",
                         $type: "select",
                         class: "form-control",
                         name: "wallet_select",
                         onchange(e: Event) {
                           let type = (<HTMLInputElement>e.target).value;
-                          let walletName = (<HTMLSelectElement>document.getElementById('add-to-wallet')).selectedOptions[0].text;
+                          let walletName = (<HTMLSelectElement>(
+                            document.getElementById("add-to-wallet")
+                          )).selectedOptions[0].text;
                           let walletService = WalletService(config);
-                          walletService.create(`/${this._chooseAddressTypeByWallet(type)}`, 
-                                               this._createAddressByWallet(hdNode.getAddress(), type, walletName));
+                          walletService.create(
+                            `/${this._chooseAddressTypeByWallet(type)}`,
+                            this._createAddressByWallet(
+                              hdNode.getAddress(),
+                              type,
+                              walletName
+                            )
+                          );
                         },
                         $$: [
                           {
@@ -182,7 +221,10 @@ export function hdNodesManager() {
                         ].concat(
                           (<any>window)._.map(
                             this._wallets,
-                            (address: { attributes: { label: string }, type: string }) => {
+                            (address: {
+                              attributes: { label: string };
+                              type: string;
+                            }) => {
                               return {
                                 $type: "option",
                                 $text: address.attributes.label,
@@ -238,7 +280,7 @@ export function hdNodesManager() {
                 $virus: buttonism("Add node"),
                 onclick() {
                   try {
-                    this._addHdNodeFromXpub(this._xpub);
+                    this._addHdNodeFromXpub(this._xpub, false);
                   } catch (error) {
                     showError(error);
                   }
