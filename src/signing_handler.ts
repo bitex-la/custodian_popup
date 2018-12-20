@@ -79,7 +79,11 @@ export function signingHandler () {
             let result = await transaction.signTransaction(transactionJson, this._networkName);
             this._handleSigningResult(result);
           } catch (error) {
-            showError(error.json)
+            if (error.json) {
+              showError(error.json);
+            } else if (error.message) {
+              showError(error.message);
+            }
           }
         }
       },
