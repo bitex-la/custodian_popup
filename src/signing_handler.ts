@@ -21,12 +21,11 @@ export function signingHandler () {
     $update () {
       let self = this
       if (self._rawtx) {
-        (<any> window.document.getElementById('transaction-json')).$update();
         self.$build({
           class: 'jumbotron json-hex-tx',
           $type: 'textarea',
           cols: 100,
-          $text: JSON.stringify(this._transactionJson)
+          $text: this._transactionJson
         })
         self.$build({
           class: 'jumbotron serialized-hex-tx',
@@ -59,15 +58,16 @@ export function signingHandler () {
         rows: 15,
         onchange (e: Event) { this._transactionJson = (<HTMLInputElement> e.target).value },
         $update () {
-          this.value = JSON.stringify(this._transactionJson);
+          this.value = this._transactionJson;
         }
       },
       { $tag: 'button.btn.btn-primary.btn-block.mt-1',
         id: 'sign-transaction',
         $text: 'Sign transaction',
         _handleSigningResult (result: {json: string, rawtx: string, done: boolean}) {
-          this._transactionJson = result.json
-          this._rawtx = result.rawtx
+          this._transactionJson = JSON.stringify(result.json);
+          this._rawtx = result.rawtx;
+          (<any> window.document.getElementById('transaction-json')).$update();
           if (result.done) {
             showSuccess('All signed, try to propagate rawtx')
           }

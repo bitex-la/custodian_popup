@@ -275,27 +275,22 @@ export class Transaction {
     let json = _.cloneDeep(original_json);
     loading();
     let raw_inputs = json.inputs;
-    json.inputs = _.map(json.trezor_inputs, (input: Input) => {
-      if (coin === 'Bgold' || coin === 'Bcash') {
-        let found_input = raw_inputs.filter((raw_input: any[]) => raw_input[1] === input['prev_hash']);
-        input["amount"] = found_input[0][3].toString();
-        if (!input["script_type"]) {
-          input["script_type"] = "SPENDADDRESS";
-        }
+    let inputs = _.map(json.trezor_inputs, (input: Input) => {
+      let found_input = raw_inputs.filter((raw_input: any[]) => raw_input[1] === input['prev_hash'] && 
+                                                                raw_input[2] === input['prev_index']);
+      input["amount"] = found_input[0][3].toString();
+      if (!input["script_type"]) {
+        input["script_type"] = "SPENDADDRESS";
       }
       return input;
     });
-    json.outputs = _.map(json.trezor_outputs, (output: Output) => {
+    let outputs = _.map(json.trezor_outputs, (output: Output) => {
       let value: Output;
       value = output;
       value["amount"] = output["amount"].toString();
       return value;
     });
-    const result = await (<any>window).TrezorConnect.signTransaction({
-      inputs: json.inputs,
-      outputs: json.outputs,
-      coin
-    });
+    const result = await (<any>window).TrezorConnect.signTransaction({ inputs, outputs, coin });
     if (result.success) {
       let signed = result.payload.serializedTx;
       let signatures = result.payload.signatures;
