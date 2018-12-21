@@ -37,7 +37,7 @@
     "hd-wallet": "^7.11.3",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
-    "trezor-connect": "^5.0.28",
+    "trezor-connect": "^6.0.2",
     "trezor.js": "6.19.0",
     "web3": "^1.0.0-beta.35"
   },
