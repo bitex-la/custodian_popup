@@ -1,5 +1,12 @@
 import { hamlism } from "./lib/hamlism";
 import { updateEpidemic } from "./lib/update_epidemic";
+import { clearWalletModal } from './components/clear_wallet_modal';
+
+export interface Address {
+  publicAddress: string;
+  path?: string;
+  balance: number;
+}
 
 export class Wallet {
   id: string;
@@ -12,6 +19,7 @@ export class Wallet {
     xpubs?: string[];
     signers?: number[];
   };
+  addresses: Address[];
 
   prettyLabel(): string {
     let label = this.attributes.label;
@@ -41,6 +49,7 @@ export function walletHandler() {
     $virus: [updateEpidemic, hamlism],
     class: "form",
     $$: [
+      clearWalletModal(),
       {
         $tag: "ul.list-group.wallets-server.list-group-flush.mt-3",
         $update() {
@@ -92,6 +101,8 @@ export function walletHandler() {
                       {
                         $type: 'button',
                         class: 'btn btn-light',
+                        "data-toggle": "modal",
+                        "data-target": "#clearWalletModal",
                         $$: [
                           {
                             $type: 'span',
@@ -103,7 +114,18 @@ export function walletHandler() {
                               }
                             ]
                           }
-                        ]
+                        ],
+                        onclick() {
+                          let select = document.getElementById('chooseWalletModal');
+                          select.innerHTML = "";
+                          (<any> window).wallets.forEach((rawWallet: Wallet) => {
+                            let wallet = Object.assign(new Wallet(), rawWallet);
+                            let opt = document.createElement('option');
+                            opt.value = wallet.id;
+                            opt.innerHTML = wallet.prettyLabel();
+                            select.appendChild(opt);
+                          });
+                        }
                       }
                     ]
                   }
