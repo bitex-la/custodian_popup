@@ -40,57 +40,42 @@ interface Output {
   script_pubkey?: string;
 }
 
-export interface InTransaction {
+export interface TrezorTransaction {
   outputs: Array<Output>;
   inputs: Array<Input>;
-  transactions: Array<object>;
 }
 
-interface SimpleTransaction {
+interface TransactionResponse {
+  address: string;
+  block_height: number;
   transaction_hash: string;
-  position: string;
-  version: string;
+  position: number;
+  version: number;
   locktime: number;
-  inputs: Array<{
-    prev_hash: string;
-    prev_index: string;
-    sequence: string;
-    script_sig: string;
-  }>;
-  outputs: Array<{ amount: string; script_pubkey: string }>;
+  is_spent: boolean;
+  inputs: Input[];
+  outputs: Output[];
 }
 
-interface AddressTransaction {
-  path: string;
-}
-
-interface CompleteTransaction {
-  address: AddressTransaction;
-  transaction: SimpleTransaction;
-  multisig: MultiSig;
-}
-
-function isCompleteTransaction(
-  transaction: SimpleTransaction | CompleteTransaction
-): transaction is CompleteTransaction {
-  return (<CompleteTransaction>transaction).transaction !== undefined;
-}
-
-function isSimpleTransaction(
-  transaction: SimpleTransaction | CompleteTransaction
-): transaction is SimpleTransaction {
-  return (<SimpleTransaction>transaction).transaction_hash !== undefined;
-}
-
-interface RawTx {
-  attributes: CompleteTransaction | SimpleTransaction;
-}
-
-interface HandleParent {
+interface WalletDetail {
   _walletType: string;
-  _rawTransaction: Array<RawTx>;
-  _networkName: string;
-  _outputs: Array<object>;
+  _walletId: string;
+}
+
+interface JsonApiUtxo {
+  attributes: {
+    transaction: TransactionResponse
+  },
+  id: string,
+  relationships: {
+    address: {
+      data: {
+        id: string,
+        type: string
+      }
+    }
+  },
+  type: string
 }
 
 interface SignedResponse {
@@ -114,7 +99,7 @@ export class Transaction {
   SATOSHIS = 100000000;
   WEISTOSATOSHIS = 10000000000;
 
-  transaction: InTransaction = { outputs: [], inputs: [], transactions: [] };
+  transaction: TrezorTransaction = { outputs: [], inputs: [] };
 
   async _addAddressFromTrezor(
     network: Network,
@@ -180,18 +165,31 @@ export class Transaction {
     }
   }
 
+  pathConstruction (): number[] {
+
+  }
+
   async createTx(
-    _this: HandleParent,
+    walletDetail: WalletDetail,
     _networkName: string
-  ): Promise<InTransaction> {
+  ): Promise<TrezorTransaction> {
     let self = this;
-    _.forEach(_this._rawTransaction, function(rawTx: RawTx) {
-      let path = [];
-      let transaction: SimpleTransaction = null;
-      let multisig: MultiSig = null;
-      if (rawTx.attributes === undefined) {
+    let transaction = TransactionService(config);
+    let utxos = await transaction.getUtxos(walletDetail._walletType, walletDetail._walletId);
+    let trezorTransaction: TrezorTransaction;
+
+    _.forEach(utxos, function(utxo: JsonApiUtxo) {
+      if (utxo.attributes === undefined) {
         return;
       }
+
+      let input: Input = {
+        prev_hash: utxo.attributes.transaction.transaction_hash,
+        prev_index: utxo.attributes.transaction.position.toString(),
+        address_n: self.pathConstruction()
+      };
+
+      trezorTransaction.inputs.push(input)
 
       if (isCompleteTransaction(rawTx.attributes)) {
         if (
@@ -214,42 +212,6 @@ export class Transaction {
         path = config._chooseDerivationPath(_networkName);
         transaction = rawTx.attributes;
       }
-
-      if (_this._walletType === "/multisig_wallets") {
-        self.transaction.inputs.push({
-          address_n: path,
-          prev_hash: transaction.transaction_hash,
-          prev_index: transaction.position,
-          script_type: "SPENDMULTISIG",
-          multisig: multisig
-        });
-      } else {
-        self.transaction.inputs.push({
-          address_n: path,
-          prev_hash: transaction.transaction_hash,
-          prev_index: transaction.position
-        });
-      }
-
-      self.transaction.transactions.push({
-        hash: transaction.transaction_hash,
-        version: transaction.version,
-        lock_time: transaction.locktime,
-        inputs: _.map(transaction.inputs, function(input: Input) {
-          return {
-            prev_hash: input.prev_hash,
-            prev_index: input.prev_index,
-            sequence: input.sequence,
-            script_sig: input.script_sig
-          };
-        }),
-        bin_outputs: _.map(transaction.outputs, function(output: Output) {
-          return {
-            amount: output.amount.toString(),
-            script_pubkey: output.script_pubkey
-          };
-        })
-      });
     });
 
     await self.calculateFee(

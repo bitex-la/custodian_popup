@@ -116,6 +116,8 @@ export function walletHandler() {
                           }
                         ],
                         onclick() {
+                          let modal = document.getElementById('clearWalletModal');
+                          (<any> modal)._originWalletId = wallet.id;
                           let select = document.getElementById('chooseWalletModal');
                           select.innerHTML = "";
                           (<any> window).wallets.forEach((rawWallet: Wallet) => {

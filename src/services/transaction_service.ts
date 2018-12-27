@@ -10,6 +10,14 @@ export function TransactionService (config: Config) {
         data: hash,
         crossDomain: true
       })
+    },
+    getUtxos (walletType: string, walletId: string) {
+      return (<any> window).$.ajax({
+        method: 'GET',
+        url: `${walletType}/${walletId}/get_utxos`,
+        contentType: 'application/json; charset=utf-8',
+        crossDomain: true
+      })
     }
   }
 }

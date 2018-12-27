@@ -2,18 +2,19 @@ import { hamlism } from '../lib/hamlism';
 import { updateEpidemic } from '../lib/update_epidemic';
 import { buttonismWithSize } from '../lib/bootstrapism';
 import { selectGroupism } from '../lib/bootstrapism'
-import config from '../config';
-import { Wallet, Address } from '../wallets_handler';
+import { Wallet } from '../wallets_handler';
 import { JsonApiAddress } from '../services/address_service';
+import { Transaction } from '../lib/transaction';
 
 export function clearWalletModal() {
-  let wallet: Wallet = null;
   return {
     id: 'clearWalletModal',
     class: 'modal fade',
     role: 'dialog',
+    _originWalletId: '',
     _walletId: '',
     _publicAddress: '',
+    _amount: 0,
     $virus: [updateEpidemic, hamlism],
     $$: [
       {
@@ -81,6 +82,21 @@ export function clearWalletModal() {
                         onchange(e: Event) { this._publicAddress = (<HTMLInputElement>e.target).value }
                       }
                     ]
+                  },
+                  {
+                    class: 'form-group input-group',
+                    $$: [
+                      {
+                        $tag: 'span.input-group-addon',
+                        $text: 'Amount'
+                      },
+                      {
+                        $tag: 'input.form-control',
+                        name: 'chooseAmountModal',
+                        id: 'chooseAmountModal',
+                        onchange(e: Event) { this._amount = parseInt((<HTMLInputElement>e.target).value) }
+                      }
+                    ]
                   }
                 ]
               },
@@ -93,10 +109,25 @@ export function clearWalletModal() {
                     $text: 'Close'
                   },
                   {
-                    $virus: buttonismWithSize('Submit', 'primary', 'small'),
+                    $virus: buttonismWithSize('Clear', 'primary', 'small'),
                     'data-dismiss': 'modal',
                     'data-id': 'set-conf',
                     onclick () {
+                      console.log(this._originWalletId);
+                    }
+                  },
+                  {
+                    $virus: buttonismWithSize('Create Transaction', 'success', 'small'),
+                    'data-dismiss': 'modal',
+                    'data-id': 'set-conf',
+                    onclick () {
+                      let self = this;
+                      let transaction = new Transaction();
+                      transaction.createTx(self, this._networkName).then((tx) => {
+                        (<any> document.querySelector('#signing'))._transactionJson = tx;
+                        (<any> document.querySelector('#signing')).$update();
+                      });
+                      (<any> $('.nav-pills a[href="#tab_signing"]')).tab('show');
                     }
                   }
                 ]
