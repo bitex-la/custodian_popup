@@ -33,7 +33,7 @@ interface Input {
   script_type?: string;
 }
 
-interface Output {
+export interface Output {
   script_type?: string;
   address: string;
   amount: string;
@@ -165,13 +165,14 @@ export class Transaction {
     }
   }
 
-  pathConstruction (): number[] {
-
+  pathConstruction (networkName: string): number[] {
+    return config._chooseDerivationPath(networkName);
   }
 
   async createTx(
     walletDetail: WalletDetail,
-    _networkName: string
+    _networkName: string,
+    outputs: Output[]
   ): Promise<TrezorTransaction> {
     let self = this;
     let transaction = TransactionService(config);
@@ -186,47 +187,25 @@ export class Transaction {
       let input: Input = {
         prev_hash: utxo.attributes.transaction.transaction_hash,
         prev_index: utxo.attributes.transaction.position.toString(),
-        address_n: self.pathConstruction()
+        address_n: self.pathConstruction(_networkName)
       };
-
       trezorTransaction.inputs.push(input)
-
-      if (isCompleteTransaction(rawTx.attributes)) {
-        if (
-          rawTx.attributes.address.path &&
-          rawTx.attributes.address.path.length > 0
-        ) {
-          path = JSON.parse(rawTx.attributes.address.path);
-        } else {
-          path = config._chooseDerivationPath(_networkName);
-        }
-        transaction = rawTx.attributes.transaction;
-        if (rawTx.attributes.multisig) {
-          multisig = {
-            signatures: rawTx.attributes.multisig.signatures,
-            m: rawTx.attributes.multisig.m,
-            pubkeys: rawTx.attributes.multisig.pubkeys
-          };
-        }
-      } else if (isSimpleTransaction(rawTx.attributes)) {
-        path = config._chooseDerivationPath(_networkName);
-        transaction = rawTx.attributes;
-      }
     });
+    _.forEach(outputs, (output: Output) => trezorTransaction.outputs.push(output));
 
     await self.calculateFee(
       _networkName,
-      _this._outputs.length,
+      outputs.length,
       (fee: number) => {
-        self.transaction.outputs = _.map(_this._outputs, (output: Output) => {
+        self.transaction.outputs = _.map(outputs, (output: Output) => {
           let outputResult = (<any>Object).assign({}, output);
           outputResult["amount"] = outputResult["amount"] - fee;
           return outputResult;
         });
       }
     );
-    return new Promise<InTransaction>((resolve, reject) =>
-      resolve(self.transaction)
+    return new Promise<TrezorTransaction>((resolve, reject) =>
+      resolve(trezorTransaction)
     );
   }
 

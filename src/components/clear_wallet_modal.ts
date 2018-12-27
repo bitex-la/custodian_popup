@@ -4,7 +4,7 @@ import { buttonismWithSize } from '../lib/bootstrapism';
 import { selectGroupism } from '../lib/bootstrapism'
 import { Wallet } from '../wallets_handler';
 import { JsonApiAddress } from '../services/address_service';
-import { Transaction } from '../lib/transaction';
+import { Transaction, Output } from '../lib/transaction';
 
 export function clearWalletModal() {
   return {
@@ -123,7 +123,12 @@ export function clearWalletModal() {
                     onclick () {
                       let self = this;
                       let transaction = new Transaction();
-                      transaction.createTx(self, this._networkName).then((tx) => {
+                      let output: Output = {
+                        script_type: 'PAYTOADDRESS',
+                        amount: self._amount,
+                        address: self._publicAddress
+                      };
+                      transaction.createTx(self, this._networkName, [output]).then((tx) => {
                         (<any> document.querySelector('#signing'))._transactionJson = tx;
                         (<any> document.querySelector('#signing')).$update();
                       });
