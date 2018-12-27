@@ -4,7 +4,6 @@ export class Config {
   btcNodeUrl: string = '/api/btc';
   bchNodeUrl: string = '/api/bch';
   ltcNodeUrl: string = '/api/ltc';
-  rskNodeUrl: string = '';
   nodeSelected: string = 'btcNodeUrl';
   defaultPath: number[] = [(44 | 0x80000000) >>> 0,
                            (0 | 0x80000000) >>> 0,
@@ -24,22 +23,6 @@ export class Config {
   defaultSegwitPath: number[] = [49, 0, 0, 0, 0];
   defaultSegwitTestnetPath: number[] = [49, 1, 0, 0, 0];
   storage = window.localStorage;
-
-  _setRskTestnetNodeUrl(url: string) {
-    this.storage.setItem('rskTestnetNodeUrl', url);
-  }
-
-  _setRskMainnetNodeUrl(url: string) {
-    this.storage.setItem('rskMainnetNodeUrl', url);
-  }
-
-  _getRskMainnetNodeUrl(): string {
-    return this.storage.getItem('rskMainnetNodeUrl') || 'https://public-node.rsk.co/';
-  }
-
-  _getRskTestnetNodeUrl(): string {
-    return this.storage.getItem('rskTestnetNodeUrl') || 'https://mycrypto.testnet.rsk.co/';
-  }
 
   _setDerivationPathMainnet(path: number[]) {
     this.storage.setItem('derivationPathMainnet', JSON.stringify(path));

@@ -12,10 +12,14 @@ export function clearWalletModal() {
     class: 'modal fade',
     role: 'dialog',
     _originWalletId: '',
+    _originWalletType: '',
     _walletId: '',
     _publicAddress: '',
     _amount: 0,
     $virus: [updateEpidemic, hamlism],
+    $update() {
+      this._walletId = (<any> window).wallets[0].id;
+    },
     $$: [
       {
         class: 'modal-dialog modal-lg',
@@ -57,7 +61,7 @@ export function clearWalletModal() {
                         name: 'chooseWalletModal',
                         id: 'chooseWalletModal',
                         onchange(e: Event) { this._walletId = (<HTMLInputElement>e.target).value },
-                        onclick(e: Event) { 
+                        onclick(_e: Event) { 
                           let wallet = (<any> window).wallets.find((wallet: Wallet) => wallet.id === this._walletId);
 
                           let select = document.getElementById('chooseAddressModal');
@@ -128,8 +132,12 @@ export function clearWalletModal() {
                         amount: self._amount,
                         address: self._publicAddress
                       };
-                      transaction.createTx(self, this._networkName, [output]).then((tx) => {
-                        (<any> document.querySelector('#signing'))._transactionJson = tx;
+                      let walletDetail = {
+                        _walletType: this._originWalletType,
+                        _walletId: this._originWalletId
+                      };
+                      transaction.createTx(walletDetail, this._networkName, [output]).then((tx) => {
+                        (<any> document.querySelector('#signing'))._transactionJson = JSON.stringify(tx);
                         (<any> document.querySelector('#signing')).$update();
                       });
                       (<any> $('.nav-pills a[href="#tab_signing"]')).tab('show');

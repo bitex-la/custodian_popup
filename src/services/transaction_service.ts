@@ -14,7 +14,7 @@ export function TransactionService (config: Config) {
     getUtxos (walletType: string, walletId: string) {
       return (<any> window).$.ajax({
         method: 'GET',
-        url: `${walletType}/${walletId}/get_utxos`,
+        url: `${(<any> config)[config.nodeSelected]}/${walletType}/${walletId}/get_utxos`,
         contentType: 'application/json; charset=utf-8',
         crossDomain: true
       })

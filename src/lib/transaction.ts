@@ -150,19 +150,11 @@ export class Transaction {
         satoshis;
       callback(fee);
     };
-    try {
-      let response = await blockdozerService().satoshisPerByte(
-        _networkName,
-        false
-      );
-      calculateFee(response, callback);
-    } catch {
-      let response = await blockdozerService().satoshisPerByte(
-        _networkName,
-        true
-      );
-      calculateFee(response, callback);
-    }
+    let response = await blockdozerService().satoshisPerByte(
+      _networkName,
+      true
+    );
+    calculateFee(response, callback);
   }
 
   pathConstruction (networkName: string): number[] {
@@ -177,7 +169,10 @@ export class Transaction {
     let self = this;
     let transaction = TransactionService(config);
     let utxos = await transaction.getUtxos(walletDetail._walletType, walletDetail._walletId);
-    let trezorTransaction: TrezorTransaction;
+    let trezorTransaction: TrezorTransaction = {
+      inputs: [],
+      outputs: []
+    };
 
     _.forEach(utxos, function(utxo: JsonApiUtxo) {
       if (utxo.attributes === undefined) {
