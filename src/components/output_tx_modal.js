@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import $ from 'jquery'
 import { hamlism } from '../lib/hamlism'
 import { buttonism, buttonismWithSize, selectObjectGroupism } from '../lib/bootstrapism'
@@ -18,7 +17,7 @@ export function modalTx () {
     _outputs: [],
     _totalAmount: 0,
     _updateAmount () {
-      this._amount = this._totalAmount - _.sum(_.map(this._outputs, (tx) => parseFloat(tx.amount)))
+      this._amount = this._totalAmount - this._outputs.reduce((acc, tx) => acc + parseFloat(tx.amount), 0)
     },
     $$: [
       {
@@ -170,7 +169,7 @@ export function modalTx () {
                               }
                             ],
                             onclick () {
-                              _.remove(self._outputs, (_output) => { return _output === output })
+                              self.outputs = self.outputs.filter(_output => _output !== output)
                               self._updateAmount()
                             }
                           }]
@@ -178,7 +177,7 @@ export function modalTx () {
                       },
                       $update () {
                         this.innerHTML = ''
-                        _.each(this._outputs, (output) => this.$build(this._fillOutputs(output)))
+                        this._outputs.forEach((output) => this.$build(this._fillOutputs(output)))
                       }
                     }]
                   }

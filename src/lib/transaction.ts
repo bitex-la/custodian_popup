@@ -1,5 +1,3 @@
-import * as _ from "lodash";
-
 import { loading, notLoading } from "../messages";
 import { blockdozerService } from "../services/blockdozer_service";
 import { blockcypherService } from "../services/blockcypher_service";
@@ -174,7 +172,7 @@ export class Transaction {
       trezor_outputs: []
     };
 
-    _.forEach(utxos.data, function(utxo: JsonApiUtxo) {
+    utxos.data.forEach((utxo: JsonApiUtxo) => {
       if (utxo.attributes === undefined) {
         return;
       }
@@ -186,13 +184,13 @@ export class Transaction {
       };
       trezorTransaction.trezor_inputs.push(input)
     });
-    _.forEach(outputs, (output: Output) => trezorTransaction.trezor_outputs.push(output));
+    outputs.forEach((output: Output) => trezorTransaction.trezor_outputs.push(output));
 
     await self.calculateFee(
       _networkName,
       outputs.length,
       (fee: number) => {
-        self.transaction.trezor_outputs = _.map(outputs, (output: Output) => {
+        self.transaction.trezor_outputs = outputs.map((output: Output) => {
           let outputResult = (<any>Object).assign({}, output);
           outputResult["amount"] = outputResult["amount"] - fee;
           return outputResult;
@@ -208,10 +206,10 @@ export class Transaction {
     original_json: any,
     coin: string
   ): Promise<SignedResponse> {
-    let json = _.cloneDeep(original_json);
+    let json = (<any>Object).assign({}, original_json);
     loading();
     let raw_inputs = json.inputs;
-    let inputs = _.map(json.trezor_inputs, (input: Input) => {
+    let inputs = json.trezor_inputs.map((input: Input) => {
       let found_input = raw_inputs.filter((raw_input: any[]) => raw_input[1] === input['prev_hash'] && 
                                                                 raw_input[2] === input['prev_index']);
       input["amount"] = found_input[0][3].toString();
@@ -220,7 +218,7 @@ export class Transaction {
       }
       return input;
     });
-    let outputs = _.map(json.trezor_outputs, (output: Output) => {
+    let outputs = json.trezor_outputs.map((output: Output) => {
       let value: Output;
       value = output;
       value["amount"] = output["amount"].toString();
@@ -237,8 +235,7 @@ export class Transaction {
           let input = json.inputs[_i];
           if (input.multisig) {
             let publicKey = resultPk.payload.publicKey;
-            let signatureIndex = _.findIndex(
-              input.multisig.pubkeys,
+            let signatureIndex = input.multisig.pubkeys.findIndex(
               (p: PubKey) => p.node.public_key == publicKey
             );
 
@@ -246,7 +243,7 @@ export class Transaction {
           }
         }
       } else {
-        return new Promise<SignedResponse>((resolve, reject) => {
+        return new Promise<SignedResponse>((_resolve, reject) => {
           reject({
             json: resultPk.payload.error,
             done: false,
@@ -255,10 +252,13 @@ export class Transaction {
         });
       }
 
-      let done = _.every(json.inputs, (i: Input) => {
-        return i.multisig
-          ? _.compact(i.multisig.signatures).length >= i.multisig.m
-          : true;
+      let done = json.inputs.every((i: Input) => {
+        if (i.multisig) {
+          let signatures = i.multisig.signatures.filter((signature) => signature);
+          return signatures.length >= i.multisig.m;
+        } else {
+          return true;
+        }
       });
 
       notLoading();

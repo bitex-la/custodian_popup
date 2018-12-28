@@ -54,8 +54,7 @@ export function walletHandler() {
         $tag: "ul.list-group.wallets-server.list-group-flush.mt-3",
         $update() {
           this.innerHTML = "";
-          (<any>window)._.forEach(
-            (<any>window).wallets,
+          (<any>window).wallets.forEach(
             (rawWallet: Wallet) => {
               let wallet = Object.assign(new Wallet(), rawWallet);
               this.$build({

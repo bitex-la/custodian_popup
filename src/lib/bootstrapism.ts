@@ -1,5 +1,5 @@
-import { hamlism } from './hamlism'
-import Cell from '../types/cell'
+import { hamlism } from './hamlism';
+import Cell from '../types/cell';
 
 export function formGroupism (label: string) {
   return function (component: Cell) {
@@ -56,7 +56,7 @@ export function selectGroupism (label: string, options: string[]) {
     let select = Object.assign(component, {
       $type: 'select',
       class: 'form-control',
-      $components: (<any> window)._.map(options, (name: string) => {
+      $components: options.map((name: string) => {
         return {$type: 'option', $text: name, value: name}
       })
     })
@@ -82,7 +82,7 @@ export function selectObjectGroupism (label: string, options: Option[], selected
     let select = Object.assign(component, {
       $type: 'select',
       class: 'form-control',
-      $components: (<any> window)._.map(options, (obj: Option) => {
+      $components: options.map((obj: Option) => {
         let option: Cell = {$type: 'option', $text: obj.text, value: typeof (obj.id) === 'string' ? obj.id : JSON.stringify(obj.id)}
         if (obj.text === selected) {
           option['selected'] = ''
@@ -104,7 +104,7 @@ export function selectObjectGroupism (label: string, options: Option[], selected
 
 export function buttonism (label: string, kind: string = 'primary') {
   return function (component: Cell) {
-    return hamlism((<any> window)._.merge(component, {
+    return hamlism(Object.assign(component, {
       $tag: `button.btn.btn-block.btn-${kind}`,
       $text: label
     }))
@@ -113,7 +113,7 @@ export function buttonism (label: string, kind: string = 'primary') {
 
 export function buttonismWithSize (label: string, kind: string = 'primary', size: string = 'block') {
   return function (component: Cell) {
-    return hamlism((<any> window)._.merge(component, {
+    return hamlism(Object.assign(component, {
       $tag: `button.btn.btn-${size}.btn-${kind}`,
       $text: label
     }))
@@ -133,7 +133,8 @@ export function cardism (header: string) {
 }
 
 export function tabbism (component: Cell) {
-  let navs = (<any> window)._.map(component.$components, (tab: {id: string}) => {
+  let navs = component.$components.map((tab: {id: string}) => {
+    let tabId = tab.id.toLowerCase();
     return hamlism({
       $tag: 'li.nav-item',
       $init () {
@@ -146,12 +147,12 @@ export function tabbism (component: Cell) {
         'data-toggle': 'tab',
         href: `#tab_${tab.id}`,
         role: 'tab',
-        $text: (<any> window)._.upperFirst((<any> window)._.lowerCase(tab.id))
+        $text: tabId.charAt(0).toUpperCase() + tabId.substr(1)
       }]
     })
   })
 
-  let tabs = (<any> window)._.map(component.$components, (tab: {id: string}) => {
+  let tabs = component.$components.map((tab: {id: string}) => {
     return {
       class: 'tab-pane',
       id: `tab_${tab.id}`,

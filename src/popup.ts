@@ -1,5 +1,4 @@
 import * as $ from 'jquery';
-import * as _ from 'lodash';
 import * as Popper from './lib/popper.min.js';
 import * as bitcoin from 'bitcoinjs-lib';
 
@@ -10,24 +9,21 @@ import { hamlism } from './lib/hamlism';
 import { tabbism } from './lib/bootstrapism';
 import { updateEpidemic } from './lib/update_epidemic';
 import { WalletService } from './services/wallet_service';
-import { AddressService } from './services/address_service';
+import { AddressService, JsonApiAddress } from './services/address_service';
 import config from './config';
 
 (<any> window).TrezorConnect = require('trezor-connect').default;
 (<any> window).jQuery = (<any> window).$ = $;
-(<any> window)._ = _;
 (<any> window).Popper = Popper;
 (<any> window).bitcoin = bitcoin;
 (<any> window).wallets = [];
 
 let updateWallet = async () => {
-  (<any>window)._.forEach(
-    ["/plain_wallets", "/hd_wallets", "/multisig_wallets"],
+  ["/plain_wallets", "/hd_wallets", "/multisig_wallets"].forEach(
     async (url: string) => {
       let response = await WalletService(config).list(url);
       if (response.data.length > 0) {
-        (<any>window)._.forEach(
-          response.data,
+        response.data.forEach(
           async (rawWallet: Wallet) => {
             let wallet = Object.assign(new Wallet(), rawWallet);
             wallet.addresses = [];
@@ -35,10 +31,15 @@ let updateWallet = async () => {
             if (wallet.id !== 'incoming') {
               let addressResponse = await AddressService(config).list(`${url}/${wallet.attributes.label}/addresses`);
               if (addressResponse.length > 0) {
-                (<any>window)._.forEach(
-                  addressResponse,
-                  (address: Address) => {
-                    wallet.addresses.push(address);
+                addressResponse.forEach(
+                  (jsonapiAddress: JsonApiAddress) => {
+                    wallet.addresses.push(
+                      {
+                        publicAddress: jsonapiAddress.data.public_address, 
+                        path: jsonapiAddress.data.path, 
+                        balance: jsonapiAddress.data.balance
+                      }
+                    );
                   });
               }
             }

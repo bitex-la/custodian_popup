@@ -4,8 +4,6 @@ import * as networks from '../lib/networks.js';
 import { hdNodesManager } from './hd_nodes_manager';
 import { multisigManager } from './multisig_manager';
 
-var _ = require('lodash');
-
 export function multisigSetupHandler () {
   let hdNodes: any[] = [];
   let xpubs: string[] = [];
@@ -15,7 +13,7 @@ export function multisigSetupHandler () {
     _hdNodes: hdNodes,
     _xpubs: xpubs,
     $update() {
-      (<any> window)._.each(this._hdNodes, (n: { network: {}}) => { n.network = this._network() })
+      this._hdNodes.forEach((n: { network: {}}) => { n.network = this._network() });
     },
     $components: [
       { $virus: selectGroupism('Network', networks),

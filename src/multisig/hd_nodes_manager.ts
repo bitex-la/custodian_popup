@@ -123,8 +123,8 @@ export function hdNodesManager() {
           {
             $tag: "button.close",
             $text: "×",
-            onclick(e: Event) {
-              self._hdNodes = (<any>window)._.without(self._hdNodes, hdNode);
+            onclick(_e: Event) {
+              self._hdNodes = self._hdNodes.filter((_hdNode: any) => _hdNode === hdNode);
             }
           },
           {
@@ -301,7 +301,7 @@ export function hdNodesManager() {
         $tag: "ul.list-group.hd-nodes.mt-3",
         $update() {
           this.innerHTML = "";
-          (<any>window)._.each(this._hdNodes, (n: any) =>
+          this._hdNodes.forEach((n: any) =>
             this.$build(this._hdNodeContainer(n))
           );
         }

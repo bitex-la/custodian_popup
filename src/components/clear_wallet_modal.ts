@@ -2,8 +2,7 @@ import { hamlism } from '../lib/hamlism';
 import { updateEpidemic } from '../lib/update_epidemic';
 import { buttonismWithSize } from '../lib/bootstrapism';
 import { selectGroupism } from '../lib/bootstrapism'
-import { Wallet } from '../wallets_handler';
-import { JsonApiAddress } from '../services/address_service';
+import { Wallet, Address } from '../wallets_handler';
 import { Transaction, Output } from '../lib/transaction';
 
 export function clearWalletModal() {
@@ -18,7 +17,10 @@ export function clearWalletModal() {
     _amount: 0,
     $virus: [updateEpidemic, hamlism],
     $update() {
-      this._walletId = (<any> window).wallets[0].id;
+      let wallet = (<any> window).wallets[0];
+      if (wallet !== undefined) {
+        this._walletId = wallet.id;
+      }
     },
     $$: [
       {
@@ -68,10 +70,10 @@ export function clearWalletModal() {
                           let domSelectObject = document.getElementById('chooseAddressModal');
                           let select = <HTMLSelectElement> domSelectObject;
                           select.innerHTML = "";
-                          wallet.addresses.forEach((address: JsonApiAddress) => {
+                          wallet.addresses.forEach((address: Address) => {
                             let opt = document.createElement('option');
-                            opt.value = address.data.public_address;
-                            opt.innerHTML = address.data.public_address;
+                            opt.value = address.publicAddress;
+                            opt.innerHTML = address.publicAddress;
                             select.appendChild(opt);
                           });
                           let selectedOption = select.options[select.selectedIndex];
