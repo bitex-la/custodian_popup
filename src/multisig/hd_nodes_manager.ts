@@ -38,49 +38,36 @@ export function hdNodesManager() {
         coin: networkName
       });
       if (result.success) {
-        this._addHdNodeFromXpub(result.payload.xpub);
+        let path = config._chooseDerivationPath(networkName);
+        const resultAddress = await (<any>window).TrezorConnect.getAddress({ path, networkName });
+        if (resultAddress.success) {
+          this._addHdNodeFromXpub(result.payload.xpub, resultAddress.payload.address);
+        }
         notLoading();
       } else {
         showError(result.payload.error);
       }
     },
-    _addHdNodeFromXpub(xpub: string, fromTrezor: boolean = true) {
+    _addHdNodeFromXpub(xpub: string, address: string = null) {
       let networkName = this._network();
       let hdNode = bip32.fromBase58(xpub, networkName);
+      let _address = '';
       hdNode.networkName = networkName;
-      hdNode.fromTrezor = fromTrezor;
-      hdNode.getAddress = (path: number[], coin: string) => {
-        if (hdNode.fromTrezor) {
-          return (<any>window).TrezorConnect.getAddress({ path, coin });
-        } else {
-          return new Promise(resolve => {
-            return resolve({
-              success: true,
-              payload: {
-                address: (<any>window).bitcoin.payments.p2pkh({
-                  pubkey: hdNode.publicKey,
-                  network: hdNode.networkName
-                }).address
-              }
-            });
-          });
-        }
-      };
+      if (address === null) {
+        _address = (<any>window).bitcoin.payments.p2pkh({
+          pubkey: hdNode.publicKey,
+          network: hdNode.networkName
+        }).address
+      } else {
+        _address = address;
+      }
+      hdNode.address = _address;
+
       this._xpubs.push(xpub);
       this._hdNodes.push(hdNode);
     },
     _hdNodeContainer(hdNode: any) {
       let self = this;
-      let networkName = this._networkName;
-      let path = config._chooseDerivationPath(networkName);
-      hdNode.getAddress(path, networkName).then((result: any) => {
-        if (result.success) {
-          self._address = result.payload.address;
-          (<any>(
-            window.document.getElementsByClassName("address-text")[0]
-          )).textContent = result.payload.address;
-        }
-      });
       return {
         $virus: hamlism,
         _toRskAddress: "",
@@ -124,7 +111,7 @@ export function hdNodesManager() {
             $tag: "button.close",
             $text: "×",
             onclick(_e: Event) {
-              self._hdNodes = self._hdNodes.filter((_hdNode: any) => _hdNode === hdNode);
+              self._hdNodes = self._hdNodes.filter((_hdNode: any) => _hdNode !== hdNode);
             }
           },
           {
@@ -132,7 +119,8 @@ export function hdNodesManager() {
             $$: [
               {
                 $tag: "span",
-                class: "address-text"
+                class: "address-text",
+                $text: hdNode.address
               }
             ]
           },
@@ -219,8 +207,7 @@ export function hdNodesManager() {
                             value: "Add to Wallet"
                           }
                         ].concat(
-                          (<any>window)._.map(
-                            this._wallets,
+                          this._wallets.map(
                             (address: {
                               attributes: { label: string };
                               type: string;
@@ -300,10 +287,11 @@ export function hdNodesManager() {
       {
         $tag: "ul.list-group.hd-nodes.mt-3",
         $update() {
-          this.innerHTML = "";
-          this._hdNodes.forEach((n: any) =>
-            this.$build(this._hdNodeContainer(n))
-          );
+          let self = this;
+          self.innerHTML = "";
+          self._hdNodes.forEach(async (hdNode: any) => {
+            self.$build(self._hdNodeContainer(hdNode));
+          });
         }
       }
     ]
