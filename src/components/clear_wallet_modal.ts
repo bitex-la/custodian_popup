@@ -62,9 +62,11 @@ export function clearWalletModal() {
                         id: 'chooseWalletModal',
                         onchange(e: Event) { this._walletId = (<HTMLInputElement>e.target).value },
                         onclick(_e: Event) { 
+                          let self = this;
                           let wallet = (<any> window).wallets.find((wallet: Wallet) => wallet.id === this._walletId);
 
-                          let select = document.getElementById('chooseAddressModal');
+                          let domSelectObject = document.getElementById('chooseAddressModal');
+                          let select = <HTMLSelectElement> domSelectObject;
                           select.innerHTML = "";
                           wallet.addresses.forEach((address: JsonApiAddress) => {
                             let opt = document.createElement('option');
@@ -72,6 +74,10 @@ export function clearWalletModal() {
                             opt.innerHTML = address.data.public_address;
                             select.appendChild(opt);
                           });
+                          let selectedOption = select.options[select.selectedIndex];
+                          if (selectedOption !== undefined) {
+                            self._publicAddress = selectedOption.value;
+                          }
                         }
                       }
                     ]

@@ -41,8 +41,8 @@ export interface Output {
 }
 
 export interface TrezorTransaction {
-  outputs: Array<Output>;
-  inputs: Array<Input>;
+  trezor_outputs: Array<Output>;
+  trezor_inputs: Array<Input>;
 }
 
 interface TransactionResponse {
@@ -99,7 +99,7 @@ export class Transaction {
   SATOSHIS = 100000000;
   WEISTOSATOSHIS = 10000000000;
 
-  transaction: TrezorTransaction = { outputs: [], inputs: [] };
+  transaction: TrezorTransaction = { trezor_outputs: [], trezor_inputs: [] };
 
   async _addAddressFromTrezor(
     network: Network,
@@ -146,7 +146,7 @@ export class Transaction {
     let calculateFee = (response: { 2: string }, callback: Function) => {
       let satoshis = parseFloat(response[2]) * this.SATOSHIS;
       let fee =
-        (10 + 149 * this.transaction.inputs.length + 35 * outputLength) *
+        (10 + 149 * this.transaction.trezor_inputs.length + 35 * outputLength) *
         satoshis;
       callback(fee);
     };
@@ -170,11 +170,11 @@ export class Transaction {
     let transaction = TransactionService(config);
     let utxos = await transaction.getUtxos(walletDetail._walletType, walletDetail._walletId);
     let trezorTransaction: TrezorTransaction = {
-      inputs: [],
-      outputs: []
+      trezor_inputs: [],
+      trezor_outputs: []
     };
 
-    _.forEach(utxos, function(utxo: JsonApiUtxo) {
+    _.forEach(utxos.data, function(utxo: JsonApiUtxo) {
       if (utxo.attributes === undefined) {
         return;
       }
@@ -184,15 +184,15 @@ export class Transaction {
         prev_index: utxo.attributes.transaction.position.toString(),
         address_n: self.pathConstruction(_networkName)
       };
-      trezorTransaction.inputs.push(input)
+      trezorTransaction.trezor_inputs.push(input)
     });
-    _.forEach(outputs, (output: Output) => trezorTransaction.outputs.push(output));
+    _.forEach(outputs, (output: Output) => trezorTransaction.trezor_outputs.push(output));
 
     await self.calculateFee(
       _networkName,
       outputs.length,
       (fee: number) => {
-        self.transaction.outputs = _.map(outputs, (output: Output) => {
+        self.transaction.trezor_outputs = _.map(outputs, (output: Output) => {
           let outputResult = (<any>Object).assign({}, output);
           outputResult["amount"] = outputResult["amount"] - fee;
           return outputResult;
