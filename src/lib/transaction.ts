@@ -231,8 +231,8 @@ export class Transaction {
 
       let resultPk = await (<any>window).TrezorConnect.getPublicKey({ path: [] });
       if (resultPk.success) {
-        for (var _i = 0; _i < json.inputs.length; _i++) {
-          let input = json.inputs[_i];
+        for (var _i = 0; _i < json.trezor_inputs.length; _i++) {
+          let input = json.trezor_inputs[_i];
           if (input.multisig) {
             let publicKey = resultPk.payload.publicKey;
             let signatureIndex = input.multisig.pubkeys.findIndex(
@@ -252,7 +252,7 @@ export class Transaction {
         });
       }
 
-      let done = json.inputs.every((i: Input) => {
+      let done = json.trezor_inputs.every((i: Input) => {
         if (i.multisig) {
           let signatures = i.multisig.signatures.filter((signature) => signature);
           return signatures.length >= i.multisig.m;
