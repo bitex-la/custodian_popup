@@ -135,6 +135,7 @@ export function cardism (header: string) {
 export function tabbism (component: Cell) {
   let navs = component.$components.map((tab: {id: string}) => {
     let tabId = tab.id.toLowerCase();
+    let title = tabId.replace('_', ' ');
     return hamlism({
       $tag: 'li.nav-item',
       $init () {
@@ -147,7 +148,7 @@ export function tabbism (component: Cell) {
         'data-toggle': 'tab',
         href: `#tab_${tab.id}`,
         role: 'tab',
-        $text: tabId.charAt(0).toUpperCase() + tabId.substr(1)
+        $text: title.split(' ').map((word) => word.charAt(0).toUpperCase() + word.substr(1)).join(' ')
       }]
     })
   })
