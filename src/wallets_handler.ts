@@ -3,9 +3,11 @@ import { updateEpidemic } from "./lib/update_epidemic";
 import { clearWalletModal } from './components/clear_wallet_modal';
 
 export interface Address {
-  publicAddress: string;
-  path?: string;
-  balance: number;
+  attributes: {
+    public_address: string;
+    path?: string;
+    balance: number;
+  }
 }
 
 export class Wallet {

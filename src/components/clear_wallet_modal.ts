@@ -72,8 +72,8 @@ export function clearWalletModal() {
                           select.innerHTML = "";
                           wallet.addresses.forEach((address: Address) => {
                             let opt = document.createElement('option');
-                            opt.value = address.publicAddress;
-                            opt.innerHTML = address.publicAddress;
+                            opt.value = address.attributes.public_address;
+                            opt.innerHTML = address.attributes.public_address;
                             select.appendChild(opt);
                           });
                           let selectedOption = select.options[select.selectedIndex];

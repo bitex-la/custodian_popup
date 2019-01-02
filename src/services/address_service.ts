@@ -2,16 +2,18 @@ import { baseService } from './base_service';
 import { Config } from '../config';
 
 export interface JsonApiAddress {
-  data: {
-    public_address: string,
-    path: string,
-    balance: number
-  }
+  data: [{
+    attributes: {
+      public_address: string,
+      path: string,
+      balance: number
+    }
+  }]
 }
 
 export function AddressService (config: Config) {
   return {
-    list (url: string): Promise<JsonApiAddress[]> {
+    list (url: string): Promise<JsonApiAddress> {
       return new Promise(
         resolve => {
           return resolve(baseService(config)

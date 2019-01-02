@@ -9,7 +9,7 @@ import { hamlism } from './lib/hamlism';
 import { tabbism } from './lib/bootstrapism';
 import { updateEpidemic } from './lib/update_epidemic';
 import { WalletService } from './services/wallet_service';
-import { AddressService, JsonApiAddress } from './services/address_service';
+import { AddressService } from './services/address_service';
 import config from './config';
 
 (<any> window).TrezorConnect = require('trezor-connect').default;
@@ -30,14 +30,16 @@ let updateWallet = async () => {
             (<any> window).wallets.push(wallet);
             if (wallet.id !== 'incoming') {
               let addressResponse = await AddressService(config).list(`${url}/${wallet.attributes.label}/addresses`);
-              if (addressResponse.length > 0) {
-                addressResponse.forEach(
-                  (jsonapiAddress: JsonApiAddress) => {
+              if (addressResponse.data.length > 0) {
+                addressResponse.data.forEach(
+                  (address: Address) => {
                     wallet.addresses.push(
                       {
-                        publicAddress: jsonapiAddress.data.public_address, 
-                        path: jsonapiAddress.data.path, 
-                        balance: jsonapiAddress.data.balance
+                        attributes: {
+                          public_address: address.attributes.public_address, 
+                          path: address.attributes.path, 
+                          balance: address.attributes.balance
+                        }
                       }
                     );
                   });
