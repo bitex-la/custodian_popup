@@ -29,10 +29,7 @@ export function multisigManager() {
         name: "path",
         type: "text",
         onkeyup(e: Event) {
-          this._path = (<any>window)._.trim(
-            (<HTMLInputElement>e.target).value,
-            "/"
-          );
+          this._path = (<HTMLInputElement>e.target).value.replace('/', '');
         }
       },
       {
@@ -106,8 +103,7 @@ function generateMultisig(
     return { error: "You can't possibly have more signers than nodes." };
   }
 
-  let pubkeys: string[] = [];
-  pubkeys = (<any>window)._.map(xpubs, (xpub: string) => {
+  let pubkeys = xpubs.map((xpub: string) => {
     let node = bip32.fromBase58(xpub, network);
     return Buffer.from(node.publicKey, 'hex');
   });
@@ -115,25 +111,23 @@ function generateMultisig(
     redeem: (<any>window).bitcoin.payments.p2ms({ m: signers, network, pubkeys }), network
   });
 
-  let pathArray = (<any>window)._.compact(
-    (<any>window)._.split(multisigPath, "/")
-  );
+  let pathArray = multisigPath.split('/').filter((multisigPart) => multisigPart).map((part) => parseInt(part));
   return {
     address: p2sh.address,
     as_input: nodesAsInput(hdNodes, pathArray, required)
   };
 }
 
-function nodesAsInput(hdNodes: any[], path: string, required: number) {
+function nodesAsInput(hdNodes: any[], path: number[], required: number) {
   return {
     address_n: path,
     prev_hash: "[previous transaction hash]",
     prev_index: "[UTXO position in previous transaction]",
     script_type: "SPENDMULTISIG",
     multisig: {
-      signatures: (<any>window)._.fill(Array(hdNodes.length), ""),
+      signatures: Array(hdNodes.length).fill(''),
       m: required,
-      pubkeys: (<any>window)._.map(hdNodes, (n: any) => ({
+      pubkeys: hdNodes.map((n: any) => ({
         address_n: path,
         node: {
           chain_code: n.chainCode.toString("hex"),

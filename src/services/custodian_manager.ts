@@ -4,6 +4,7 @@ import { Config } from "../config";
 
 interface Node {
   getAddress: () => string;
+  address: string;
   neutered: () => {
     toBase58: () => string;
   };
@@ -30,10 +31,10 @@ export function CustodianManager(config: Config) {
       WalletService(config)
         .create(`/${type}`, wallet)
         .then((walletResponse: { data: { id: string } }) => {
-          (<any>window)._.forEach(hdNodes, (node: Node) => {
+          hdNodes.forEach((node: Node) => {
             let address = buildAddress(
               walletResponse.data.id,
-              node.getAddress()
+              node.address
             );
             WalletService(config)
               .create(`/${addressType}`, address)
@@ -46,7 +47,7 @@ export function CustodianManager(config: Config) {
     },
 
     _sendMultisigToCustodian(wallet: Wallet) {
-      let xpubs = (<any>window)._.map(wallet._hdNodes, (node: Node) =>
+      let xpubs = wallet._hdNodes.map((node: Node) =>
         node.neutered().toBase58()
       );
 

@@ -180,21 +180,18 @@ export function hdNodesManager() {
                     $tag: ".col-lg",
                     $$: [
                       {
-                        id: "add-to-wallet",
                         $placeholder: "Add to wallet",
                         $type: "select",
                         class: "form-control",
                         name: "wallet_select",
                         onchange(e: Event) {
                           let type = (<HTMLInputElement>e.target).value;
-                          let walletName = (<HTMLSelectElement>(
-                            document.getElementById("add-to-wallet")
-                          )).selectedOptions[0].text;
+                          let walletName = (<HTMLSelectElement>this).selectedOptions[0].text;
                           let walletService = WalletService(config);
                           walletService.create(
                             `/${this._chooseAddressTypeByWallet(type)}`,
                             this._createAddressByWallet(
-                              hdNode.getAddress(),
+                              hdNode.address,
                               type,
                               walletName
                             )
