@@ -73,8 +73,9 @@ export function signingHandler () {
           }
         },
         async onclick () {
-          let transaction = new Transaction()
-          let transactionJson = typeof (this._transactionJson) === 'string' ? JSON.parse(this._transactionJson) : this._transactionJson
+          let transaction = new Transaction();
+          let transactionJson = typeof (this._transactionJson) === 'string' ? JSON.parse(this._transactionJson) : this._transactionJson;
+          transactionJson = transactionJson['transaction'] || transactionJson;
           try {
             let result = await transaction.signTransaction(transactionJson, this._networkName);
             this._handleSigningResult(result);
